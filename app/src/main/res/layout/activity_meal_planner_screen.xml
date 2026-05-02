@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Layout for the Meal Planner screen, displaying the weekly schedule. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/appBackground"
+    android:fitsSystemWindows="true">
+
+    <!-- Included header for the screen title and actions -->
+    <include
+        layout="@layout/primaryheader"
+        android:layout_width="match_parent"
+        android:layout_height="56dp" />
+
+    <!-- List of days and planned meals -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/mealPlannerRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp"
+        android:clipToPadding="false"/>
+
+</LinearLayout>

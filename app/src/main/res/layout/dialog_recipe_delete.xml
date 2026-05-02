@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Custom confirmation dialog shown when a user attempts to delete a recipe. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:background="@color/background"
+    android:orientation="vertical"
+    android:paddingBottom="16dp">
+
+    <!-- Header section of the dialog -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary"
+        android:padding="12dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete Recipe"
+            android:textColor="@color/buttontext"
+            android:textSize="18sp"
+            android:background="@color/primary"
+            android:backgroundTint="@color/primary"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/ivCloseDialog"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:background="@color/primary"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:contentDescription="Close" />
+    </RelativeLayout>
+
+    <!-- Warning message body -->
+    <TextView
+        android:id="@+id/tvDeleteMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textColor="@color/textcolor"
+        android:paddingHorizontal="12dp"
+        android:text="Are you sure you want to delete this recipe?"
+        android:textSize="16sp" />
+
+    <!-- Confirmation button to proceed with deletion -->
+    <Button
+        android:id="@+id/btnDeleteConfirm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="@color/red"
+        android:layout_marginHorizontal="20dp"
+        android:text="Delete"
+        android:textColor="@color/buttontext" />
+
+</LinearLayout>

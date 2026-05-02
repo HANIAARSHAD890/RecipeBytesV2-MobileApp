@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Layout for a single day in the meal planner, displaying the day name and planned meals. -->
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Header row containing the day name and the add meal button -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Day name (e.g., Monday) -->
+            <TextView
+                android:id="@+id/tvDayName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Monday"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/textcolor" />
+
+            <!-- Button to open the meal selection dialog for this day -->
+            <Button
+                android:id="@+id/btnAddMeal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+ Add"
+                android:textColor="@color/buttontext"
+                android:backgroundTint="@color/secondary"
+                android:textSize="13sp"
+                android:paddingHorizontal="12dp" />
+        </LinearLayout>
+
+        <!-- Container for meal chips representing planned recipes -->
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupMeals"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" />
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

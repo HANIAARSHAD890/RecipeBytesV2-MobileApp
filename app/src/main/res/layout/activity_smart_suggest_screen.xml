@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/appBackground"
+    android:fitsSystemWindows="true">
+
+    <include
+        layout="@layout/primaryheader"
+        android:layout_width="match_parent"
+        android:layout_height="56dp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Enter your ingredients"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/secondary"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Ingredient input with autocomplete -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilIngredient"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                app:endIconMode="dropdown_menu"
+                app:boxBackgroundColor="@color/appBackground">
+
+                <AutoCompleteTextView
+                    android:id="@+id/autoCompleteIngredient"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Type an ingredient..."
+                    android:paddingStart="12dp"
+                    android:inputType="text"
+                    android:textColor="@color/textcolor"
+                    android:background="@null"
+                    android:dropDownHeight="300dp"
+                    android:popupBackground="@color/appBackground"
+                    android:minHeight="48dp"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Selected ingredient badges -->
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupIngredients"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"/>
+
+            <Button
+                android:id="@+id/btnSuggest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Suggest Recipes"
+                android:textColor="@color/buttontext"
+                android:backgroundTint="@color/secondary"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Results label -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Suggested Recipes"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/secondary"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Results list -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/suggestResultsRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

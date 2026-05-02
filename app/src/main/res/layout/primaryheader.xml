@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Reusable header layout used across multiple activities and fragments. -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/headerLayout"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:background="@color/primary"
+    android:paddingBottom="5dp">
+
+    <!-- Title displayed in the header -->
+    <TextView
+        android:id="@+id/headerTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="12dp"
+        android:paddingLeft="12dp"
+        android:text="Recipe Bytes"
+        android:textColor="@color/buttontext"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <!-- Action icon (e.g., Edit, Save) positioned at the end of the header -->
+    <ImageView
+        android:id="@+id/primaryIcon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="13dp"
+        android:layout_centerVertical="true"
+        android:contentDescription="Header Icon"
+        android:visibility="invisible"
+        app:tint="@color/buttontext" />
+
+</RelativeLayout>

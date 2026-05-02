@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Layout for the Home screen, providing a dashboard with quick access to main features. -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/appBackground">
+
+    <!-- Header section with theme toggle and app title -->
+    <FrameLayout
+        android:id="@+id/top_view"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:background="@drawable/bg_view">
+
+        <ImageView
+            android:id="@+id/btnTheme"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/dayandnight"
+            android:layout_gravity="end|top"
+            android:layout_margin="16dp"
+            app:tint="@color/background"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Recipe Bytes"
+            android:textColor="@color/buttontext"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+    </FrameLayout>
+
+    <!-- App tagline -->
+    <TextView
+        android:id="@+id/tvTagline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/top_view"
+        android:layout_marginTop="24dp"
+        android:gravity="center"
+        android:paddingVertical="12dp"
+        android:text="✨ Your personal kitchen companion"
+        android:textColor="@color/primary"
+        android:textSize="23sp" />
+
+    <!-- Scrollable content containing feature cards -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/tvTagline">
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:columnCount="2"
+            android:alignmentMode="alignMargins">
+
+            <!-- Card for exploring recipes -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_recepies"
+                android:layout_width="0dp"
+                android:layout_height="160dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                    <ImageView
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:src="@drawable/recepie_icon" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Explore recipes"
+                        android:textStyle="bold"
+                        android:textColor="@color/textcolor" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Card for the meal planner -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_mealplanner"
+                android:layout_width="0dp"
+                android:layout_height="160dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                    <ImageView
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:src="@drawable/mealplanner_icon" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Plan your week"
+                        android:textStyle="bold"
+                        android:textColor="@color/textcolor" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Card for smart recipe suggestions -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_smartsuggest"
+                android:layout_width="0dp"
+                android:layout_height="160dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                    <ImageView
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:src="@drawable/smartsuggest_icon" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Suggest recipe"
+                        android:textStyle="bold"
+                        android:textColor="@color/textcolor" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Card for adding a new recipe -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_add_recipe"
+                android:layout_width="0dp"
+                android:layout_height="160dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                    <ImageView
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:src="@drawable/ic_add"
+                        app:tint="@color/primary"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Add your recipe"
+                        android:textStyle="bold"
+                        android:textColor="@color/textcolor" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </GridLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</RelativeLayout>

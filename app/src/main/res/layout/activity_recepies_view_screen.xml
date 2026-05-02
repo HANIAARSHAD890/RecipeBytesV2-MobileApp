@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Layout for the recipe exploration screen, featuring search, filter, and sort options. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <!-- Screen header -->
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        layout="@layout/primaryheader" />
+
+    <!-- Search bar section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="12dp"
+        android:paddingTop="8dp">
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Search recipes by title or description"
+            app:startIconDrawable="@android:drawable/ic_menu_search">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etSearch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
+
+    <!-- Toolbar for filtering, layout toggling, sorting, and adding recipes -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <!-- Category filter dropdown -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilCategory"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:boxBackgroundColor="@color/appBackground">
+
+            <AutoCompleteTextView
+                android:id="@+id/autoCompleteCategory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Filter by Category"
+                android:inputType="none"
+                android:padding="12dp"
+                android:popupBackground="@color/appBackground"
+                android:textColor="@color/textcolor"
+                android:textSize="14sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Toggle between list and grid views -->
+        <ImageView
+            android:id="@+id/ivLayoutToggle"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:background="@color/primary"
+            android:padding="8dp"
+            android:src="@android:drawable/ic_dialog_dialer"
+            app:tint="@color/buttontext" />
+
+        <!-- Toggle sorting order -->
+        <ImageView
+            android:id="@+id/ivSort"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:background="@color/primary"
+            android:padding="8dp"
+            android:src="@android:drawable/ic_menu_sort_alphabetically"
+            app:tint="@color/buttontext" />
+
+        <!-- Add recipe button -->
+        <ImageView
+            android:id="@+id/btnAdd"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:src="@android:drawable/ic_input_add"
+            app:tint="@color/primary" />
+    </LinearLayout>
+
+    <!-- Main list or grid for recipes -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recipeRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp" />
+
+    <!-- Message shown when no recipes match the filters -->
+    <TextView
+        android:id="@+id/tvNoRecipes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No recipes to show"
+        android:layout_gravity="center"
+        android:paddingTop="20dp"
+        android:visibility="gone"
+        android:textSize="18sp"
+        android:textColor="@color/textcolor" />
+
+</LinearLayout>

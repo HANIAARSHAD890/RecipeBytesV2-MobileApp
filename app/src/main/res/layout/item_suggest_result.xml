@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Layout for a single suggestion result in the smart suggest screen. -->
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="6dp"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="3dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="14dp"
+        android:gravity="center_vertical">
+
+        <!-- Recipe details section -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <!-- Suggested recipe title -->
+            <TextView
+                android:id="@+id/tvSuggestTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Recipe Title"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/textcolor"/>
+
+            <!-- Ingredient match count (e.g., 3 / 5) -->
+            <TextView
+                android:id="@+id/tvMatchCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Matching ingredients: 3 / 5"
+                android:textSize="13sp"
+                android:textColor="@color/blackapp"
+                android:layout_marginTop="2dp"/>
+
+        </LinearLayout>
+
+        <!-- Match quality badge (e.g., Best Match, Better Match) -->
+        <TextView
+            android:id="@+id/tvMatchLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Best Match"
+            android:textSize="12sp"
+            android:textColor="@color/buttontext"
+            android:backgroundTint="@color/primary"
+            android:background="@drawable/dot_active"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp"/>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

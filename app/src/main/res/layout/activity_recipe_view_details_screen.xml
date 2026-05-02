@@ -1,0 +1,153 @@
+<LinearLayout android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+        <!-- HEADER (fixed) -->
+    <include
+        layout="@layout/primaryheader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+        <!-- SCROLLABLE CONTENT -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:background="@color/appBackground">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+        <!-- Recipe Image -->
+        <ImageView
+            android:background="@color/bgcolor"
+            android:padding="10dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/camera_upload_icon"
+            android:id="@+id/recipeImage"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:contentDescription="Recipe Image"
+            />
+                <!-- Replace the Title TextView in activity_recipe_view_details_screen.xml -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilRecipeTitle"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    app:errorEnabled="true">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etRecipeTitle"
+                        android:layout_width="match_parent"
+                        android:hint="Title"
+                        android:layout_height="wrap_content"
+                        android:enabled="false"
+                        android:textColor="@color/secondary"
+                        android:textStyle="bold"
+                        android:textSize="22sp"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Add Category field (below title) -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilRecipeCategory"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    app:errorEnabled="true"
+                    app:endIconMode="dropdown_menu"
+                    app:boxBackgroundColor="@color/appBackground"
+                    app:boxStrokeWidth="1dp"
+                    app:boxStrokeWidthFocused="2dp">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/etRecipeCategory"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:enabled="false"
+                        android:hint="Select Category"
+                        android:inputType="none"
+                        android:padding="16dp"
+                        android:popupBackground="@color/appBackground"
+                        android:textColor="@color/textcolor" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Replace Description TextView -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilRecipeDesc"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    app:errorEnabled="true">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etRecipeDesc"
+                        android:hint="Description"
+                        android:layout_width="match_parent"
+                        android:textColor="@color/textcolor"
+                        android:layout_height="wrap_content"
+                        android:enabled="false"
+                        android:inputType="textMultiLine" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Ingredients Title -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ingredients"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:padding="16dp"
+            android:textColor="@color/secondary" />
+
+        <!-- Ingredients RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/ingredientsRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="16dp"
+            />
+
+        <!-- Steps Title -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Steps"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:padding="16dp"
+            android:textColor="@color/secondary" />
+
+        <!-- Steps RecyclerVew -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/stepsRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="16dp" />
+                <Button
+                    android:id="@+id/btnUpdateRecipe"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:text="Update Recipe"
+                    android:visibility="gone"
+                    app:backgroundTint="@color/secondary"
+                    android:textColor="@color/buttontext" />
+
+    </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    </LinearLayout>

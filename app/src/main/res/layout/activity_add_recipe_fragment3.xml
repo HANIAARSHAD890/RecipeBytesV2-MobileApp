@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Third step in adding a recipe: focused on adding preparation steps. -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@color/appBackground">
+
+    <!-- Progress indicator dots -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+        android:layout_marginBottom="12dp">
+
+        <View
+            android:id="@+id/dot1"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_margin="4dp"
+            android:background="@drawable/dot_active"/>
+
+        <View
+            android:id="@+id/dot2"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_margin="4dp"
+            android:background="@drawable/dot_active"/>
+
+        <View
+            android:id="@+id/dot3"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_margin="4dp"
+            android:background="@drawable/dot_active"/>
+
+        <View
+            android:id="@+id/dot4"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_margin="4dp"
+            android:background="@drawable/dot_inactive"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Steps"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- RecyclerView for dynamic step entries -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/stepsRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:clipToPadding="false"
+            android:paddingBottom="10dp"/>
+
+        <!-- Button to add a new step row -->
+        <Button
+            android:id="@+id/btnAddStep"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add Step"
+            android:layout_marginBottom="10dp"
+            android:backgroundTint="@color/secondary"
+            android:textColor="@color/buttontext"/>
+
+        <!-- Button to proceed to the final step -->
+        <Button
+            android:id="@+id/btnNext3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Next"
+            android:backgroundTint="@color/secondary"
+            android:textColor="@color/buttontext"/>
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Layout for the meal selection popup, used for adding meals to a specific day in the planner. -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="24dp"
+    android:background="@color/appBackground">
+
+    <!-- Title of the dialog showing the selected day -->
+    <TextView
+        android:id="@+id/tvDialogDay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add meals"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/secondary"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Searchable dropdown for selecting a meal from available recipes -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilMealDropdown"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        app:endIconMode="dropdown_menu"
+        app:boxBackgroundColor="@color/appBackground">
+
+        <AutoCompleteTextView
+            android:id="@+id/autoCompleteMeal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:hint="Select or search meal"
+            android:inputType="text"
+            android:minHeight="48dp"
+            android:paddingStart="12dp"
+            android:popupBackground="@color/appBackground"
+            android:dropDownVerticalOffset="0dp"
+            android:dropDownHeight="200dp"
+            android:dropDownAnchor="@id/tilMealDropdown"
+            android:textColor="@color/textcolor" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Error message shown when no matching meal is found -->
+    <TextView
+        android:id="@+id/tvNoResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No meal found"
+        android:textColor="@color/design_default_color_error"
+        android:textSize="13sp"
+        android:layout_marginTop="-8dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"/>
+
+    <!-- Header for the selected meals list -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Selected meals:"
+        android:textColor="@color/textcolor"
+        android:textSize="14sp"
+        android:layout_marginBottom="6dp"/>
+
+    <!-- ChipGroup displaying currently selected meals -->
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipGroupSelectedMeals"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"/>
+
+    <!-- Button to confirm and save the selected meals -->
+    <Button
+        android:id="@+id/btnSaveMeals"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save Meals"
+        android:textColor="@color/buttontext"
+        android:backgroundTint="@color/secondary"/>
+
+</LinearLayout>

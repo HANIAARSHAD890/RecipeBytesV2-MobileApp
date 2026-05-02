@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="appBackground">#FFFFFFFF</color>
+    <color name="buttontext">#FFFFFFFF</color>
+    <color name="textcolor">#FF000000</color>
+    <color name="background">#FFFFFFFF</color>
+    <color name="primary">#853953</color>
+    <color name="secondary">#612D53</color>
+    <color name="blackapp">#2C2C2C</color>
+    <color name="nav_selected">#FFFFFF</color>  <!-- white -->
+    <color name="nav_unselected">#DDFFFFFF</color>
+    <color name="whiteapp">#F3F4F4</color>
+    <color name="red">#F81500</color>
+    <color name="bgcolor">#F7F7F7</color>
+    <color name="icon_disabled">#80FFFFFF</color>
+</resources>
+
+
