@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "367021947047",
+    "project_id": "sharekro-cc187",
+    "storage_bucket": "sharekro-cc187.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:367021947047:android:bf7be2ef8f9da8951b0382",
+        "android_client_info": {
+          "package_name": "com.example.recipebytes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZfrEK2QYtti95uIoA9nJ5AXUd8lY3enI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:367021947047:android:626141a11e26aa7a1b0382",
+        "android_client_info": {
+          "package_name": "com.example.sharekro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZfrEK2QYtti95uIoA9nJ5AXUd8lY3enI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

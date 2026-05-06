@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.google.gms.google.services)
+
 }
 
 android {
@@ -44,6 +46,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.firebase.database)
     testImplementation(libs.junit)
     //for image caching
     implementation("com.github.bumptech.glide:glide:4.16.0")
