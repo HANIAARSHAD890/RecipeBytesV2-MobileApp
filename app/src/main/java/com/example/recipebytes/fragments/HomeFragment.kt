@@ -37,13 +37,13 @@ class HomeFragment : Fragment() {
      */
     private fun setupCardClickListeners(view: View) {
         view.findViewById<CardView>(R.id.card_recepies).setOnClickListener {
-            navigateTo(ExploreFragment(), R.id.nav_explore)
+            //navigateTo(ExploreFragment(), R.id.nav_explore)
         }
         view.findViewById<CardView>(R.id.card_mealplanner).setOnClickListener {
-            navigateTo(PlannerFragment(), R.id.nav_planner)
+            //navigateTo(PlannerFragment(), R.id.nav_planner)
         }
         view.findViewById<CardView>(R.id.card_smartsuggest).setOnClickListener {
-            navigateTo(SuggestFragment(), R.id.nav_suggest)
+            //navigateTo(SuggestFragment(), R.id.nav_suggest)
         }
         view.findViewById<CardView>(R.id.card_add_recipe).setOnClickListener {
             startActivity(Intent(requireContext(), AddRecipeActivity::class.java))
@@ -61,34 +61,34 @@ class HomeFragment : Fragment() {
             } else {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             }
-            updateSystemBarAppearance()
+           // updateSystemBarAppearance()
         }
     }
 
     /**
      * Updates the system bar appearance for light/dark mode compatibility.
      */
-    private fun updateSystemBarAppearance() {
-        requireActivity().window.insetsController?.let {
-            it.setSystemBarsAppearance(
-                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or
-                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
-                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or
-                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
-            )
-        }
-    }
+//    private fun updateSystemBarAppearance() {
+//        requireActivity().window.insetsController?.let {
+//            it.setSystemBarsAppearance(
+//                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or
+//                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
+//                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or
+//                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+//            )
+//        }
+//    }
 
     /**
      * Helper to handle fragment transactions and bottom navigation state synchronization.
      */
-    private fun navigateTo(fragment: Fragment, navItemId: Int) {
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
-
-        val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav_view)
-        bottomNav.selectedItemId = navItemId
-    }
+//    private fun navigateTo(fragment: Fragment, navItemId: Int) {
+//        parentFragmentManager.beginTransaction()
+//            .replace(R.id.fragment_container, fragment)
+//            .addToBackStack(null)
+//            .commit()
+//
+//        val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav_view)
+//        bottomNav.selectedItemId = navItemId
+//    }
 }

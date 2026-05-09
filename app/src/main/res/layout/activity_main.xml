@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Main container for the application, hosting the bottom navigation and fragment views. -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -9,26 +8,25 @@
     android:background="@color/appBackground"
     tools:context=".activities.MainActivity">
 
-    <!-- Container where different fragments (Home, Explore, etc.) are swapped -->
+    <!-- ================= FRAGMENT CONTAINER ================= -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/bottom_nav_view" />
 
-    <!-- Bottom navigation bar for app-level navigation -->
+    <!-- ================= BOTTOM NAV ================= -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_nav_view"
         style="@style/Widget.MaterialComponents.BottomNavigationView.Colored"
         android:layout_width="match_parent"
-        android:layout_alignParentBottom="true"
-        app:menu="@menu/bottom_nav_menu"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:background="@color/primary"
-        app:itemIconTint="@color/nav_icon"
         android:paddingTop="0dp"
         android:paddingBottom="0dp"
-        android:layout_marginTop="20dp"
+        app:menu="@menu/bottom_nav_menu"
+        app:itemIconTint="@color/nav_icon"
         app:itemTextColor="@color/nav_icon"
         app:itemRippleColor="@color/primary" />
 
