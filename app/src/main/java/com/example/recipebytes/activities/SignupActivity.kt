@@ -74,7 +74,8 @@ class SignUpActivity : AppCompatActivity() {
         authService.signUp(email, password,
             onSuccess = { userId ->
                 showProgress(false)
-                Toast.makeText(this, "Account created successfully!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Account created successfully! Please sign in.", Toast.LENGTH_SHORT).show()
+                authService.signOut()
                 navigateToSignIn()
             },
             onError = { error ->
