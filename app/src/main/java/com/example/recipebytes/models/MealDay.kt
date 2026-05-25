@@ -10,5 +10,11 @@ import java.io.Serializable
  */
 data class MealDay(
     val day: String,
-    val meals: MutableList<String> = mutableListOf()
+    val date: String = "",   // stores "YYYY-MM-DD" for persistence
+    val meals: MutableList<String> = mutableListOf(),
+    // Category-based meals
+    val breakfast: MutableList<String> = mutableListOf(),
+    val lunch: MutableList<String> = mutableListOf(),
+    val dinner: MutableList<String> = mutableListOf(),
+    val dessert: MutableList<String> = mutableListOf()
 ) : Serializable

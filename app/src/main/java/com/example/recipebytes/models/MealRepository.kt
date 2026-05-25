@@ -1,85 +1,65 @@
 package com.example.recipebytes.models
 
 import android.content.Context
-import com.google.gson.reflect.TypeToken
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.util.Calendar
 
-/**
- * Repository for managing the weekly meal plan.
- * Handles persistence using SharedPreferences and JSON serialization.
- */
 object MealRepository {
 
     private const val PREFS_NAME = "meal_prefs"
-    private const val KEY_MEALS = "meal_plan_list"
-    
-    /**
-     * The in-memory list representing the weekly meal plan.
-     * Initialized with empty meals for each day of the week.
-     */
-    private val mealPlan = mutableListOf(
-        MealDay("Monday"),
-        MealDay("Tuesday"),
-        MealDay("Wednesday"),
-        MealDay("Thursday"),
-        MealDay("Friday"),
-        MealDay("Saturday"),
-        MealDay("Sunday")
-    )
+    private const val KEY_PREFIX = "meal_plan_"
 
-    /**
-     * Initializes the repository by loading saved meal data from disk.
-     */
-    fun init(context: Context) {
+    private val cache = mutableMapOf<String, MutableList<MealDay>>()
+
+    fun getMealPlanForMonth(context: Context, monthKey: String): MutableList<MealDay> {
+        return cache.getOrPut(monthKey) { loadFromDisk(context, monthKey) }
+    }
+
+    fun saveMealPlan(context: Context, monthKey: String) {
+        saveToDisk(context, monthKey, cache[monthKey] ?: return)
+    }
+
+    fun removeMealFromDay(context: Context, monthKey: String, dateKey: String, meal: String) {
+        cache[monthKey]?.find { it.date == dateKey }?.meals?.remove(meal)
+        saveToDisk(context, monthKey, cache[monthKey] ?: return)
+    }
+
+    private fun loadFromDisk(context: Context, monthKey: String): MutableList<MealDay> {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val json = prefs.getString(KEY_MEALS, null)
-        if (json != null) {
+        val json = prefs.getString(KEY_PREFIX + monthKey, null)
+
+        val saved: MutableList<MealDay>? = if (json != null) {
             val type = object : TypeToken<MutableList<MealDay>>() {}.type
-            val saved = Gson().fromJson<MutableList<MealDay>>(json, type)
-            
-            // Merge saved meals into the default days to preserve the day order
-            mealPlan.forEach { day ->
-                val savedDay = saved.find { it.day == day.day }
-                if (savedDay != null) {
-                    day.meals.clear()
-                    day.meals.addAll(savedDay.meals)
-                }
-            }
+            Gson().fromJson(json, type)
+        } else null
+
+        val days = buildDaysForMonth(monthKey)
+        saved?.forEach { savedDay ->
+            days.find { it.date == savedDay.date }?.meals?.addAll(savedDay.meals)
         }
+        return days
     }
 
-    /**
-     * Persists the current meal plan to SharedPreferences.
-     * 
-     * @param context Application context.
-     */
-    private fun saveToDisk(context: Context) {
+    private fun saveToDisk(context: Context, monthKey: String, list: MutableList<MealDay>) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val json = Gson().toJson(mealPlan)
-        prefs.edit().putString(KEY_MEALS, json).apply()
+        prefs.edit().putString(KEY_PREFIX + monthKey, Gson().toJson(list)).apply()
     }
 
-    /**
-     * Public method to save the meal plan.
-     */
-    fun saveMealPlan(context: Context) {
-        saveToDisk(context)
-    }
+    private fun buildDaysForMonth(monthKey: String): MutableList<MealDay> {
+        val (year, month) = monthKey.split("-").map { it.toInt() }
+        val cal = Calendar.getInstance().apply { set(year, month - 1, 1) }
+        val daysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH)
 
-    /**
-     * Removes a specific meal entry from a given day.
-     */
-    fun removeMealFromDay(context: Context, dayName: String, meal: String) {
-        mealPlan.find { it.day == dayName }?.meals?.remove(meal)
-        saveToDisk(context)
-    }
+        val dayNames   = arrayOf("Sun","Mon","Tue","Wed","Thu","Fri","Sat")
+        val monthNames = arrayOf("Jan","Feb","Mar","Apr","May","Jun",
+            "Jul","Aug","Sep","Oct","Nov","Dec")
 
-    /**
-     * Returns the current weekly meal plan.
-     */
-    fun getMealPlan(): List<MealDay> = mealPlan
-    fun getMealsForDay(dayName: String): List<String> {
-        return mealPlan.find { it.day == dayName }?.meals ?: emptyList()
+        return (1..daysInMonth).map { d ->
+            cal.set(year, month - 1, d)
+            val label   = "${dayNames[cal.get(Calendar.DAY_OF_WEEK) - 1]}, ${monthNames[month-1]} $d"
+            val dateKey = "$year-%02d-%02d".format(month, d)
+            MealDay(day = label, date = dateKey)
+        }.toMutableList()
     }
-
 }

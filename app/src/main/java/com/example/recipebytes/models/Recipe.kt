@@ -15,7 +15,9 @@ data class Recipe(
     var category: String,
     val imageUri: String? = null,
     val ingredients: List<Ingredient>,
-    val steps: List<Step>
+    val steps: List<Step>,
+    var cookingTime: String = "",
+    var isFavorite: Boolean = false
 ) : Serializable
 
 /**
@@ -280,4 +282,18 @@ object RecipeRepository {
             false
         }
     }
+    fun toggleFavorite(context: Context, title: String): Boolean {
+        val recipe = recipes.find { it.title.equals(title, ignoreCase = true) }
+        recipe?.let {
+            it.isFavorite = !it.isFavorite
+            saveToDisk(context)
+            return it.isFavorite
+        }
+        return false
+    }
+
+    fun getFavorites(): List<Recipe> {
+        return recipes.filter { it.isFavorite }
+    }
+
 }

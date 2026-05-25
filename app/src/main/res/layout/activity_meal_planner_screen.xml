@@ -1,23 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Layout for the Meal Planner screen, displaying the weekly schedule. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/appBackground"
     android:fitsSystemWindows="true">
 
-    <!-- Included header for the screen title and actions -->
     <include
         layout="@layout/primaryheader"
         android:layout_width="match_parent"
         android:layout_height="56dp" />
 
-    <!-- List of days and planned meals -->
+    <!-- Calendar Card -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="6dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Month navigation -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <ImageButton
+                    android:id="@+id/btnPrevMonth"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:src="@android:drawable/ic_media_previous"
+                    android:backgroundTint="@color/secondary"
+                    android:tint="@color/buttontext"
+                    android:padding="8dp" />
+
+                <TextView
+                    android:id="@+id/tvMonthYear"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/textcolor"
+                    android:text="May 2026" />
+
+                <ImageButton
+                    android:id="@+id/btnNextMonth"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:src="@android:drawable/ic_media_next"
+                    android:backgroundTint="@color/secondary"
+                    android:tint="@color/buttontext"
+                    android:padding="8dp" />
+
+            </LinearLayout>
+
+            <!-- Day name headers -->
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="7"
+                android:layout_marginBottom="4dp">
+
+                <TextView android:layout_width="0dp" android:layout_height="32dp"
+                    android:layout_columnWeight="1" android:gravity="center"
+                    android:text="Sun" android:textSize="11sp" android:textStyle="bold"
+                    android:textColor="@color/red"/>
+                <TextView android:layout_width="0dp" android:layout_height="32dp"
+                    android:layout_columnWeight="1" android:gravity="center"
+                    android:text="Mon" android:textSize="11sp" android:textStyle="bold"
+                    android:textColor="@color/textcolor"/>
+                <TextView android:layout_width="0dp" android:layout_height="32dp"
+                    android:layout_columnWeight="1" android:gravity="center"
+                    android:text="Tue" android:textSize="11sp" android:textStyle="bold"
+                    android:textColor="@color/textcolor"/>
+                <TextView android:layout_width="0dp" android:layout_height="32dp"
+                    android:layout_columnWeight="1" android:gravity="center"
+                    android:text="Wed" android:textSize="11sp" android:textStyle="bold"
+                    android:textColor="@color/textcolor"/>
+                <TextView android:layout_width="0dp" android:layout_height="32dp"
+                    android:layout_columnWeight="1" android:gravity="center"
+                    android:text="Thu" android:textSize="11sp" android:textStyle="bold"
+                    android:textColor="@color/textcolor"/>
+                <TextView android:layout_width="0dp" android:layout_height="32dp"
+                    android:layout_columnWeight="1" android:gravity="center"
+                    android:text="Fri" android:textSize="11sp" android:textStyle="bold"
+                    android:textColor="@color/textcolor"/>
+                <TextView android:layout_width="0dp" android:layout_height="32dp"
+                    android:layout_columnWeight="1" android:gravity="center"
+                    android:text="Sat" android:textSize="11sp" android:textStyle="bold"
+                    android:textColor="@color/red"/>
+
+            </GridLayout>
+
+            <!-- Calendar day grid -->
+            <GridLayout
+                android:id="@+id/calendarGrid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="7" />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Selected day label -->
+    <TextView
+        android:id="@+id/tvSelectedDay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="6dp"
+        android:text="📅  All meals this month"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:textColor="@color/secondary"/>
+
+    <!-- Meals RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/mealPlannerRecycler"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:padding="8dp"
         android:clipToPadding="false"/>
 

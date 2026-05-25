@@ -13,13 +13,9 @@ import com.example.recipebytes.models.MealRepository
 import java.util.Calendar
 
 class MealReminderReceiver : BroadcastReceiver() {
-    //custom notification for the MealReminder on a specific Days
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == "com.example.recipebytes.MEAL_REMINDER") {
-
-            // Load meals from SharedPreferences
-            MealRepository.init(context)
 
             // Get today's day name
             val calendar = Calendar.getInstance()
@@ -34,8 +30,22 @@ class MealReminderReceiver : BroadcastReceiver() {
                 else -> ""
             }
 
-            // Get meals for today
-            val meals = MealRepository.getMealsForDay(dayName)
+            // Build month key e.g. "2026-05"
+            val monthKey = "%d-%02d".format(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH) + 1
+            )
+
+            // Build today's date key e.g. "2026-05-21"
+            val todayDate = "%d-%02d-%02d".format(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH) + 1,
+                calendar.get(Calendar.DAY_OF_MONTH)
+            )
+
+            // Get meals for today from the monthly plan
+            val monthPlan = MealRepository.getMealPlanForMonth(context, monthKey)
+            val meals = monthPlan.find { it.date == todayDate }?.meals ?: emptyList()
 
             // Show notification only if meals exist
             if (meals.isNotEmpty()) {
@@ -92,8 +102,9 @@ class MealReminderReceiver : BroadcastReceiver() {
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle("$dayName Meal Plan 📅")
             .setContentText("Your meals: $mealsText")
-            .setStyle(NotificationCompat.BigTextStyle()
-                .bigText("Your meals: $mealsText"))
+            .setStyle(
+                NotificationCompat.BigTextStyle().bigText("Your meals: $mealsText")
+            )
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .build()

@@ -11,24 +11,20 @@ import com.bumptech.glide.Glide
 import com.example.recipebytes.R
 import com.example.recipebytes.activities.RecipeViewDetailsScreen
 import com.example.recipebytes.models.Recipe
+import com.example.recipebytes.models.RecipeRepository
 
-/**
- * Adapter for displaying a list of recipes in a RecyclerView.
- */
 class RecipeAdapter(
     private val recipes: MutableList<Recipe>,
     private val onDelete: (Recipe) -> Unit,
     private val onEdit: (Recipe) -> Unit
 ) : RecyclerView.Adapter<RecipeAdapter.ViewHolder>() {
 
-    /**
-     * ViewHolder for recipe list items.
-     */
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val title = view.findViewById<TextView>(R.id.textTitle)
-        val desc = view.findViewById<TextView>(R.id.textDescription)
-        val delete = view.findViewById<ImageView>(R.id.iconDelete)
-        val image = view.findViewById<ImageView>(R.id.imageRecipe)
+        val title: TextView     = view.findViewById(R.id.textTitle)
+        val desc: TextView      = view.findViewById(R.id.textDescription)
+        val delete: ImageView   = view.findViewById(R.id.iconDelete)
+        val image: ImageView    = view.findViewById(R.id.imageRecipe)
+        val favorite: ImageView = view.findViewById(R.id.iconFavorite)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -43,32 +39,34 @@ class RecipeAdapter(
         val recipe = recipes[position]
 
         holder.title.text = recipe.title
-        holder.desc.text = recipe.description
+        holder.desc.text  = recipe.description
 
-        setupClickListeners(holder, recipe)
-        loadImage(holder, recipe)
-    }
+        // ── Favorite star ─────────────────────────────────────────────────────
+        // Read fresh from repository so state is always accurate
+        val isFav = RecipeRepository.getAllRecipes()
+            .find { it.title == recipe.title }?.isFavorite ?: false
 
-    /**
-     * Configures click listeners for the delete action and opening details.
-     */
-    private fun setupClickListeners(holder: ViewHolder, recipe: Recipe) {
-        holder.delete.setOnClickListener {
-            onDelete(recipe)
+        holder.favorite.setImageResource(
+            if (isFav) android.R.drawable.btn_star_big_on
+            else       android.R.drawable.btn_star_big_off
+        )
+
+        holder.favorite.setOnClickListener {
+            RecipeRepository.toggleFavorite(holder.itemView.context, recipe.title)
+            notifyItemChanged(position)  // re-bind this item to refresh star
         }
 
+        // ── Delete ────────────────────────────────────────────────────────────
+        holder.delete.setOnClickListener { onDelete(recipe) }
+
+        // ── Open details ──────────────────────────────────────────────────────
         holder.itemView.setOnClickListener {
-            val context = holder.itemView.context
-            val intent = Intent(context, RecipeViewDetailsScreen::class.java)
+            val intent = Intent(holder.itemView.context, RecipeViewDetailsScreen::class.java)
             intent.putExtra("recipe", recipe)
-            context.startActivity(intent)
+            holder.itemView.context.startActivity(intent)
         }
-    }
 
-    /**
-     * Loads the recipe image using Glide or sets a default placeholder.
-     */
-    private fun loadImage(holder: ViewHolder, recipe: Recipe) {
+        // ── Image ─────────────────────────────────────────────────────────────
         if (!recipe.imageUri.isNullOrEmpty()) {
             Glide.with(holder.itemView.context)
                 .load(recipe.imageUri)
@@ -80,9 +78,6 @@ class RecipeAdapter(
         }
     }
 
-    /**
-     * Refreshes the adapter with a new list of recipes.
-     */
     fun refresh(newList: List<Recipe>) {
         recipes.clear()
         recipes.addAll(newList)

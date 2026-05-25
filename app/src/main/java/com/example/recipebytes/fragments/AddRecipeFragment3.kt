@@ -4,72 +4,79 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.recipebytes.R
 import com.example.recipebytes.models.Step
 import com.example.recipebytes.activities.AddRecipeActivity
 import com.example.recipebytes.adapters.StepsAdapter
+import java.util.Collections
 
-/**
- * Third step of adding a recipe, adding preparation steps.
- */
 class AddRecipeFragment3 : Fragment(R.layout.activity_add_recipe_fragment3) {
+
     private val stepsList = mutableListOf<Step>()
     private lateinit var adapter: StepsAdapter
+    private lateinit var touchHelper: ItemTouchHelper  // ← declare here
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val recycler = view.findViewById<RecyclerView>(R.id.stepsRecycler)
-        val addBtn = view.findViewById<Button>(R.id.btnAddStep)
-        val nextBtn = view.findViewById<Button>(R.id.btnNext3)
+        val addBtn   = view.findViewById<Button>(R.id.btnAddStep)
+        val nextBtn  = view.findViewById<Button>(R.id.btnNext3)
 
         setupRecyclerView(recycler)
+        setupTouchHelper(recycler)   // ← call here inside onViewCreated
 
-        addBtn.setOnClickListener {
-            addNewStep()
-        }
-
-        nextBtn.setOnClickListener {
-            validateAndProceed(recycler)
-        }
+        addBtn.setOnClickListener { addNewStep() }
+        nextBtn.setOnClickListener { validateAndProceed(recycler) }
     }
 
-    /**
-     * Configures the RecyclerView with the preparation steps adapter.
-     */
     private fun setupRecyclerView(recycler: RecyclerView) {
-        if (stepsList.isEmpty()) {
-            stepsList.add(Step(""))
-        }
+        if (stepsList.isEmpty()) stepsList.add(Step(""))
         adapter = StepsAdapter(stepsList)
         recycler.layoutManager = LinearLayoutManager(requireContext())
         recycler.adapter = adapter
     }
 
-    /**
-     * Adds a new blank step to the preparation list.
-     */
+    private fun setupTouchHelper(recycler: RecyclerView) {
+        touchHelper = ItemTouchHelper(
+            object : ItemTouchHelper.SimpleCallback(
+                ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0
+            ) {
+                override fun onMove(
+                    rv: RecyclerView,
+                    vh: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
+                ): Boolean {
+                    val from = vh.bindingAdapterPosition
+                    val to   = target.bindingAdapterPosition
+                    Collections.swap(stepsList, from, to)
+                    adapter.notifyItemMoved(from, to)
+                    return true
+                }
+                override fun onSwiped(vh: RecyclerView.ViewHolder, dir: Int) {}
+            }
+        )
+        touchHelper.attachToRecyclerView(recycler)  // ← attach here
+    }
+
     private fun addNewStep() {
         stepsList.add(Step(""))
         adapter.notifyItemInserted(stepsList.size - 1)
     }
 
-    /**
-     * Validates preparation steps and proceeds to the final step if valid.
-     */
     private fun validateAndProceed(recycler: RecyclerView) {
         var hasError = false
-
         for (i in 0 until stepsList.size) {
             if (stepsList[i].stepcontent.trim().isEmpty()) {
                 hasError = true
-                val holder = recycler.findViewHolderForAdapterPosition(i) as? StepsAdapter.ViewHolder
+                val holder = recycler.findViewHolderForAdapterPosition(i)
+                        as? StepsAdapter.ViewHolder
                 holder?.tilStepContent?.error = "Step description required"
             }
         }
-
         if (!hasError && stepsList.isNotEmpty()) {
             (activity as? AddRecipeActivity)?.goToStep4(stepsList)
         }
