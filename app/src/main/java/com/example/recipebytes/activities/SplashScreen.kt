@@ -2,6 +2,7 @@ package com.example.recipebytes.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -18,27 +19,30 @@ class SplashScreen : AppCompatActivity() {
         enableEdgeToEdge()
         RecipeRepository.init(applicationContext)
         MealRepository.init(applicationContext)
+        val authService = FirebaseAuthService()
+        setContentView(R.layout.activity_splash_screen)
+        val currentUserId = authService.getCurrentUserId()
+        Log.d("AUTH_TEST", "USER = $currentUserId")
+        if (currentUserId != null) {
 
-        val prefs = getSharedPreferences("login_prefs", MODE_PRIVATE)
-        val savedUserId = prefs.getString("userId", null)
-
-        if (savedUserId != null) {
+            // User already logged in
             startActivity(Intent(this, MainActivity::class.java))
             finish()
-            return
-        }
 
-        setContentView(R.layout.activity_splash_screen)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+        } else {
 
-        val btn = findViewById<Button>(R.id.btnExplore)
-        btn.setOnClickListener {
-            startActivity(Intent(this, SignUpActivity::class.java))
-            finish()
+            // User not logged in
+            val btn = findViewById<Button>(R.id.btnExplore)
+
+            ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+                insets
+            }
+            btn.setOnClickListener {
+                startActivity(Intent(this, SignUpActivity::class.java))
+                finish()
+            }
         }
     }
 }
