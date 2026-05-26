@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.recipebytes.R
-import com.example.recipebytes.models.MealRepository
 import com.example.recipebytes.models.RecipeRepository
 import com.example.recipebytes.services.FirebaseAuthService
 
@@ -22,7 +21,7 @@ class SplashScreen : AppCompatActivity() {
         val authService = FirebaseAuthService()
         setContentView(R.layout.activity_splash_screen)
         val currentUserId = authService.getCurrentUserId()
-        Log.d("AUTH_TEST", "USER = $currentUserId")
+    
         if (currentUserId != null) {
 
             // User already logged in

@@ -1,130 +1,230 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Final step in adding a recipe: handles image selection (gallery or URL) and saving. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:padding="20dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/appBackground">
 
-    <!-- Progress indicator dots -->
+    <!-- Progress dots -->
     <LinearLayout
-        android:id="@+id/dotsLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="center"
+        android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp">
-
-        <View
-            android:id="@+id/dot1"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:layout_margin="4dp"
-            android:background="@drawable/dot_active"/>
-
-        <View
-            android:id="@+id/dot2"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:layout_margin="4dp"
-            android:background="@drawable/dot_active"/>
-
-        <View
-            android:id="@+id/dot3"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:layout_margin="4dp"
-            android:background="@drawable/dot_active"/>
-
-        <View
-            android:id="@+id/dot4"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:layout_margin="4dp"
-            android:background="@drawable/dot_active"/>
+        <View android:layout_width="10dp" android:layout_height="10dp"
+            android:layout_margin="4dp" android:background="@drawable/dot_active"/>
+        <View android:layout_width="10dp" android:layout_height="10dp"
+            android:layout_margin="4dp" android:background="@drawable/dot_active"/>
+        <View android:layout_width="10dp" android:layout_height="10dp"
+            android:layout_margin="4dp" android:background="@drawable/dot_active"/>
+        <View android:layout_width="10dp" android:layout_height="10dp"
+            android:layout_margin="4dp" android:background="@drawable/dot_active"/>
     </LinearLayout>
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:padding="20dp">
 
-        <!-- Image preview area -->
-        <FrameLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="200dp">
-            <ImageView
-                android:id="@+id/imagePreview"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add Recipe Image"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/textcolor"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Choose from gallery, take a photo, or paste a URL"
+                android:textSize="13sp"
+                android:textColor="@color/secondary"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Image Preview with remove button -->
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#F0F0F0"
-                android:padding="10dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/camera_upload_icon" />
+                android:layout_height="220dp"
+                android:layout_marginBottom="16dp">
 
-            <!-- Loading indicator for URL images -->
-            <ProgressBar
-                android:id="@+id/loader"
-                android:layout_gravity="center"
-                android:visibility="gone"
-                android:layout_width="40dp"
-                android:layout_height="40dp"/>
-        </FrameLayout>
+                <ImageView
+                    android:id="@+id/imagePreview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/camera_upload_icon"
+                    android:background="@color/bgcolor"/>
 
-        <!-- Button to pick an image from the local gallery -->
-        <Button
-            android:id="@+id/btnPickImage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Pick from Gallery"
-            app:backgroundTint="@color/secondary"
-            android:textColor="@color/buttontext"/>
+                <!-- Remove image button -->
+                <ImageButton
+                    android:id="@+id/btnRemoveImage"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_gravity="top|end"
+                    android:layout_margin="8dp"
+                    android:src="@android:drawable/ic_menu_close_clear_cancel"
+                    android:backgroundTint="@color/red"
+                    android:tint="@color/buttontext"
+                    android:visibility="gone"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="8dp"
-            android:text="OR"
-            android:textColor="@color/textcolor"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+                <!-- Loading indicator -->
+                <ProgressBar
+                    android:id="@+id/loader"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:visibility="gone"/>
 
-        <!-- Input for providing a web URL for the recipe image -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilImageUrl"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp"
-            app:errorEnabled="true"
-            app:helperText="Paste a web link to a recipe image">
+            </FrameLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editImageUrl"
+            <!-- 3 option buttons row -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Image URL (Optional if image picked)"
-                android:inputType="textUri"
-                android:padding="12dp" />
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <!-- Gallery -->
+                <LinearLayout
+                    android:id="@+id/btnPickImage"
+                    android:layout_width="0dp"
+                    android:layout_height="80dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/category_unselected_bg">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🖼️"
+                        android:textSize="24sp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Gallery"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/secondary"/>
+                </LinearLayout>
 
-        <!-- Final button to save the entire recipe -->
-        <Button
-            android:id="@+id/btnSave"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Save Recipe"
-            app:backgroundTint="@color/secondary"
-            android:textColor="@color/buttontext"/>
+                <!-- Camera -->
+                <LinearLayout
+                    android:id="@+id/btnCamera"
+                    android:layout_width="0dp"
+                    android:layout_height="80dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/category_unselected_bg">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📷"
+                        android:textSize="24sp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Camera"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/secondary"/>
+                </LinearLayout>
 
-    </LinearLayout>
+                <!-- Internet URL -->
+                <LinearLayout
+                    android:id="@+id/btnUrlOption"
+                    android:layout_width="0dp"
+                    android:layout_height="80dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/category_unselected_bg">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🌐"
+                        android:textSize="24sp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="From URL"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/secondary"/>
+                </LinearLayout>
 
+            </LinearLayout>
+
+            <!-- URL input — hidden by default, shown when URL option selected -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilImageUrl"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone"
+                app:errorEnabled="true"
+                app:boxStrokeColor="@color/secondary"
+                app:helperText="Paste image URL from internet">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editImageUrl"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="https://example.com/image.jpg"
+                    android:inputType="textUri"
+                    android:padding="12dp"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Load URL button — hidden by default -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLoadUrl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Load Image from URL"
+                android:textColor="@color/buttontext"
+                android:backgroundTint="@color/primary"
+                android:visibility="gone"
+                android:layout_marginBottom="16dp"
+                app:cornerRadius="8dp"/>
+
+            <!-- Error text -->
+            <TextView
+                android:id="@+id/tvImageError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="@color/red"
+                android:textSize="13sp"
+                android:visibility="gone"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Save Recipe button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSave"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:text="Save Recipe"
+                android:textSize="16sp"
+                android:textColor="@color/buttontext"
+                android:backgroundTint="@color/secondary"
+                app:cornerRadius="26dp"/>
+
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

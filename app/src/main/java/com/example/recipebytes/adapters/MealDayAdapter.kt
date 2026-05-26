@@ -3,30 +3,37 @@ package com.example.recipebytes.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.recipebytes.R
 import com.example.recipebytes.models.MealDay
-import com.example.recipebytes.models.MealRepository
+import com.example.recipebytes.models.MealFirebaseRepository
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 
-/**
- * Adapter for managing and displaying the meal plan for each day of the week.
- */
 class MealDayAdapter(
     private val mealDays: MutableList<MealDay>,
+    private val monthKey: String,
     private val onAddClick: (MealDay) -> Unit
 ) : RecyclerView.Adapter<MealDayAdapter.ViewHolder>() {
 
-    /**
-     * ViewHolder class for individual day items in the meal plan.
-     */
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvDay: TextView = view.findViewById(R.id.tvDayName)
-        val chipGroup: ChipGroup = view.findViewById(R.id.chipGroupMeals)
-        val btnAdd: Button = view.findViewById(R.id.btnAddMeal)
+        val tvDayNumber: TextView      = view.findViewById(R.id.tvDayNumber)
+        val tvDayAbbr: TextView        = view.findViewById(R.id.tvDayAbbr)
+        val tvDayName: TextView        = view.findViewById(R.id.tvDayName)
+        val tvMealCount: TextView      = view.findViewById(R.id.tvMealCount)
+        val tvEmpty: TextView          = view.findViewById(R.id.tvEmptyState)
+        val btnAdd: MaterialButton     = view.findViewById(R.id.btnAddMeal)
+        val rowBreakfast: LinearLayout = view.findViewById(R.id.rowBreakfast)
+        val rowLunch: LinearLayout     = view.findViewById(R.id.rowLunch)
+        val rowDinner: LinearLayout    = view.findViewById(R.id.rowDinner)
+        val rowDessert: LinearLayout   = view.findViewById(R.id.rowDessert)
+        val chipBreakfast: ChipGroup   = view.findViewById(R.id.chipBreakfast)
+        val chipLunch: ChipGroup       = view.findViewById(R.id.chipLunch)
+        val chipDinner: ChipGroup      = view.findViewById(R.id.chipDinner)
+        val chipDessert: ChipGroup     = view.findViewById(R.id.chipDessert)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -39,43 +46,68 @@ class MealDayAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val mealDay = mealDays[position]
-        holder.tvDay.text = mealDay.day
 
-        setupMealChips(holder, mealDay, position)
+        // Date badge
+        val parts  = mealDay.date.split("-")
+        val dayNum = if (parts.size == 3) parts[2].trimStart('0').ifEmpty { "1" } else "?"
+        val abbr   = mealDay.day.split(",").firstOrNull()?.trim() ?: ""
+        holder.tvDayNumber.text = dayNum
+        holder.tvDayAbbr.text   = abbr
+        holder.tvDayName.text   = mealDay.day
 
-        holder.btnAdd.setOnClickListener {
-            onAddClick(mealDay)
-        }
+        // Meal count summary
+        val total = mealDay.breakfast.size + mealDay.lunch.size +
+                mealDay.dinner.size    + mealDay.dessert.size
+        holder.tvMealCount.text = if (total > 0)
+            "$total meal${if (total > 1) "s" else ""} planned"
+        else "No meals planned"
+
+        // Empty state
+        holder.tvEmpty.visibility = if (total == 0) View.VISIBLE else View.GONE
+
+        // Category chip groups
+        bindCategory(holder.chipBreakfast, holder.rowBreakfast,
+            mealDay.breakfast, mealDay, "breakfast", position)
+        bindCategory(holder.chipLunch, holder.rowLunch,
+            mealDay.lunch, mealDay, "lunch", position)
+        bindCategory(holder.chipDinner, holder.rowDinner,
+            mealDay.dinner, mealDay, "dinner", position)
+        bindCategory(holder.chipDessert, holder.rowDessert,
+            mealDay.dessert, mealDay, "dessert", position)
+
+        holder.btnAdd.setOnClickListener { onAddClick(mealDay) }
     }
 
-    /**
-     * Populates the ChipGroup with meal chips and handles their deletion.
-     */
-    private fun setupMealChips(holder: ViewHolder, mealDay: MealDay, position: Int) {
-        holder.chipGroup.removeAllViews()
-        for (meal in mealDay.meals) {
-            val chip = Chip(holder.itemView.context)
+    private fun bindCategory(
+        chipGroup: ChipGroup,
+        row: LinearLayout,
+        meals: MutableList<String>,
+        mealDay: MealDay,
+        category: String,
+        position: Int
+    ) {
+        chipGroup.removeAllViews()
+        if (meals.isEmpty()) {
+            row.visibility = View.GONE
+            return
+        }
+        row.visibility = View.VISIBLE
+        for (meal in meals.toList()) {
+            val chip = Chip(chipGroup.context)
             chip.text = meal
             chip.isCloseIconVisible = true
             chip.setOnCloseIconClickListener {
-                mealDay.meals.remove(meal)
-                MealRepository.saveMealPlan(holder.itemView.context)
+                meals.remove(meal)
+                // Save to Firebase
+                MealFirebaseRepository.saveDayMeals(mealDay)
                 notifyItemChanged(position)
             }
-            holder.chipGroup.addView(chip)
+            chipGroup.addView(chip)
         }
     }
 
-    /**
-     * Refreshes the entire list of meal days.
-     */
-    fun refresh() {
-        notifyDataSetChanged()
-    }
+    fun refresh() { notifyDataSetChanged() }
 
-    /**
-     * Updates the data source and refreshes the adapter.
-     */
     fun updateList(newList: MutableList<MealDay>) {
         mealDays.clear()
         mealDays.addAll(newList)

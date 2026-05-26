@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide
 import com.example.recipebytes.R
 import com.example.recipebytes.activities.RecipeViewDetailsScreen
 import com.example.recipebytes.models.Recipe
+import com.example.recipebytes.models.RecipeRepository
 
 class RecipeAdapter(
     private val recipes: MutableList<Recipe>,
@@ -47,7 +48,7 @@ class RecipeAdapter(
         val recipe = recipes[position]
 
         holder.title.text = recipe.title
-        holder.desc.text = recipe.description
+        holder.desc.text  = recipe.description
 
         setupProfileSection(holder, recipe)
         setupToggle(holder, recipe)
@@ -90,13 +91,15 @@ class RecipeAdapter(
     private fun setupClickListeners(holder: ViewHolder, recipe: Recipe) {
         holder.delete.setOnClickListener { onDelete(recipe) }
 
+        // ── Delete ────────────────────────────────────────────────────────────
+        holder.delete.setOnClickListener { onDelete(recipe) }
+
+        // ── Open details ──────────────────────────────────────────────────────
         holder.itemView.setOnClickListener {
-            val context = holder.itemView.context
-            val intent = Intent(context, RecipeViewDetailsScreen::class.java)
+            val intent = Intent(holder.itemView.context, RecipeViewDetailsScreen::class.java)
             intent.putExtra("recipe", recipe)
-            context.startActivity(intent)
+            holder.itemView.context.startActivity(intent)
         }
-    }
 
     private fun loadImage(holder: ViewHolder, recipe: Recipe) {
         if (!recipe.imageUri.isNullOrEmpty()) {

@@ -94,4 +94,18 @@ object RecipeRepository {
             false
         }
     }
+    fun toggleFavorite(context: Context, title: String): Boolean {
+        val recipe = recipes.find { it.title.equals(title, ignoreCase = true) }
+        recipe?.let {
+            it.isFavorite = !it.isFavorite
+            saveToDisk(context)
+            return it.isFavorite
+        }
+        return false
+    }
+
+    fun getFavorites(): List<Recipe> {
+        return recipes.filter { it.isFavorite }
+    }
+
 }

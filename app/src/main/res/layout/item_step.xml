@@ -9,6 +9,13 @@
     android:paddingHorizontal="12dp"
     android:paddingVertical="8dp">
 
+    <ImageView
+        android:id="@+id/btnDragHandle"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@android:drawable/ic_menu_sort_by_size"
+        android:visibility="gone"/>
+
     <!-- Step number indicator (e.g., 1, 2, 3) -->
     <TextView
         android:id="@+id/tvStepNumber"

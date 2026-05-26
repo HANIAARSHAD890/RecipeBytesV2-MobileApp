@@ -28,6 +28,7 @@ class StepsAdapter(
         val etStepContent: TextInputEditText = view.findViewById(R.id.etStepContent)
         val tilStepContent: TextInputLayout = view.findViewById(R.id.tStepContent)
         val btnDeleteStep: ImageView = view.findViewById(R.id.btnDeleteStep)
+        val dragHandle: ImageView = view.findViewById(R.id.btnDragHandle)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -44,7 +45,7 @@ class StepsAdapter(
         holder.stepNumber.text = "${position + 1}."
         holder.etStepContent.isEnabled = isEditable
         holder.btnDeleteStep.visibility = if (isEditable) View.VISIBLE else View.GONE
-
+        holder.dragHandle.visibility = if (isEditable) View.VISIBLE else View.GONE
         if (isEditable && position == list.size - 1 && holder.etStepContent.text.isNullOrEmpty()) {
             holder.etStepContent.requestFocus()
         }

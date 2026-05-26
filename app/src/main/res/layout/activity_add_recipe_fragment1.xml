@@ -1,129 +1,230 @@
-<!-- Adding Recipe layout for title , description and category -->
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout android:orientation="vertical"
-    android:padding="20dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/appBackground"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-
+    <!-- Progress dots -->
     <LinearLayout
         android:id="@+id/dotsLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="center"
-        android:layout_marginBottom="16dp">
-
-        <View
-            android:id="@+id/dot1"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:layout_margin="4dp"
-            android:background="@drawable/dot_active"/>
-
-        <View
-            android:id="@+id/dot2"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:layout_margin="4dp"
-            android:background="@drawable/dot_inactive"/>
-        <View
-            android:id="@+id/dot3"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:layout_margin="4dp"
-            android:background="@drawable/dot_inactive"/>
-        <View
-            android:id="@+id/dot4"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:layout_margin="4dp"
-            android:background="@drawable/dot_inactive"/>
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp">
+        <View android:layout_width="10dp" android:layout_height="10dp"
+            android:layout_margin="4dp" android:background="@drawable/dot_active"/>
+        <View android:layout_width="10dp" android:layout_height="10dp"
+            android:layout_margin="4dp" android:background="@drawable/dot_inactive"/>
+        <View android:layout_width="10dp" android:layout_height="10dp"
+            android:layout_margin="4dp" android:background="@drawable/dot_inactive"/>
+        <View android:layout_width="10dp" android:layout_height="10dp"
+            android:layout_margin="4dp" android:background="@drawable/dot_inactive"/>
     </LinearLayout>
-    <LinearLayout android:layout_width="match_parent"
+
+    <ScrollView
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_weight="1"
-        android:gravity="center"
-        android:orientation="vertical"
-        xmlns:android="http://schemas.android.com/apk/res/android">
+        android:padding="20dp">
 
-        <!-- Recipe Title Wrapper -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilTitle"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            app:errorEnabled="true">
+            android:orientation="vertical">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editTitle"
+            <!-- AI Generation Card -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Recipe Title"
-                android:inputType="textCapWords" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginBottom="20dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp">
 
-        <!-- Description Wrapper -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilDesc"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            app:errorEnabled="true">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editDesc"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✨ AI Recipe Generator"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/secondary"
+                        android:layout_marginBottom="4dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Type a dish name and let AI fill everything for you"
+                        android:textSize="12sp"
+                        android:textColor="@color/textcolor"
+                        android:alpha="0.7"
+                        android:layout_marginBottom="12dp"/>
+
+                    <!-- AI input row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/tilAiInput"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            app:boxStrokeColor="@color/secondary">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/editAiDishName"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="e.g. Chicken Biryani"
+                                android:inputType="textCapWords"/>
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnGenerateAI"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Generate"
+                            android:textColor="@color/buttontext"
+                            android:backgroundTint="@color/secondary"
+                            app:cornerRadius="8dp"/>
+
+                    </LinearLayout>
+
+                    <!-- Loading indicator -->
+                    <LinearLayout
+                        android:id="@+id/aiLoadingLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone">
+
+                        <ProgressBar
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginEnd="8dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Generating recipe with AI..."
+                            android:textColor="@color/secondary"
+                            android:textSize="13sp"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Divider -->
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Description"
-                android:gravity="top"
-                android:inputType="textMultiLine"
-                android:minLines="3" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:text="── OR FILL MANUALLY ──"
+                android:gravity="center"
+                android:textSize="12sp"
+                android:textColor="@color/secondary"
+                android:alpha="0.6"
+                android:layout_marginBottom="16dp"/>
 
-        <!-- Spinner for Category -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilCategory"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-
-            android:gravity="center_vertical"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:endIconMode="dropdown_menu"
-
-            app:boxBackgroundColor="@color/appBackground"
-            app:boxStrokeWidth="1dp"
-            app:boxStrokeWidthFocused="2dp">
-            <AutoCompleteTextView
-                android:id="@+id/spinnerCategory"
-                style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox"
+            <!-- Recipe Title -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilTitle"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:hint="Select Category"
-                android:contentDescription="Select Category"
-                android:gravity="center_vertical"
-                android:padding="0dp"
-                android:textColor="@color/textcolor"
-                android:background="@null"
-                android:inputType="none"
-                android:popupBackground="@color/appBackground"/>
+                android:layout_marginBottom="8dp"
+                app:errorEnabled="true">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Recipe Title"
+                    android:inputType="textCapWords"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-        </com.google.android.material.textfield.TextInputLayout>
-        <Button
-            android:id="@+id/btnNext"
-            android:text="Next"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:backgroundTint="@color/secondary"
-            android:textColor="@color/buttontext" />
-    </LinearLayout>
+            <!-- Description -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilDesc"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                app:errorEnabled="true">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editDesc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Description"
+                    android:gravity="top"
+                    android:inputType="textMultiLine"
+                    android:minLines="3"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Cooking Time -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilCookingTime"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                app:startIconDrawable="@android:drawable/ic_menu_recent_history">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editCookingTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Cooking Time (e.g. 30 mins)"
+                    android:inputType="text"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Category -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilCategory"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:endIconMode="dropdown_menu"
+                app:boxBackgroundColor="@color/appBackground">
+                <AutoCompleteTextView
+                    android:id="@+id/spinnerCategory"
+                    style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:hint="Select Category"
+                    android:gravity="center_vertical"
+                    android:textColor="@color/textcolor"
+                    android:background="@null"
+                    android:inputType="none"
+                    android:popupBackground="@color/appBackground"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Next button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnNext"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:text="Next →"
+                android:textSize="16sp"
+                android:textColor="@color/buttontext"
+                android:backgroundTint="@color/secondary"
+                app:cornerRadius="26dp"/>
+
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

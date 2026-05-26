@@ -1,87 +1,248 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Layout for the meal selection popup, used for adding meals to a specific day in the planner. -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="24dp"
     android:background="@color/appBackground">
 
-    <!-- Title of the dialog showing the selected day -->
-    <TextView
-        android:id="@+id/tvDialogDay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Add meals"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="@color/secondary"
-        android:layout_marginBottom="16dp"/>
+    <!-- Handle bar -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/bottom_sheet_handle" />
 
-    <!-- Searchable dropdown for selecting a meal from available recipes -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/tilMealDropdown"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        app:endIconMode="dropdown_menu"
-        app:boxBackgroundColor="@color/appBackground">
+        android:padding="24dp">
 
-        <AutoCompleteTextView
-            android:id="@+id/autoCompleteMeal"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@null"
-            android:hint="Select or search meal"
-            android:inputType="text"
-            android:minHeight="48dp"
-            android:paddingStart="12dp"
-            android:popupBackground="@color/appBackground"
-            android:dropDownVerticalOffset="0dp"
-            android:dropDownHeight="200dp"
-            android:dropDownAnchor="@id/tilMealDropdown"
-            android:textColor="@color/textcolor" />
+            android:orientation="vertical">
 
-    </com.google.android.material.textfield.TextInputLayout>
+            <!-- Title -->
+            <TextView
+                android:id="@+id/tvDialogDay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add Meals"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="@color/textcolor"
+                android:layout_marginBottom="4dp"/>
 
-    <!-- Error message shown when no matching meal is found -->
-    <TextView
-        android:id="@+id/tvNoResult"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="No meal found"
-        android:textColor="@color/design_default_color_error"
-        android:textSize="13sp"
-        android:layout_marginTop="-8dp"
-        android:layout_marginBottom="8dp"
-        android:visibility="gone"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Choose a category and select your meal"
+                android:textSize="13sp"
+                android:textColor="@color/secondary"
+                android:layout_marginBottom="20dp"/>
 
-    <!-- Header for the selected meals list -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Selected meals:"
-        android:textColor="@color/textcolor"
-        android:textSize="14sp"
-        android:layout_marginBottom="6dp"/>
+            <!-- Category selector row -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MEAL CATEGORY"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.1"
+                android:textColor="@color/secondary"
+                android:layout_marginBottom="10dp"/>
 
-    <!-- ChipGroup displaying currently selected meals -->
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/chipGroupSelectedMeals"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="20dp">
 
-    <!-- Button to confirm and save the selected meals -->
-    <Button
-        android:id="@+id/btnSaveMeals"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Save Meals"
-        android:textColor="@color/buttontext"
-        android:backgroundTint="@color/secondary"/>
+                <!-- Breakfast -->
+                <LinearLayout
+                    android:id="@+id/categoryBreakfast"
+                    android:layout_width="0dp"
+                    android:layout_height="64dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/category_selected_bg"
+                    android:elevation="2dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🌅"
+                        android:textSize="20sp"/>
+                    <TextView
+                        android:id="@+id/tvBreakfastLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Breakfast"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/buttontext"/>
+                </LinearLayout>
 
+                <!-- Lunch -->
+                <LinearLayout
+                    android:id="@+id/categoryLunch"
+                    android:layout_width="0dp"
+                    android:layout_height="64dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/category_unselected_bg"
+                    android:elevation="2dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="☀️"
+                        android:textSize="20sp"/>
+                    <TextView
+                        android:id="@+id/tvLunchLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Lunch"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/secondary"/>
+                </LinearLayout>
+
+                <!-- Dinner -->
+                <LinearLayout
+                    android:id="@+id/categoryDinner"
+                    android:layout_width="0dp"
+                    android:layout_height="64dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/category_unselected_bg"
+                    android:elevation="2dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🌙"
+                        android:textSize="20sp"/>
+                    <TextView
+                        android:id="@+id/tvDinnerLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Dinner"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/secondary"/>
+                </LinearLayout>
+
+                <!-- Dessert -->
+                <LinearLayout
+                    android:id="@+id/categoryDessert"
+                    android:layout_width="0dp"
+                    android:layout_height="64dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/category_unselected_bg"
+                    android:elevation="2dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🍰"
+                        android:textSize="20sp"/>
+                    <TextView
+                        android:id="@+id/tvDessertLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Dessert"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/secondary"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Search meal -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SEARCH RECIPE"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.1"
+                android:textColor="@color/secondary"
+                android:layout_marginBottom="10dp"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilMealDropdown"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                app:endIconMode="dropdown_menu"
+                app:boxStrokeColor="@color/secondary"
+                app:boxBackgroundColor="@color/appBackground">
+
+                <AutoCompleteTextView
+                    android:id="@+id/autoCompleteMeal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:hint="Type to search recipes..."
+                    android:inputType="text"
+                    android:minHeight="48dp"
+                    android:paddingStart="12dp"
+                    android:popupBackground="@color/appBackground"
+                    android:dropDownHeight="200dp"
+                    android:textColor="@color/textcolor" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/tvNoResult"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⚠ No recipe found"
+                android:textColor="@color/red"
+                android:textSize="12sp"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone"/>
+
+            <!-- Selected meals -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SELECTED MEALS"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.1"
+                android:textColor="@color/secondary"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="8dp"/>
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupSelectedMeals"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- Save button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveMeals"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:text="Save Meals"
+                android:textSize="16sp"
+                android:textColor="@color/buttontext"
+                android:backgroundTint="@color/secondary"
+                app:cornerRadius="26dp"
+                android:layout_marginBottom="8dp"/>
+
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>
