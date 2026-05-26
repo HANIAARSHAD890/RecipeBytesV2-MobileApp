@@ -45,7 +45,7 @@ class FirebaseAuthService {
         firebaseAuth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener { authResult ->
                 val userId = authResult.user?.uid ?: ""
-                Log.d(TAG, "✅ Auth account created! UID: $userId")
+                Log.d(TAG, " Auth account created! UID: $userId")
 
                 // Step 2: Save to Realtime Database (NO password stored!)
                 val user = User(
@@ -56,17 +56,17 @@ class FirebaseAuthService {
 
                 saveUserToDatabase(userId, user,
                     onSuccess = {
-                        Log.d(TAG, "✅ User saved to database!")
+                        Log.d(TAG, " User saved to database!")
                         onSuccess(userId)
                     },
                     onError = { error ->
-                        Log.e(TAG, "❌ Database error: $error")
+                        Log.e(TAG, " Database error: $error")
                         onError(error)
                     }
                 )
             }
             .addOnFailureListener { error ->
-                Log.e(TAG, "❌ Sign up error: ${error.message}")
+                Log.e(TAG, " Sign up error: ${error.message}")
                 val errorMessage = parseAuthError(error)
                 onError(errorMessage)
             }
@@ -95,23 +95,23 @@ class FirebaseAuthService {
         firebaseAuth.signInWithEmailAndPassword(email, password)
             .addOnSuccessListener { authResult ->
                 val userId = authResult.user?.uid ?: ""
-                Log.d(TAG, "✅ Sign in successful! UID: $userId")
+                Log.d(TAG, " Sign in successful! UID: $userId")
 
                 // Step 2: Fetch user data from database
                 fetchUserFromDatabase(userId,
                     onSuccess = { user ->
-                        Log.d(TAG, "✅ User data fetched: ${user?.email}")
+                        Log.d(TAG, " User data fetched: ${user?.email}")
                         onSuccess(userId, user)
                     },
                     onError = { error ->
-                        Log.e(TAG, "⚠️ Could not fetch user data: $error")
+                        Log.e(TAG, " Could not fetch user data: $error")
                         // Still return userId even if database fetch fails
                         onSuccess(userId, null)
                     }
                 )
             }
             .addOnFailureListener { error ->
-                Log.e(TAG, "❌ Sign in error: ${error.message}")
+                Log.e(TAG, " Sign in error: ${error.message}")
                 val errorMessage = parseAuthError(error)
                 onError(errorMessage)
             }
@@ -134,7 +134,7 @@ class FirebaseAuthService {
                 onSuccess()
             }
             .addOnFailureListener { error ->
-                Log.e(TAG, "❌ DB Save error: ${error.message}")
+                Log.e(TAG, " DB Save error: ${error.message}")
                 onError(error.message ?: "Failed to save user")
             }
     }
@@ -153,15 +153,15 @@ class FirebaseAuthService {
             .addOnSuccessListener { snapshot ->
                 if (snapshot.exists()) {
                     val user = snapshot.getValue(User::class.java)
-                    Log.d(TAG, "✅ User fetched: ${user?.email}")
+                    Log.d(TAG, "User fetched: ${user?.email}")
                     onSuccess(user)
                 } else {
-                    Log.w(TAG, "⚠️ User not found in database: $userId")
+                    Log.w(TAG, " User not found in database: $userId")
                     onSuccess(null)
                 }
             }
             .addOnFailureListener { error ->
-                Log.e(TAG, "❌ DB Fetch error: ${error.message}")
+                Log.e(TAG, " DB Fetch error: ${error.message}")
                 onError(error.message ?: "Failed to fetch user")
             }
     }
@@ -180,11 +180,11 @@ class FirebaseAuthService {
         database.child(USERS_NODE).child(userId)
             .updateChildren(updates)
             .addOnSuccessListener {
-                Log.d(TAG, "✅ User updated!")
+                Log.d(TAG, "User updated!")
                 onSuccess()
             }
             .addOnFailureListener { error ->
-                Log.e(TAG, "❌ Update error: ${error.message}")
+                Log.e(TAG, " Update error: ${error.message}")
                 onError(error.message ?: "Failed to update user")
             }
     }
@@ -202,11 +202,11 @@ class FirebaseAuthService {
         database.child(USERS_NODE).child(userId)
             .removeValue()
             .addOnSuccessListener {
-                Log.d(TAG, "✅ User deleted from database!")
+                Log.d(TAG, "User deleted from database!")
                 onSuccess()
             }
             .addOnFailureListener { error ->
-                Log.e(TAG, "❌ Delete error: ${error.message}")
+                Log.e(TAG, " Delete error: ${error.message}")
                 onError(error.message ?: "Failed to delete user")
             }
     }
@@ -227,11 +227,11 @@ class FirebaseAuthService {
                     val user = child.getValue(User::class.java)
                     if (user != null) users.add(user)
                 }
-                Log.d(TAG, "✅ Fetched ${users.size} users")
+                Log.d(TAG, "Fetched ${users.size} users")
                 onSuccess(users)
             }
             .addOnFailureListener { error ->
-                Log.e(TAG, "❌ Error fetching users: ${error.message}")
+                Log.e(TAG, " Error fetching users: ${error.message}")
                 onError(error.message ?: "Failed to fetch users")
             }
     }

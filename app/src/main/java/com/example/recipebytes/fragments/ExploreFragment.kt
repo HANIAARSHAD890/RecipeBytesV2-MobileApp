@@ -15,17 +15,17 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import android.widget.Toast
 import com.example.recipebytes.R
 import com.example.recipebytes.activities.AddRecipeActivity
 import com.example.recipebytes.adapters.RecipeAdapter
-import com.example.recipebytes.models.Recipe
 import com.example.recipebytes.models.RecipeRepository
+import com.example.recipebytes.services.FirebaseAuthService
+import com.example.recipebytes.services.FirebaseRecipeService
+import com.example.recipebytes.services.RecipeSeeder
 import com.google.android.material.textfield.TextInputEditText
 import java.util.Locale
 
-/**
- * Fragment that allows users to explore, search, filter, and sort all available recipes.
- */
 class ExploreFragment : Fragment() {
 
     private lateinit var adapter: RecipeAdapter
@@ -35,6 +35,11 @@ class ExploreFragment : Fragment() {
     private lateinit var tvNoRecipes: TextView
     private var isAscending = true
     private var isGridView = false
+    private var currentUserId = ""
+    private var userNameMap = mutableMapOf<String, String>()
+    private var favoriteIds = mutableSetOf<String>()
+    private var showFavoritesOnly = false
+    private val firebaseService = FirebaseRecipeService()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,17 +51,60 @@ class ExploreFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        currentUserId = FirebaseAuthService().getCurrentUserId() ?: ""
+
         initializeViews(view)
         setupCategoryDropdown(view)
         setupRecipeAdapter()
         setupEventListeners(view)
 
-        performFilterAndSort("")
+        loadAndDisplay()
     }
 
-    /**
-     * Initializes UI references and sets default header text.
-     */
+    private fun loadAndDisplay() {
+        RecipeRepository.loadFromFirebase {
+            val allRecipes = RecipeRepository.getAllRecipes()
+            if (allRecipes.isEmpty()) {
+                Toast.makeText(requireContext(), "Seeding recipes...", Toast.LENGTH_SHORT).show()
+                RecipeSeeder.seedAll(requireContext(), currentUserId) {
+                    RecipeRepository.loadFromFirebase {
+                        buildUserMapAndRefresh()
+                    }
+                }
+            } else {
+                buildUserMapAndRefresh()
+            }
+        }
+    }
+
+    private fun buildUserMapAndRefresh() {
+        val authService = FirebaseAuthService()
+        authService.getAllUsers(
+            onSuccess = { users ->
+                userNameMap.clear()
+                for (user in users) {
+                    userNameMap[user.uid] = user.email
+                }
+                loadFavoritesAndRefresh()
+            },
+            onError = {
+                loadFavoritesAndRefresh()
+            }
+        )
+    }
+
+    private fun loadFavoritesAndRefresh() {
+        if (currentUserId.isNotEmpty()) {
+            firebaseService.getFavoriteIds(currentUserId) { ids ->
+                favoriteIds.clear()
+                favoriteIds.addAll(ids)
+                performFilterAndSort(etSearch.text.toString())
+            }
+        } else {
+            performFilterAndSort(etSearch.text.toString())
+        }
+    }
+
     private fun initializeViews(view: View) {
         recyclerView = view.findViewById(R.id.recipeRecyclerView)
         tvNoRecipes = view.findViewById(R.id.tvNoRecipes)
@@ -64,9 +112,6 @@ class ExploreFragment : Fragment() {
         view.findViewById<TextView>(R.id.headerTitle).text = "Recipes to Explore"
     }
 
-    /**
-     * Sets up the category filter dropdown with predefined recipe categories.
-     */
     private fun setupCategoryDropdown(view: View) {
         categoryDropdown = view.findViewById(R.id.autoCompleteCategory)
         val categories = arrayOf("All", "Breakfast", "Lunch", "Dinner", "Dessert", "Baked Goods")
@@ -78,30 +123,62 @@ class ExploreFragment : Fragment() {
         }
     }
 
-    /**
-     * Configures the recipe adapter with delete and edit callbacks.
-     */
     private fun setupRecipeAdapter() {
         adapter = RecipeAdapter(
             mutableListOf(),
+            currentUserId = currentUserId,
+            userNameMap = userNameMap,
+            favoriteIds = favoriteIds,
             onDelete = { recipe ->
                 showDeleteConfirmationDialog(requireContext(), recipe)
             },
-            onEdit = {
-                performFilterAndSort(etSearch.text.toString())
+            onTogglePublic = { recipe, isChecked ->
+                RecipeRepository.updateRecipe(requireContext(), recipe.title, recipe)
+                val msg = if (isChecked) "Recipe is now public" else "Recipe is now private"
+                Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+            },
+            onToggleFavorite = { recipeId, isFav ->
+                if (currentUserId.isNotEmpty()) {
+                    if (isFav) {
+                        firebaseService.addFavorite(currentUserId, recipeId)
+                        Toast.makeText(requireContext(), "Recipe saved to favorites", Toast.LENGTH_SHORT).show()
+                    } else {
+                        firebaseService.removeFavorite(currentUserId, recipeId)
+                        Toast.makeText(requireContext(), "Removed from favorites", Toast.LENGTH_SHORT).show()
+                    }
+                    if (isFav) favoriteIds.add(recipeId) else favoriteIds.remove(recipeId)
+                    adapter.notifyDataSetChanged()
+                }
             }
         )
         updateLayoutManager()
         recyclerView.adapter = adapter
     }
 
-    /**
-     * Sets up listeners for layout toggling, searching, sorting, and adding recipes.
-     */
     private fun setupEventListeners(view: View) {
         val layoutToggleBtn = view.findViewById<ImageView>(R.id.ivLayoutToggle)
         val sortBtn = view.findViewById<ImageView>(R.id.ivSort)
         val addBtn = view.findViewById<ImageView>(R.id.btnAdd)
+        val btnAllRecipes = view.findViewById<TextView>(R.id.btnAllRecipes)
+        val btnFavorites = view.findViewById<TextView>(R.id.btnFavorites)
+
+        updateSegmentStyle(btnAllRecipes, btnFavorites)
+
+        btnAllRecipes.setOnClickListener {
+            if (showFavoritesOnly) {
+                showFavoritesOnly = false
+                updateSegmentStyle(btnAllRecipes, btnFavorites)
+                performFilterAndSort(etSearch.text.toString())
+            }
+        }
+
+        btnFavorites.setOnClickListener {
+            if (!showFavoritesOnly) {
+                showFavoritesOnly = true
+                updateSegmentStyle(btnAllRecipes, btnFavorites)
+                performFilterAndSort(etSearch.text.toString())
+            }
+        }
 
         layoutToggleBtn.setOnClickListener {
             isGridView = !isGridView
@@ -128,31 +205,44 @@ class ExploreFragment : Fragment() {
         }
     }
 
-    /**
-     * Refreshes data when the fragment becomes visible again.
-     */
-    override fun onResume() {
-        super.onResume()
-        performFilterAndSort(etSearch.text.toString())
+    private fun updateSegmentStyle(btnAll: TextView, btnFav: TextView) {
+        if (showFavoritesOnly) {
+            btnAll.background = resources.getDrawable(R.drawable.segment_left_unselected, null)
+            btnAll.setTextColor(resources.getColor(R.color.primary, null))
+            btnFav.background = resources.getDrawable(R.drawable.segment_right, null)
+            btnFav.setTextColor(resources.getColor(R.color.buttontext, null))
+        } else {
+            btnAll.background = resources.getDrawable(R.drawable.segment_left, null)
+            btnAll.setTextColor(resources.getColor(R.color.buttontext, null))
+            btnFav.background = resources.getDrawable(R.drawable.segment_right_unselected, null)
+            btnFav.setTextColor(resources.getColor(R.color.primary, null))
+        }
     }
 
-    /**
-     * Filters and sorts the recipe list based on category, search query, and sort order.
-     */
+    override fun onResume() {
+        super.onResume()
+        loadAndDisplay()
+    }
+
     private fun performFilterAndSort(query: String) {
         val allRecipes = RecipeRepository.getAllRecipes()
         val selectedCategory = categoryDropdown.text.toString()
         val lowerQuery = query.lowercase(Locale.ROOT).trim()
 
         val filteredList = allRecipes.filter { recipe ->
+            val canView = recipe.isPublic || recipe.userId == currentUserId
+            if (!canView) return@filter false
+
             val matchesCategory = if (selectedCategory == "All") true
-            else recipe.category?.equals(selectedCategory, ignoreCase = true) == true
+            else recipe.category.equals(selectedCategory, ignoreCase = true)
 
             val matchesSearch = if (lowerQuery.isEmpty()) true
             else recipe.title.lowercase(Locale.ROOT).contains(lowerQuery) ||
                     recipe.description.lowercase(Locale.ROOT).contains(lowerQuery)
 
-            matchesCategory && matchesSearch
+            val matchesFavorites = !showFavoritesOnly || recipe.recipeId in favoriteIds
+
+            matchesCategory && matchesSearch && matchesFavorites
         }
 
         val sortedList = if (isAscending) {
@@ -166,18 +256,12 @@ class ExploreFragment : Fragment() {
         adapter.refresh(sortedList)
     }
 
-    /**
-     * Switches between list and grid layout managers.
-     */
     private fun updateLayoutManager() {
         val spanCount = if (isGridView) 2 else 1
         recyclerView.layoutManager = GridLayoutManager(requireContext(), spanCount)
     }
 
-    /**
-     * Displays a confirmation dialog before deleting a recipe.
-     */
-    private fun showDeleteConfirmationDialog(context: Context, recipe: Recipe) {
+    private fun showDeleteConfirmationDialog(context: Context, recipe: com.example.recipebytes.models.Recipe) {
         val dialog = Dialog(requireContext())
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setContentView(R.layout.dialog_recipe_delete)

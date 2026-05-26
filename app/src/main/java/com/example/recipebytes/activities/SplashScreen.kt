@@ -10,14 +10,24 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.recipebytes.R
 import com.example.recipebytes.models.MealRepository
 import com.example.recipebytes.models.RecipeRepository
+import com.example.recipebytes.services.FirebaseAuthService
 
 class SplashScreen : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-            // initializing repositories
         RecipeRepository.init(applicationContext)
         MealRepository.init(applicationContext)
+
+        val prefs = getSharedPreferences("login_prefs", MODE_PRIVATE)
+        val savedUserId = prefs.getString("userId", null)
+
+        if (savedUserId != null) {
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+            return
+        }
+
         setContentView(R.layout.activity_splash_screen)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -30,6 +40,5 @@ class SplashScreen : AppCompatActivity() {
             startActivity(Intent(this, SignUpActivity::class.java))
             finish()
         }
-
     }
 }

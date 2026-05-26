@@ -48,6 +48,7 @@ class PlannerFragment : Fragment() {
         val headerTitle = view.findViewById<TextView>(R.id.headerTitle)
         headerTitle.text = "Meal Planner"
 
+        RecipeRepository.loadFromFirebase()
         setupRecyclerView(view)
     }
 

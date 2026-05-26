@@ -137,8 +137,10 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         etDesc.setText(recipe.description)
         etCategory.setText(recipe.category, false)
         
-        recipe.imageUri?.let {
-            Glide.with(this).load(it).centerCrop().into(recipeImage)
+        if (!recipe.imageUri.isNullOrEmpty()) {
+            Glide.with(this).load(recipe.imageUri).placeholder(R.drawable.recipe_default).error(R.drawable.recipe_default).centerCrop().into(recipeImage)
+        } else {
+            recipeImage.setImageResource(R.drawable.recipe_default)
         }
         
         ingAdapter = IngredientAdapter(recipe.ingredients.toMutableList(), false)
@@ -177,7 +179,7 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         }
 
         recipe?.steps?.forEachIndexed { index, step ->
-            if (step.stepcontent.trim().isEmpty()) {
+            if (step.text.trim().isEmpty()) {
                 isValid = false
                 val holder = stepsRecycler.findViewHolderForAdapterPosition(index)
                 if (holder is StepsAdapter.ViewHolder) {

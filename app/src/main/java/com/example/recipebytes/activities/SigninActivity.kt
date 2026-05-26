@@ -34,12 +34,6 @@ class SignInActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_signin)
 
-        // Check if already logged in
-        if (authService.isLoggedIn()) {
-            navigateToHome(authService.getCurrentUserId() ?: "")
-            return
-        }
-
         // Initialize views
         emailLayout = findViewById(R.id.emailLayout)
         passwordLayout = findViewById(R.id.passwordLayout)
@@ -84,6 +78,11 @@ class SignInActivity : AppCompatActivity() {
                 Log.d(TAG, "✅ Sign in successful! UID: $userId, Email: ${user?.email}")
                 showProgress(false)
                 Toast.makeText(this, "Welcome back, ${user?.email}!", Toast.LENGTH_SHORT).show()
+                val prefs = getSharedPreferences("login_prefs", MODE_PRIVATE)
+                prefs.edit()
+                    .putString("userId", userId)
+                    .putString("email", user?.email ?: email)
+                    .apply()
                 navigateToHome(userId)
             },
             onError = { error ->

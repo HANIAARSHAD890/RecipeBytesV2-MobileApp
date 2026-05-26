@@ -167,7 +167,14 @@ class AddRecipeFragment4 : Fragment(R.layout.activity_add_recipe_fragment4) {
             url
         }
 
-        val recipe = Recipe(title, desc, category, finalImagePath, ingredients, steps)
+        val recipe = Recipe(
+            title = title,
+            description = desc,
+            category = category,
+            imageUri = finalImagePath,
+            ingredients = ingredients,
+            steps = steps
+        )
         RecipeRepository.addRecipe(requireContext(), recipe)
         Toast.makeText(requireContext(), "Recipe added successfully", Toast.LENGTH_SHORT).show()
         requireActivity().finish()

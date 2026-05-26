@@ -26,6 +26,7 @@ import com.example.recipebytes.fragments.ProfileFragment
 import com.example.recipebytes.fragments.SuggestFragment
 import com.example.recipebytes.models.User
 import com.example.recipebytes.services.FirebaseAuthService
+import com.example.recipebytes.services.RecipeSeeder
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
@@ -46,7 +47,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         bottomNav = findViewById(R.id.bottom_nav_view)
 
         handleNotificationPermission()

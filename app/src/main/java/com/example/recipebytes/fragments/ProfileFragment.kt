@@ -77,6 +77,8 @@ class ProfileFragment : Fragment() {
 
     private fun logout() {
         authService.signOut()
+        requireContext().getSharedPreferences("login_prefs", android.content.Context.MODE_PRIVATE)
+            .edit().clear().apply()
         Toast.makeText(requireContext(), "Logged out!", Toast.LENGTH_SHORT).show()
 
         val intent = Intent(requireContext(), SignInActivity::class.java)

@@ -7,9 +7,9 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.recipebytes.R
-import com.example.recipebytes.models.Step
 import com.example.recipebytes.activities.AddRecipeActivity
 import com.example.recipebytes.adapters.StepsAdapter
+import com.example.recipebytes.models.Step
 
 /**
  * Third step of adding a recipe, adding preparation steps.
@@ -41,7 +41,7 @@ class AddRecipeFragment3 : Fragment(R.layout.activity_add_recipe_fragment3) {
      */
     private fun setupRecyclerView(recycler: RecyclerView) {
         if (stepsList.isEmpty()) {
-            stepsList.add(Step(""))
+            stepsList.add(Step(text = ""))
         }
         adapter = StepsAdapter(stepsList)
         recycler.layoutManager = LinearLayoutManager(requireContext())
@@ -52,7 +52,7 @@ class AddRecipeFragment3 : Fragment(R.layout.activity_add_recipe_fragment3) {
      * Adds a new blank step to the preparation list.
      */
     private fun addNewStep() {
-        stepsList.add(Step(""))
+        stepsList.add(Step(text = ""))
         adapter.notifyItemInserted(stepsList.size - 1)
     }
 
@@ -63,7 +63,7 @@ class AddRecipeFragment3 : Fragment(R.layout.activity_add_recipe_fragment3) {
         var hasError = false
 
         for (i in 0 until stepsList.size) {
-            if (stepsList[i].stepcontent.trim().isEmpty()) {
+            if (stepsList[i].text.trim().isEmpty()) {
                 hasError = true
                 val holder = recycler.findViewHolderForAdapterPosition(i) as? StepsAdapter.ViewHolder
                 holder?.tilStepContent?.error = "Step description required"

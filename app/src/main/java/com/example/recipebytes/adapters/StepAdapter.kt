@@ -60,7 +60,7 @@ class StepsAdapter(
      * Configures the UI for read-only view mode.
      */
     private fun setupViewMode(holder: ViewHolder, step: Step) {
-        holder.etStepContent.setText(step.stepcontent)
+        holder.etStepContent.setText(step.text)
         holder.tilStepContent.boxStrokeWidth = 0
         holder.tilStepContent.boxStrokeWidthFocused = 0
         holder.etStepContent.background = null
@@ -70,8 +70,8 @@ class StepsAdapter(
      * Configures the UI for edit mode, including delete and text change listeners.
      */
     private fun setupEditMode(holder: ViewHolder, step: Step) {
-        if (holder.etStepContent.text.toString() != step.stepcontent) {
-            holder.etStepContent.setText(step.stepcontent)
+        if (holder.etStepContent.text.toString() != step.text) {
+            holder.etStepContent.setText(step.text)
         }
 
         holder.btnDeleteStep.setOnClickListener {
@@ -105,7 +105,7 @@ class StepsAdapter(
             }
             else -> {
                 holder.tilStepContent.error = null
-                list[position].stepcontent = input
+                list[position].text = input
             }
         }
     }

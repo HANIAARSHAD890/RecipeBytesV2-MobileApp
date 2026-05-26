@@ -2,7 +2,7 @@ package com.example.recipebytes.models
 
 import java.io.Serializable
 
-data class Step(
-    var stepId: Int = 0,
-    var text: String
+data class Nutrition(
+    val calories: Int = 0,
+    val protein: String = ""
 ) : Serializable

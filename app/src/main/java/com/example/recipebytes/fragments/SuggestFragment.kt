@@ -41,7 +41,9 @@ class SuggestFragment : Fragment() {
         val btnSuggest = view.findViewById<Button>(R.id.btnSuggest)
         val resultsRecycler = view.findViewById<RecyclerView>(R.id.suggestResultsRecycler)
 
-        setupIngredientInput(autoComplete, chipGroup)
+        RecipeRepository.loadFromFirebase {
+            setupIngredientInput(autoComplete, chipGroup)
+        }
         setupResultsList(resultsRecycler)
 
         btnSuggest.setOnClickListener {
