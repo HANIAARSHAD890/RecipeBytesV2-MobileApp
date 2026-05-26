@@ -22,7 +22,6 @@ import com.example.recipebytes.adapters.RecipeAdapter
 import com.example.recipebytes.models.RecipeRepository
 import com.example.recipebytes.services.FirebaseAuthService
 import com.example.recipebytes.services.FirebaseRecipeService
-import com.example.recipebytes.services.RecipeSeeder
 import com.google.android.material.textfield.TextInputEditText
 import java.util.Locale
 
@@ -63,17 +62,8 @@ class ExploreFragment : Fragment() {
 
     private fun loadAndDisplay() {
         RecipeRepository.loadFromFirebase {
-            val allRecipes = RecipeRepository.getAllRecipes()
-            if (allRecipes.isEmpty()) {
-                Toast.makeText(requireContext(), "Seeding recipes...", Toast.LENGTH_SHORT).show()
-                RecipeSeeder.seedAll(requireContext(), currentUserId) {
-                    RecipeRepository.loadFromFirebase {
-                        buildUserMapAndRefresh()
-                    }
-                }
-            } else {
-                buildUserMapAndRefresh()
-            }
+           RecipeRepository.getAllRecipes()
+                           buildUserMapAndRefresh()
         }
     }
 

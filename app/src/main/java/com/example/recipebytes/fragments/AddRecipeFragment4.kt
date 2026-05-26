@@ -244,7 +244,7 @@ class AddRecipeFragment4 : Fragment(R.layout.activity_add_recipe_fragment4) {
         val title       = arguments?.getString("title")       ?: ""
         val desc        = arguments?.getString("desc")        ?: ""
         val category    = arguments?.getString("category")    ?: ""
-        val cookingTime = arguments?.getString("cookingTime") ?: ""
+        val cookingTime = arguments?.getString("cookingTime")?.toIntOrNull() ?: 0
         val ingredients = arguments?.getSerializable("ingredients")
                 as? ArrayList<Ingredient> ?: arrayListOf()
         val steps       = arguments?.getSerializable("steps")

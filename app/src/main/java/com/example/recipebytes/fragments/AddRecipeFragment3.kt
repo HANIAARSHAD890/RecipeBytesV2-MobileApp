@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.recipebytes.R
 import com.example.recipebytes.activities.AddRecipeActivity
 import com.example.recipebytes.adapters.StepsAdapter
+import com.example.recipebytes.models.Step
 import java.util.Collections
 
 class AddRecipeFragment3 : Fragment(R.layout.activity_add_recipe_fragment3) {
@@ -33,7 +34,7 @@ class AddRecipeFragment3 : Fragment(R.layout.activity_add_recipe_fragment3) {
     }
 
     private fun setupRecyclerView(recycler: RecyclerView) {
-        if (stepsList.isEmpty()) stepsList.add(Step(""))
+        if (stepsList.isEmpty()) stepsList.add(Step(text = ""))
         adapter = StepsAdapter(stepsList)
         recycler.layoutManager = LinearLayoutManager(requireContext())
         recycler.adapter = adapter

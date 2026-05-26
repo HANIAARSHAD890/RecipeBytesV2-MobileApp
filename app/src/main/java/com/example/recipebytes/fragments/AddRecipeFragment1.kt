@@ -80,7 +80,7 @@ class AddRecipeFragment1 : Fragment(R.layout.activity_add_recipe_fragment1) {
                     aiIngredients = recipe.ingredients.map {
                         Ingredient(it.first, it.second)
                     }
-                    aiSteps = recipe.steps.map { Step(it) }
+                    aiSteps = recipe.steps.map { Step(text = it) }
                     aiGenerated = true
 
                     Toast.makeText(requireContext(),

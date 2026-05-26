@@ -18,13 +18,11 @@ import com.example.recipebytes.MealReminderReceiver
 import com.example.recipebytes.PowerReceiver
 import com.example.recipebytes.R
 import com.example.recipebytes.fragments.ExploreFragment
-import com.example.recipebytes.fragments.FavoritesFragment
 import com.example.recipebytes.fragments.HomeFragment
 import com.example.recipebytes.fragments.PlannerFragment
 import com.example.recipebytes.fragments.ProfileFragment
 import com.example.recipebytes.fragments.SuggestFragment
 import com.example.recipebytes.services.FirebaseAuthService
-import com.example.recipebytes.services.RecipeSeeder
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
@@ -80,8 +78,8 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_home      -> { loadFragment(HomeFragment());      true }
                 R.id.nav_explore   -> { loadFragment(ExploreFragment());   true }
                 R.id.nav_planner   -> { loadFragment(PlannerFragment());   true }
-                R.id.nav_favorites -> { loadFragment(FavoritesFragment()); true }
                 R.id.nav_profile   -> { loadFragment(ProfileFragment());   true }
+                R.id.nav_suggest  -> { loadFragment(SuggestFragment());   true }
                 else -> false
             }
         }
@@ -92,7 +90,7 @@ class MainActivity : AppCompatActivity() {
             is HomeFragment      -> bottomNav.selectedItemId = R.id.nav_home
             is ExploreFragment   -> bottomNav.selectedItemId = R.id.nav_explore
             is PlannerFragment   -> bottomNav.selectedItemId = R.id.nav_planner
-            is FavoritesFragment -> bottomNav.selectedItemId = R.id.nav_favorites
+            is SuggestFragment   -> bottomNav.selectedItemId = R.id.nav_suggest
             is ProfileFragment   -> bottomNav.selectedItemId = R.id.nav_profile
         }
     }

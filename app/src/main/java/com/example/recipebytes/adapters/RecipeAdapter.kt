@@ -100,7 +100,7 @@ class RecipeAdapter(
             intent.putExtra("recipe", recipe)
             holder.itemView.context.startActivity(intent)
         }
-
+    }
     private fun loadImage(holder: ViewHolder, recipe: Recipe) {
         if (!recipe.imageUri.isNullOrEmpty()) {
             Glide.with(holder.itemView.context)

@@ -30,7 +30,7 @@
                 android:textSize="18sp"
                 android:textColor="@android:color/white"
                 android:background="@drawable/circle_bg"
-                android:text="?" />
+                />
 
             <TextView
                 android:id="@+id/textUsername"
@@ -85,9 +85,6 @@
 
         <TextView
             android:id="@+id/textTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:textStyle="bold"
             android:textSize="16sp"
             android:maxLines="1"
