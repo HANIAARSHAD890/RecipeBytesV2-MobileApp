@@ -48,12 +48,12 @@ class MealReminderReceiver : BroadcastReceiver() {
             val meals = monthPlan.find { it.date == todayDate }?.meals ?: emptyList()
 
             // Show notification only if meals exist
-            if (meals.isNotEmpty()) {
-                showNotification(context, dayName, meals)
-            }
+//            if (meals.isNotEmpty()) {
+//                showNotification(context, dayName, meals)
+//            }
 
             // Reschedule next alarm after 1 minute
-            scheduleNext(context)
+           /// scheduleNext(context)
         }
     }
 

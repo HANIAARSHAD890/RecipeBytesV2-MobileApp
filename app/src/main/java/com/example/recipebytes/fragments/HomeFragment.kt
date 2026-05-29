@@ -5,19 +5,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowInsetsController
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import com.example.recipebytes.R
 import com.example.recipebytes.activities.AddRecipeActivity
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.example.recipebytes.activities.MainActivity
+import com.example.recipebytes.services.FirebaseAuthService
 
-/**
- * Home screen fragment act as DASHBOARD for the user.
- */
 class HomeFragment : Fragment() {
+
+    private val authService = FirebaseAuthService()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,29 +30,31 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupCardClickListeners(view)
         setupThemeToggle(view)
+        setupProfileSection(view)
+
+        loadUserData(view)
     }
 
-    /**
-     * Configures click listeners for the navigation cards on the home screen.
-     */
     private fun setupCardClickListeners(view: View) {
         view.findViewById<CardView>(R.id.card_recepies).setOnClickListener {
-            //navigateTo(ExploreFragment(), R.id.nav_explore)
+            navigateToTab(R.id.nav_explore)
         }
         view.findViewById<CardView>(R.id.card_mealplanner).setOnClickListener {
-            //navigateTo(PlannerFragment(), R.id.nav_planner)
+            navigateToTab(R.id.nav_planner)
         }
         view.findViewById<CardView>(R.id.card_smartsuggest).setOnClickListener {
-            //navigateTo(SuggestFragment(), R.id.nav_suggest)
+            navigateToTab(R.id.nav_suggest)
         }
         view.findViewById<CardView>(R.id.card_add_recipe).setOnClickListener {
             startActivity(Intent(requireContext(), AddRecipeActivity::class.java))
         }
     }
 
-    /**
-     * Sets up the theme toggle button to switch between light and dark modes.
-     */
+    private fun navigateToTab(tabId: Int) {
+        val activity = requireActivity() as? MainActivity ?: return
+        activity.navigateToTab(tabId)
+    }
+
     private fun setupThemeToggle(view: View) {
         view.findViewById<ImageView>(R.id.btnTheme).setOnClickListener {
             val currentMode = AppCompatDelegate.getDefaultNightMode()
@@ -61,34 +63,31 @@ class HomeFragment : Fragment() {
             } else {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             }
-           // updateSystemBarAppearance()
         }
     }
 
-    /**
-     * Updates the system bar appearance for light/dark mode compatibility.
-     */
-//    private fun updateSystemBarAppearance() {
-//        requireActivity().window.insetsController?.let {
-//            it.setSystemBarsAppearance(
-//                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or
-//                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
-//                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or
-//                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
-//            )
-//        }
-//    }
+    private fun setupProfileSection(view: View) {
+        view.findViewById<View>(R.id.btnViewProfile).setOnClickListener {
+            navigateToTab(R.id.nav_profile)
+        }
+    }
 
-    /**
-     * Helper to handle fragment transactions and bottom navigation state synchronization.
-     */
-//    private fun navigateTo(fragment: Fragment, navItemId: Int) {
-//        parentFragmentManager.beginTransaction()
-//            .replace(R.id.fragment_container, fragment)
-//            .addToBackStack(null)
-//            .commit()
-//
-//        val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav_view)
-//        bottomNav.selectedItemId = navItemId
-//    }
+    private fun loadUserData(view: View) {
+        val userId = authService.getCurrentUserId() ?: ""
+        if (userId.isNotEmpty()) {
+            authService.fetchUserFromDatabase(userId,
+                onSuccess = { user ->
+                    val displayName = if (user?.username?.isNotEmpty() == true) user.username
+                        else if (user?.email?.contains("@") == true) user.email.substringBefore("@")
+                        else "Aunt_Sallys_Kitchen"
+                    view.findViewById<TextView>(R.id.tvUsername).text = displayName
+                },
+                onError = {
+                    view.findViewById<TextView>(R.id.tvUsername).text = "Aunt_Sallys_Kitchen"
+                }
+            )
+        } else {
+            view.findViewById<TextView>(R.id.tvUsername).text = "Aunt_Sallys_Kitchen"
+        }
+    }
 }

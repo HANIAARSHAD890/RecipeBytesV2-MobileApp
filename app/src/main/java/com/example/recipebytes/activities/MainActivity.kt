@@ -33,6 +33,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        if (!prefs.getBoolean("onboarding_done", false)) {
+            startActivity(Intent(this, OnboardingActivity::class.java))
+            finish()
+            return
+        }
+
         setContentView(R.layout.activity_main)
         bottomNav = findViewById(R.id.bottom_nav_view)
 
@@ -58,7 +65,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // ── navigation ────────────────────────────────────────────────────────────
+    // ── navigation
+
+    fun navigateToTab(tabId: Int) {
+        bottomNav.selectedItemId = tabId
+    }
 
     private fun setupBottomNavigation() {
         val states = arrayOf(
@@ -76,12 +87,25 @@ class MainActivity : AppCompatActivity() {
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home      -> { loadFragment(HomeFragment());      true }
-                R.id.nav_explore   -> { loadFragment(ExploreFragment());   true }
+                R.id.nav_explore   -> {
+                    val frag = ExploreFragment()
+                    loadFragment(frag)
+                    true
+                }
                 R.id.nav_planner   -> { loadFragment(PlannerFragment());   true }
                 R.id.nav_profile   -> { loadFragment(ProfileFragment());   true }
                 R.id.nav_suggest  -> { loadFragment(SuggestFragment());   true }
                 else -> false
             }
+        }
+
+        // Handle initial navigation if opened from Favorite Recipes
+        if (intent.getBooleanExtra("open_favorites", false)) {
+            intent.removeExtra("open_favorites")
+            val frag = ExploreFragment()
+            frag.arguments = Bundle().apply { putBoolean("show_favorites", true) }
+            loadFragment(frag)
+            bottomNav.selectedItemId = R.id.nav_explore
         }
     }
 
@@ -102,7 +126,7 @@ class MainActivity : AppCompatActivity() {
             .commit()
     }
 
-    // ── permissions ───────────────────────────────────────────────────────────
+    // ── permissions
 
     private fun handleNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -123,7 +147,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // ── alarm ─────────────────────────────────────────────────────────────────
+    // ── alarm
 
     private fun scheduleMealReminder() {
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -152,7 +176,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // ── receiver ──────────────────────────────────────────────────────────────
+    // ── receiver
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (intent.getBooleanExtra("open_favorites", false)) {
+            intent.removeExtra("open_favorites")
+            val frag = ExploreFragment()
+            frag.arguments = Bundle().apply { putBoolean("show_favorites", true) }
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, frag)
+                .commit()
+            bottomNav.selectedItemId = R.id.nav_explore
+        }
+    }
 
     override fun onStart() {
         super.onStart()

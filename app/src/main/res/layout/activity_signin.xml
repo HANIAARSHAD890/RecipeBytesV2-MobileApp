@@ -74,7 +74,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            app:boxBackgroundColor="@color/whiteapp"
             app:strokeColor="@color/primary"
             app:hintTextColor="@color/primary"
             app:boxStrokeWidth="2dp"
@@ -94,7 +93,6 @@
                 android:hint="Password"
                 android:inputType="textPassword"
                 android:textColor="@color/textcolor"
-                android:textColorHint="@color/textcolor"
                 android:padding="16dp"
                 android:paddingStart="48dp"
                 android:textSize="14sp" />
@@ -163,7 +161,6 @@
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1"
-                android:background="@color/textcolor"
                 android:alpha="0.3" />
 
             <TextView
@@ -180,7 +177,6 @@
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1"
-                android:background="@color/textcolor"
                 android:alpha="0.3" />
         </LinearLayout>
 

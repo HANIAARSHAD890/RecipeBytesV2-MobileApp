@@ -55,7 +55,6 @@ class SignUpActivity : AppCompatActivity() {
         // Clear previous errors
         errorText.visibility = View.GONE
 
-        // Validate
         if (email.isEmpty()) {
             showError("Please enter email")
             emailLayout.requestFocus()
@@ -99,11 +98,4 @@ class SignUpActivity : AppCompatActivity() {
         startActivity(Intent(this, SignInActivity::class.java))
         finish()
     }
-//
-//    private fun navigateToHome(userId: String) {
-//        val intent = Intent(this, MainActivity::class.java)
-//        intent.putExtra("userId", userId)
-//        startActivity(intent)
-//        finish()
-   // }
 }
