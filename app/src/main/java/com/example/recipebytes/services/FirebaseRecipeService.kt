@@ -332,4 +332,38 @@ class FirebaseRecipeService {
 
         return map
     }
+
+    fun fetchUserDashboardMetrics(
+        userId: String,
+        onSuccess: (totalRecipes: Int, publicCount: Int, privateCount: Int, totalLikes: Int) -> Unit,
+        onError: (error: String) -> Unit
+    ) {
+        recipesRef.orderByChild("userId").equalTo(userId).get()
+            .addOnSuccessListener { snapshot ->
+                var totalRecipes = 0
+                var publicCount = 0
+                var privateCount = 0
+                var totalLikes = 0
+
+                for (child in snapshot.children) {
+                    val recipe = childToRecipe(child)
+                    if (recipe != null) {
+                        totalRecipes++
+                        if (recipe.isPublic) {
+                            publicCount++
+                        } else {
+                            privateCount++
+                        }
+                        totalLikes += recipe.likesCount
+                    }
+                }
+
+                Log.d(TAG, "Dashboard metrics - Total: $totalRecipes, Public: $publicCount, Private: $privateCount, Likes: $totalLikes")
+                onSuccess(totalRecipes, publicCount, privateCount, totalLikes)
+            }
+            .addOnFailureListener { error ->
+                Log.e(TAG, "Error fetching dashboard metrics: ${error.message}")
+                onError(error.message ?: "Failed to fetch dashboard metrics")
+            }
+    }
 }

@@ -95,11 +95,14 @@
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnGenerateAI"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_height="36dp"
                             android:text="Generate"
+                            android:textSize="12sp"
                             android:textColor="@color/buttontext"
                             android:backgroundTint="@color/secondary"
-                            app:cornerRadius="8dp"/>
+                            app:cornerRadius="18dp"
+                            android:paddingStart="16dp"
+                            android:paddingEnd="16dp" />
 
                     </LinearLayout>
 
@@ -217,13 +220,14 @@
             <!-- Next button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnNext"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_width="232dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
                 android:text="Next →"
                 android:textSize="16sp"
                 android:textColor="@color/buttontext"
                 android:backgroundTint="@color/secondary"
-                app:cornerRadius="26dp"/>
+                app:cornerRadius="26dp" />
 
         </LinearLayout>
     </ScrollView>

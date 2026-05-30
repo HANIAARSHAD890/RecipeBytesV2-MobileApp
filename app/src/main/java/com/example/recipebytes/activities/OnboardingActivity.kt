@@ -87,17 +87,31 @@ class OnboardingActivity : AppCompatActivity() {
 
     private fun updateControls(position: Int) {
         val isLast = position == pages.size - 1
-        btnNext.text = if (isLast) "Get Started ✦" else "Next"
+        btnNext.text = if (isLast) "Get Started" else "Next"
         tvSkip.visibility = if (isLast) TextView.GONE else TextView.VISIBLE
     }
 
     private fun finishOnboarding() {
-        getSharedPreferences("app_prefs", MODE_PRIVATE)
-            .edit()
-            .putBoolean("onboarding_done", true)
-            .apply()
+        val userId = intent.getStringExtra("userId") ?: ""
+        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        
+        // Save onboarding completion for this specific user
+        if (userId.isNotEmpty()) {
+            prefs.edit()
+                .putBoolean("onboarding_done_$userId", true)
+                .apply()
+        } else {
+            // Fallback for non-signup flow
+            prefs.edit()
+                .putBoolean("onboarding_done", true)
+                .apply()
+        }
 
-        startActivity(Intent(this, MainActivity::class.java))
+        val intent = Intent(this, MainActivity::class.java)
+        if (userId.isNotEmpty()) {
+            intent.putExtra("userId", userId)
+        }
+        startActivity(intent)
         finish()
     }
 }

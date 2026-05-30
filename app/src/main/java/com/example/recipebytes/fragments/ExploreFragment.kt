@@ -1,5 +1,4 @@
 package com.example.recipebytes.fragments
-
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
@@ -70,8 +69,12 @@ class ExploreFragment : Fragment() {
     }
 
     private fun loadAndDisplay() {
-        RecipeRepository.loadFromFirebase {
-            refreshFromFirebase()
+        try {
+            RecipeRepository.loadFromFirebase {
+                refreshFromFirebase()
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("ExploreFragment", "loadAndDisplay failed", e)
         }
     }
 
@@ -98,12 +101,17 @@ class ExploreFragment : Fragment() {
 
     private fun loadFavoritesAndRefresh() {
         if (currentUserId.isNotEmpty()) {
-            firebaseService.getFavoriteIds(currentUserId) { ids ->
+            firebaseService.getFavoriteIds(currentUserId) { favIds ->
                 favoriteIds.clear()
-                favoriteIds.addAll(ids)
-                performFilterAndSort(etSearch.text.toString())
+                favoriteIds.addAll(favIds)
+                firebaseService.getLikedIds(currentUserId) { liked ->
+                    likedIds.clear()
+                    likedIds.addAll(liked)
+                    performFilterAndSort(etSearch.text.toString())
+                }
             }
         } else {
+            likedIds.clear()
             performFilterAndSort(etSearch.text.toString())
         }
     }
@@ -157,14 +165,17 @@ class ExploreFragment : Fragment() {
             },
             onToggleLike = { recipeId, isLiked ->
                 if (currentUserId.isNotEmpty()) {
-                    if (isLiked) {
-                        firebaseService.addLike(currentUserId, recipeId)
-                    } else {
-                        firebaseService.removeLike(currentUserId, recipeId)
+                    val alreadyLiked = likedIds.contains(recipeId)
+                    if (isLiked != alreadyLiked) {
+                        if (isLiked) likedIds.add(recipeId) else likedIds.remove(recipeId)
+
+                        RecipeRepository.updateLikesCountLocally(recipeId, if (isLiked) 1 else -1)
+
+                        if (isLiked) firebaseService.addLike(currentUserId, recipeId)
+                        else firebaseService.removeLike(currentUserId, recipeId)
+
+                        performFilterAndSort(etSearch.text.toString())
                     }
-                    if (isLiked) likedIds.add(recipeId) else likedIds.remove(recipeId)
-                    // Reload data to get updated likesCount
-                    loadAndDisplay()
                 }
             },
             onShowLikers = { recipeId ->
@@ -239,12 +250,8 @@ class ExploreFragment : Fragment() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        loadAndDisplay()
-    }
-
     private fun performFilterAndSort(query: String) {
+        if (!isAdded) return
         val allRecipes = RecipeRepository.getAllRecipes()
         val selectedCategory = categoryDropdown.text.toString()
         val lowerQuery = query.lowercase(Locale.ROOT).trim()

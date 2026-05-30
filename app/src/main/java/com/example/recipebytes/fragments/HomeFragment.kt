@@ -1,23 +1,25 @@
 package com.example.recipebytes.fragments
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import com.example.recipebytes.R
 import com.example.recipebytes.activities.AddRecipeActivity
 import com.example.recipebytes.activities.MainActivity
+import com.example.recipebytes.models.RecipeRepository
 import com.example.recipebytes.services.FirebaseAuthService
+import com.example.recipebytes.services.FirebaseRecipeService
 
 class HomeFragment : Fragment() {
 
     private val authService = FirebaseAuthService()
+    private val recipeService = FirebaseRecipeService()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,9 +31,7 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupCardClickListeners(view)
-        setupThemeToggle(view)
         setupProfileSection(view)
-
         loadUserData(view)
     }
 
@@ -55,17 +55,6 @@ class HomeFragment : Fragment() {
         activity.navigateToTab(tabId)
     }
 
-    private fun setupThemeToggle(view: View) {
-        view.findViewById<ImageView>(R.id.btnTheme).setOnClickListener {
-            val currentMode = AppCompatDelegate.getDefaultNightMode()
-            if (currentMode == AppCompatDelegate.MODE_NIGHT_YES) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            }
-        }
-    }
-
     private fun setupProfileSection(view: View) {
         view.findViewById<View>(R.id.btnViewProfile).setOnClickListener {
             navigateToTab(R.id.nav_profile)
@@ -75,6 +64,7 @@ class HomeFragment : Fragment() {
     private fun loadUserData(view: View) {
         val userId = authService.getCurrentUserId() ?: ""
         if (userId.isNotEmpty()) {
+            // Load user profile data
             authService.fetchUserFromDatabase(userId,
                 onSuccess = { user ->
                     val displayName = if (user?.username?.isNotEmpty() == true) user.username
@@ -86,8 +76,44 @@ class HomeFragment : Fragment() {
                     view.findViewById<TextView>(R.id.tvUsername).text = "Aunt_Sallys_Kitchen"
                 }
             )
+
+            // Load dashboard metrics
+            loadDashboardMetrics(view, userId)
         } else {
             view.findViewById<TextView>(R.id.tvUsername).text = "Aunt_Sallys_Kitchen"
+        }
+    }
+
+    private fun loadDashboardMetrics(view: View, userId: String) {
+        // Use RecipeRepository (same data source as Explore) instead of direct Firebase query
+        RecipeRepository.loadFromFirebase {
+            if (!isAdded) return@loadFromFirebase
+            
+            try {
+                val allRecipes = RecipeRepository.getAllRecipes()
+                val userRecipes = allRecipes.filter { it.userId == userId }
+                var total = 0
+                var pub = 0
+                var priv = 0
+                var likes = 0
+                for (r in userRecipes) {
+                    total++
+                    if (r.isPublic) pub++ else priv++
+                    likes += r.likesCount
+                }
+                
+                view.findViewById<TextView>(R.id.tvTotalRecipes)?.text = total.toString()
+                view.findViewById<TextView>(R.id.tvPublicCount)?.text = pub.toString()
+                view.findViewById<TextView>(R.id.tvPrivateCount)?.text = priv.toString()
+                view.findViewById<TextView>(R.id.tvTotalLikes)?.text = likes.toString()
+            } catch (e: Exception) {
+                android.util.Log.e("HomeFragment", "Error loading dashboard metrics", e)
+                // Set defaults on error
+                view.findViewById<TextView>(R.id.tvTotalRecipes)?.text = "0"
+                view.findViewById<TextView>(R.id.tvPublicCount)?.text = "0"
+                view.findViewById<TextView>(R.id.tvPrivateCount)?.text = "0"
+                view.findViewById<TextView>(R.id.tvTotalLikes)?.text = "0"
+            }
         }
     }
 }

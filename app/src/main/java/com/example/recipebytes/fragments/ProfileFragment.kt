@@ -2,11 +2,11 @@ package com.example.recipebytes.fragments
 
 import android.app.Dialog
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,14 +15,22 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.recipebytes.R
 import com.example.recipebytes.activities.MainActivity
 import com.example.recipebytes.activities.MyRecipesActivity
 import com.example.recipebytes.activities.SignInActivity
+import com.example.recipebytes.preferences.UserPreferencesRepository
 import com.example.recipebytes.services.FirebaseAuthService
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -32,29 +40,43 @@ class ProfileFragment : Fragment() {
     private val authService = FirebaseAuthService()
     private val storageRef = FirebaseStorage.getInstance().reference
     private var selectedImageUri: Uri? = null
+    private lateinit var preferencesRepository: UserPreferencesRepository
 
     private val imagePickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
-            selectedImageUri = uri
-            view?.findViewById<ImageView>(R.id.profileImage)?.let {
-                Glide.with(this).load(uri).circleCrop().into(it)
+            try {
+                val localUri = copyContentUriToCache(uri)
+                if (localUri != null) {
+                    selectedImageUri = localUri
+                    view?.findViewById<ImageView>(R.id.profileImage)?.let {
+                        Glide.with(this).load(uri).circleCrop().into(it)
+                    }
+                    uploadProfileImage(localUri)
+                } else {
+                    Toast.makeText(requireContext(), "Failed to process image", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Failed to process image", Toast.LENGTH_SHORT).show()
             }
-            uploadProfileImage(uri)
         }
     }
 
     private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
         if (bitmap != null) {
-            val uri = Uri.parse(
-                MediaStore.Images.Media.insertImage(
-                    requireContext().contentResolver, bitmap, "Profile_${UUID.randomUUID()}", null
-                )
-            )
-            selectedImageUri = uri
-            view?.findViewById<ImageView>(R.id.profileImage)?.let {
-                Glide.with(this).load(bitmap).circleCrop().into(it)
+            try {
+                val cacheFile = File(requireContext().cacheDir, "profile_camera_${UUID.randomUUID()}.jpg")
+                FileOutputStream(cacheFile).use { out ->
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+                }
+                val uri = Uri.fromFile(cacheFile)
+                selectedImageUri = uri
+                view?.findViewById<ImageView>(R.id.profileImage)?.let {
+                    Glide.with(this).load(bitmap).circleCrop().into(it)
+                }
+                uploadProfileImage(uri)
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Failed to process camera image", Toast.LENGTH_SHORT).show()
             }
-            uploadProfileImage(uri)
         }
     }
 
@@ -69,6 +91,9 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Initialize preferences repository
+        preferencesRepository = UserPreferencesRepository(requireContext())
+
         view.findViewById<TextView>(R.id.headerTitle).text = "My Profile"
 
         val logoutIcon = view.findViewById<ImageView>(R.id.primaryIcon)
@@ -81,10 +106,30 @@ class ProfileFragment : Fragment() {
         loadUserProfile(view)
 
         view.findViewById<View>(R.id.btnUpdateProfile).setOnClickListener {
-            val username = view.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.editUsername).text.toString()
-            val bio = view.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.editBio).text.toString()
-            Toast.makeText(requireContext(), "Profile updated! Username: $username", Toast.LENGTH_SHORT).show()
+            val username = view.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.editUsername).text.toString().trim()
+            val bio = view.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.editBio).text.toString().trim()
+            val userId = authService.getCurrentUserId()
+            if (userId != null) {
+                val updates = mutableMapOf<String, Any>()
+                if (username.isNotEmpty()) updates["username"] = username
+                if (bio.isNotEmpty()) updates["bio"] = bio
+                if (updates.isNotEmpty()) {
+                    authService.updateUser(userId, updates,
+                        onSuccess = {
+                            Toast.makeText(requireContext(), "Profile updated!", Toast.LENGTH_SHORT).show()
+                        },
+                        onError = { error ->
+                            Toast.makeText(requireContext(), "Failed to update: $error", Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
+            } else {
+                Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
+            }
         }
+
+        // Setup theme toggle
+        setupThemeToggle(view)
 
         view.findViewById<View>(R.id.tabMyRecipes).setOnClickListener {
             startActivity(Intent(requireContext(), MyRecipesActivity::class.java))
@@ -109,6 +154,43 @@ class ProfileFragment : Fragment() {
                 }
             }
             .show()
+    }
+
+    private fun copyContentUriToCache(uri: Uri): Uri? {
+        return try {
+            val inputStream = requireContext().contentResolver.openInputStream(uri) ?: return null
+            val cacheFile = File(requireContext().cacheDir, "profile_gallery_${UUID.randomUUID()}.jpg")
+            FileOutputStream(cacheFile).use { output ->
+                inputStream.copyTo(output)
+            }
+            inputStream.close()
+            Uri.fromFile(cacheFile)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun setupThemeToggle(view: View) {
+        val themeSwitchCompat = view.findViewById<SwitchCompat?>(R.id.switchTheme)
+        if (themeSwitchCompat != null) {
+            // Temporarily disable listener to set initial state without triggering recreate
+            themeSwitchCompat.setOnCheckedChangeListener(null)
+            // Get initial state once (not continuous collect)
+            lifecycleScope.launch {
+                val isDarkMode = preferencesRepository.isDarkModeFlow.first()
+                themeSwitchCompat.isChecked = isDarkMode
+                // Re-enable listener after initial state is set
+                themeSwitchCompat.setOnCheckedChangeListener { _, isChecked ->
+                    lifecycleScope.launch {
+                        preferencesRepository.setDarkMode(isChecked)
+                        val nightMode = if (isChecked) AppCompatDelegate.MODE_NIGHT_YES
+                        else AppCompatDelegate.MODE_NIGHT_NO
+                        AppCompatDelegate.setDefaultNightMode(nightMode)
+                        activity?.recreate()
+                    }
+                }
+            }
+        }
     }
 
     private fun uploadProfileImage(uri: Uri) {
@@ -184,6 +266,12 @@ class ProfileFragment : Fragment() {
         val prefs = requireContext().getSharedPreferences("login_prefs", 0)
         prefs.edit().clear().apply()
         authService.signOut()
+        
+        // Clear saved preferences on logout
+        lifecycleScope.launch {
+            preferencesRepository.clearPreferences()
+        }
+        
         Toast.makeText(requireContext(), "Logged out!", Toast.LENGTH_SHORT).show()
 
         val intent = Intent(requireContext(), SignInActivity::class.java)

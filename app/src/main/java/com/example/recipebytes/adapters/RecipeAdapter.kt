@@ -1,6 +1,9 @@
 package com.example.recipebytes.adapters
 
 import android.app.Dialog
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
@@ -11,8 +14,9 @@ import android.view.ViewGroup
 import android.view.Window
 import android.widget.Button
 import android.widget.ImageView
-import android.widget.Switch
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -38,7 +42,7 @@ class RecipeAdapter(
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val profileCircle: TextView = view.findViewById(R.id.profileCircle)
         val textUsername: TextView = view.findViewById(R.id.textUsername)
-        val switchPublic: Switch = view.findViewById(R.id.switchPublic)
+        val switchPublic: SwitchCompat = view.findViewById(R.id.switchPublic)
         val title: TextView = view.findViewById(R.id.textTitle)
         val desc: TextView = view.findViewById(R.id.textDescription)
         val delete: ImageView = view.findViewById(R.id.iconDelete)
@@ -48,6 +52,8 @@ class RecipeAdapter(
         val textLikesCount: TextView = view.findViewById(R.id.textLikesCount)
         val textLikersCount: TextView = view.findViewById(R.id.textLikersCount)
         val textCreatedAt: TextView = view.findViewById(R.id.textCreatedAt)
+        val iconShare: ImageView = view.findViewById(R.id.iconShare)
+        val iconCopy: ImageView = view.findViewById(R.id.iconCopy)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -59,19 +65,23 @@ class RecipeAdapter(
     override fun getItemCount() = recipes.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val recipe = recipes[position]
+        try {
+            val recipe = recipes[position]
 
-        holder.title.text = recipe.title
-        holder.desc.text  = recipe.description
+            holder.title.text = recipe.title
+            holder.desc.text = recipe.description
 
-        holder.switchPublic.visibility = if (showToggle && recipe.userId == currentUserId) View.VISIBLE else View.GONE
+            holder.switchPublic.visibility = if (showToggle && recipe.userId == currentUserId) View.VISIBLE else View.GONE
 
-        setupProfileSection(holder, recipe)
-        setupToggle(holder, recipe)
-        setupFavorite(holder, recipe)
-        setupLike(holder, recipe)
-        setupClickListeners(holder, recipe)
-        loadImage(holder, recipe)
+            setupProfileSection(holder, recipe)
+            setupToggle(holder, recipe)
+            setupFavorite(holder, recipe)
+            setupLike(holder, recipe)
+            setupClickListeners(holder, recipe)
+            loadImage(holder, recipe)
+        } catch (e: Exception) {
+            android.util.Log.e("RecipeAdapter", "bind error at $position", e)
+        }
     }
 
     private fun setupProfileSection(holder: ViewHolder, recipe: Recipe) {
@@ -160,12 +170,29 @@ class RecipeAdapter(
 
     private fun setupClickListeners(holder: ViewHolder, recipe: Recipe) {
         holder.delete.setOnClickListener { onDelete(recipe) }
-        holder.delete.setOnClickListener { onDelete(recipe) }
 
         holder.itemView.setOnClickListener {
             val intent = Intent(holder.itemView.context, RecipeViewDetailsScreen::class.java)
             intent.putExtra("recipe", recipe)
             holder.itemView.context.startActivity(intent)
+        }
+
+        val shareText = "${recipe.title}\n\n${recipe.description}"
+        holder.iconShare.setOnClickListener {
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, shareText)
+            }
+            holder.itemView.context.startActivity(
+                Intent.createChooser(intent, "Share Recipe")
+            )
+        }
+
+        holder.iconCopy.setOnClickListener {
+            val clipboard = holder.itemView.context
+                .getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            clipboard.setPrimaryClip(ClipData.newPlainText("Recipe", shareText))
+            Toast.makeText(holder.itemView.context, "Recipe copied to clipboard", Toast.LENGTH_SHORT).show()
         }
     }
 

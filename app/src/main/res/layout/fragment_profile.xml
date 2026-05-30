@@ -10,7 +10,8 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:padding="16dp">
 
         <LinearLayout
@@ -57,7 +58,7 @@
                     android:id="@+id/editUsername"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="User"
+                    android:text="loading..."
                     android:textSize="16sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -75,7 +76,7 @@
                     android:layout_height="wrap_content"
                     android:minLines="3"
                     android:gravity="top"
-                    android:text="New to Recipe Bytes"
+                    android:text="loading.."
                     android:textSize="14sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -105,8 +106,9 @@
             <!-- Update Profile Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnUpdateProfile"
-                android:layout_width="match_parent"
+                android:layout_width="232dp"
                 android:layout_height="48dp"
+                android:layout_gravity="center"
                 android:layout_marginTop="16dp"
                 android:text="Update Profile"
                 android:textColor="@color/buttontext"
@@ -115,82 +117,133 @@
                 app:cornerRadius="12dp"
                 app:backgroundTint="@color/secondary" />
 
-
-            <!-- My Recipes Tab -->
-            <LinearLayout
-                android:id="@+id/tabMyRecipes"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:padding="16dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackground">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_myplaces"
-                    app:tint="@color/primary" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="12dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="My Recipes"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/textcolor" />
-
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- Favorite Recipes Tab -->
-            <LinearLayout
-                android:id="@+id/tabFavoriteRecipes"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:padding="16dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackground">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_gallery"
-                    app:tint="@color/primary" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="12dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Favorite Recipes"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/textcolor" />
-
-                </LinearLayout>
-            </LinearLayout>
-
         </LinearLayout>
     </ScrollView>
+
+    <!-- Theme Toggle -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="32dp"
+        android:paddingRight="32dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground">
+
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="24dp"
+            android:src="@drawable/dayandnight"
+            app:tint="@color/textcolor" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dark Mode"
+                android:textSize="14sp"
+                android:textColor="@color/textcolor"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switchTheme"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:thumbTint="@color/textcolor"
+            app:trackTint="@color/gray"
+            android:checked="true" />
+    </LinearLayout>
+
+    <!-- My Recipes and Favorite Recipes Tabs -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- My Recipes Tab -->
+        <LinearLayout
+            android:id="@+id/tabMyRecipes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="29dp"
+                android:layout_height="30dp"
+                android:src="@drawable/myrecipe_icon" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="My Recipes"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/textcolor" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Favorite Recipes Tab -->
+        <LinearLayout
+            android:id="@+id/tabFavoriteRecipes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="24dp"
+                android:src="@drawable/fav_recipe_icon" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Favorite Recipes"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/textcolor" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
 
 </LinearLayout>

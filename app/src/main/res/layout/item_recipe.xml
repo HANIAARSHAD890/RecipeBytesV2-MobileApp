@@ -42,12 +42,31 @@
                 android:textColor="@color/textcolor"
                 android:text="Loading..." />
 
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/switchPublic"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"
-                android:layout_marginEnd="4dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginEnd="8dp">
+
+                <TextView
+                    android:id="@+id/textPublicPrivate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Public"
+                    android:textColor="@color/gray"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:layout_marginEnd="6dp" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switchPublic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    app:thumbTint="@color/textcolor"
+                    app:trackTint="@color/gray"/>
+            </LinearLayout>
 
             <ImageView
                 android:id="@+id/iconDelete"
@@ -143,10 +162,22 @@
                 android:id="@+id/iconShare"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
+                app:tint="@color/gray"
                 android:layout_marginStart="12dp"
                 android:src="@android:drawable/ic_menu_share"
                 android:clickable="true"
                 android:focusable="true" />
+
+            <ImageView
+                android:id="@+id/iconCopy"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="12dp"
+                android:src="@drawable/ic_copy"
+                app:tint="@color/gray"
+                android:clickable="true"
+                android:focusable="true"
+                android:scaleType="fitCenter" />
         </LinearLayout>
 
         <TextView

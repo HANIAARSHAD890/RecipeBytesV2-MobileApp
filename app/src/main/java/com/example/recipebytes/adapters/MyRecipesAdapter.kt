@@ -1,6 +1,7 @@
 package com.example.recipebytes.adapters
 
 import android.app.Dialog
+import androidx.appcompat.widget.SwitchCompat
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
@@ -35,7 +36,7 @@ class MyRecipesAdapter(
         val desc: TextView = view.findViewById(R.id.textDescription)
         val image: ImageView = view.findViewById(R.id.imageRecipe)
         val textCreatedAt: TextView = view.findViewById(R.id.textCreatedAt)
-        val switchPublic: androidx.appcompat.widget.SwitchCompat = view.findViewById(R.id.switchPublic)
+        val switchPublic: SwitchCompat = view.findViewById(R.id.switchPublic)
         val iconDelete: ImageView = view.findViewById(R.id.iconDelete)
     }
 
