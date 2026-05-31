@@ -50,6 +50,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-storage-ktx")
     testImplementation(libs.junit)
     //for image caching
     implementation("com.github.bumptech.glide:glide:4.16.0")
@@ -59,10 +60,16 @@ dependencies {
     implementation("com.google.android.material:material:1.9.0")
     // for storing data
     implementation ("com.google.code.gson:gson:2.10.1")
+    // for DataStore preferences (state persistence)
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
     // for navigation via cards in fragments
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
+    // for circular image view
+    implementation("de.hdodenhof:circleimageview:3.1.0")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("androidx.viewpager2:viewpager2:1.1.0")
+    implementation("com.tbuonomo:dotsindicator:5.0")
 }

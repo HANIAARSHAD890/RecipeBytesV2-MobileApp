@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Layout for the Home screen, providing a dashboard with quick access to main features. -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -13,15 +12,6 @@
         android:layout_height="140dp"
         android:background="@drawable/bg_view">
 
-        <ImageView
-            android:id="@+id/btnTheme"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/dayandnight"
-            android:layout_gravity="end|top"
-            android:layout_margin="16dp"
-            app:tint="@color/background"/>
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -32,146 +22,367 @@
             android:textStyle="bold" />
     </FrameLayout>
 
-    <!-- App tagline -->
-    <TextView
-        android:id="@+id/tvTagline"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/top_view"
-        android:layout_marginTop="24dp"
-        android:gravity="center"
-        android:paddingVertical="12dp"
-        android:text="✨ Your personal kitchen companion"
-        android:textColor="@color/primary"
-        android:textSize="23sp" />
-
-    <!-- Scrollable content containing feature cards -->
+    <!-- Scrollable dashboard content -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/tvTagline">
+        android:layout_below="@id/top_view">
 
-        <GridLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:columnCount="2"
-            android:alignmentMode="alignMargins">
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="80dp">
 
-            <!-- Card for exploring recipes -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/card_recepies"
-                android:layout_width="0dp"
-                android:layout_height="160dp"
-                android:layout_columnWeight="1"
-                android:layout_margin="8dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="4dp">
+            <!-- App tagline -->
+            <TextView
+                android:id="@+id/tvTagline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:paddingVertical="8dp"
+                android:text="✨ Your personal kitchen companion"
+                android:textColor="@color/primary"
+                android:textSize="23sp" />
+
+            <!-- === GREETING === -->
+            <TextView
+                android:id="@+id/tvGreeting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="👋 Welcome back!,"
+                android:textSize="16sp"
+                android:textColor="@color/gray"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/tvUsername"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:text="user"
+                android:textColor="@color/textcolor"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <!-- === MY KITCHEN OVERVIEW === -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="My Kitchen Overview"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/textcolor" />
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:columnCount="2"
+                android:alignmentMode="alignMargins">
+
+                <!-- Total Recipes -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="90dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🍽️"
+                            android:textSize="18sp" />
+                        <TextView
+                            android:id="@+id/tvTotalRecipes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/primary" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Total Recipes"
+                            android:textSize="11sp"
+                            android:textColor="@color/gray" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Public Count -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="90dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🌐"
+                            android:textSize="18sp" />
+                        <TextView
+                            android:id="@+id/tvPublicCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/primary" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Public"
+                            android:textSize="11sp"
+                            android:textColor="@color/gray" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Private Count -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="90dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🔒"
+                            android:textSize="18sp" />
+                        <TextView
+                            android:id="@+id/tvPrivateCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/primary" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Private"
+                            android:textSize="11sp"
+                            android:textColor="@color/gray" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Total Likes -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="90dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="❤️"
+                            android:textSize="18sp" />
+                        <TextView
+                            android:id="@+id/tvTotalLikes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/primary" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Total Likes"
+                            android:textSize="11sp"
+                            android:textColor="@color/gray" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+            </GridLayout>
+
+            <!-- === VIEW PROFILE BUTTON === -->
+            <Button
+                android:id="@+id/btnViewProfile"
+                android:layout_width="232dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="20dp"
+                android:layout_gravity="center"
+                android:text="View Profile"
+                android:textSize="14sp"
+                android:textColor="@color/buttontext"
+                android:backgroundTint="@color/primary" />
+
+            <!-- === FEATURE CARDS CAROUSEL === -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Quick Actions"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/textcolor" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:scrollbars="none">
+
                 <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:orientation="vertical">
-                    <ImageView
-                        android:layout_width="70dp"
-                        android:layout_height="70dp"
-                        android:src="@drawable/recepie_icon" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Explore recipes"
-                        android:textStyle="bold"
-                        android:textColor="@color/textcolor" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
 
-            <!-- Card for the meal planner -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/card_mealplanner"
-                android:layout_width="0dp"
-                android:layout_height="160dp"
-                android:layout_columnWeight="1"
-                android:layout_margin="8dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="4dp">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:orientation="vertical">
-                    <ImageView
-                        android:layout_width="70dp"
-                        android:layout_height="70dp"
-                        android:src="@drawable/mealplanner_icon" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Plan your week"
-                        android:textStyle="bold"
-                        android:textColor="@color/textcolor" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
+                    <!-- Card for exploring recipes -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/card_recepies"
+                        android:layout_width="160dp"
+                        android:layout_height="160dp"
+                        android:layout_marginEnd="12dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="4dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical">
+                            <ImageView
+                                android:layout_width="60dp"
+                                android:layout_height="60dp"
+                                android:src="@drawable/recepie_icon"
+                            />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="Explore recipes"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/textcolor"
+                                android:gravity="center" />
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
 
-            <!-- Card for smart recipe suggestions -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/card_smartsuggest"
-                android:layout_width="0dp"
-                android:layout_height="160dp"
-                android:layout_columnWeight="1"
-                android:layout_margin="8dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="4dp">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:orientation="vertical">
-                    <ImageView
-                        android:layout_width="70dp"
-                        android:layout_height="70dp"
-                        android:src="@drawable/smartsuggest_icon" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Suggest recipe"
-                        android:textStyle="bold"
-                        android:textColor="@color/textcolor" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
+                    <!-- Card for the meal planner -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/card_mealplanner"
+                        android:layout_width="160dp"
+                        android:layout_height="160dp"
+                        android:layout_marginEnd="12dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="4dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical">
+                            <ImageView
+                                android:layout_width="60dp"
+                                android:layout_height="60dp"
+                                android:src="@drawable/mealplanner_icon" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="Plan your week"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/textcolor"
+                                android:gravity="center" />
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
 
-            <!-- Card for adding a new recipe -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/card_add_recipe"
-                android:layout_width="0dp"
-                android:layout_height="160dp"
-                android:layout_columnWeight="1"
-                android:layout_margin="8dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="4dp">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:orientation="vertical">
-                    <ImageView
-                        android:layout_width="70dp"
-                        android:layout_height="70dp"
-                        android:src="@drawable/ic_add"
-                        app:tint="@color/primary"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Add your recipe"
-                        android:textStyle="bold"
-                        android:textColor="@color/textcolor" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
+                    <!-- Card for smart recipe suggestions -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/card_smartsuggest"
+                        android:layout_width="160dp"
+                        android:layout_height="160dp"
+                        android:layout_marginEnd="12dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="4dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical">
+                            <ImageView
+                                android:layout_width="60dp"
+                                android:layout_height="60dp"
+                                android:src="@drawable/smartsuggest_icon" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="Suggest recipe"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/textcolor"
+                                android:gravity="center" />
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
 
-        </GridLayout>
+                    <!-- Card for adding a new recipe -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/card_add_recipe"
+                        android:layout_width="160dp"
+                        android:layout_height="160dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="4dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical">
+                            <ImageView
+                                android:layout_width="60dp"
+                                android:layout_height="60dp"
+                                android:src="@drawable/ic_add"
+                                app:tint="@color/primary"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="Add your recipe"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/textcolor"
+                                android:gravity="center" />
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                </LinearLayout>
+            </HorizontalScrollView>
+
+        </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
 </RelativeLayout>

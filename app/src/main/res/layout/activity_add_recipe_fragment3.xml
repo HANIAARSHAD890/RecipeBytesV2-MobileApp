@@ -70,8 +70,9 @@
         <!-- Button to add a new step row -->
         <Button
             android:id="@+id/btnAddStep"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="232dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
             android:text="Add Step"
             android:layout_marginBottom="10dp"
             android:backgroundTint="@color/secondary"
@@ -80,8 +81,9 @@
         <!-- Button to proceed to the final step -->
         <Button
             android:id="@+id/btnNext3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="232dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
             android:text="Next"
             android:backgroundTint="@color/secondary"
             android:textColor="@color/buttontext"/>

@@ -77,6 +77,14 @@ object RecipeRepository {
         return recipes
     }
 
+    fun updateLikesCountLocally(recipeId: String, delta: Int) {
+        val idx = recipes.indexOfFirst { it.recipeId == recipeId }
+        if (idx >= 0) {
+            val current = recipes[idx].likesCount
+            recipes[idx] = recipes[idx].copy(likesCount = (current + delta).coerceAtLeast(0))
+        }
+    }
+
     fun updateRecipe(context: android.content.Context, oldTitle: String, updatedRecipe: Recipe): Boolean {
         val index = recipes.indexOfFirst {
             it.title.equals(oldTitle, ignoreCase = true)

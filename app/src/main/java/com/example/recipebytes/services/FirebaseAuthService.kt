@@ -48,9 +48,12 @@ class FirebaseAuthService {
                 Log.d(TAG, " Auth account created! UID: $userId")
 
                 // Step 2: Save to Realtime Database (NO password stored!)
+                val autoUsername = email.substringBefore("@")
                 val user = User(
                     uid = userId,
                     email = email,
+                    username = autoUsername,
+                    bio = "I'm new here to Recipe Bytes!",
                     createdAt = System.currentTimeMillis()
                 )
 

@@ -43,7 +43,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:boxBackgroundColor="@color/whiteapp"
             app:strokeColor="@color/primary"
             app:hintTextColor="@color/primary"
             app:boxStrokeWidth="2dp"
@@ -51,7 +50,8 @@
             app:boxCornerRadiusBottomStart="8dp"
             app:boxCornerRadiusTopEnd="8dp"
             app:boxCornerRadiusTopStart="8dp"
-            app:startIconDrawable="@android:drawable/ic_dialog_email"
+            app:boxBackgroundColor="@android:color/transparent"
+            app:startIconDrawable="@drawable/ic_email_icon"
             app:startIconTint="@color/primary"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
@@ -74,7 +74,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            app:boxBackgroundColor="@color/whiteapp"
             app:strokeColor="@color/primary"
             app:hintTextColor="@color/primary"
             app:boxStrokeWidth="2dp"
@@ -82,6 +81,7 @@
             app:boxCornerRadiusBottomStart="8dp"
             app:boxCornerRadiusTopEnd="8dp"
             app:boxCornerRadiusTopStart="8dp"
+            app:boxBackgroundColor="@android:color/transparent"
             app:endIconMode="password_toggle"
             app:startIconDrawable="@android:drawable/ic_lock_idle_lock"
             app:startIconTint="@color/primary"
@@ -94,25 +94,10 @@
                 android:hint="Password"
                 android:inputType="textPassword"
                 android:textColor="@color/textcolor"
-                android:textColorHint="@color/textcolor"
                 android:padding="16dp"
                 android:paddingStart="48dp"
                 android:textSize="14sp" />
         </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Forgot Password Link -->
-        <TextView
-            android:id="@+id/forgotPasswordLink"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Forgot Password?"
-            android:textColor="@color/primary"
-            android:textSize="12sp"
-            android:layout_gravity="end"
-            android:layout_marginBottom="16dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?attr/selectableItemBackground" />
 
         <!-- Error Message -->
         <TextView
@@ -140,7 +125,7 @@
             android:id="@+id/signInBtn"
             android:layout_width="match_parent"
             android:layout_height="54dp"
-            android:text="SIGN IN"
+            android:text="Sign In"
             android:textColor="@color/buttontext"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -148,7 +133,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="24dp"
             app:backgroundTint="@color/primary"
-            app:cornerRadius="8dp"
+            app:cornerRadius="26dp"
             app:elevation="4dp" />
 
         <!-- Divider -->
@@ -163,7 +148,6 @@
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1"
-                android:background="@color/textcolor"
                 android:alpha="0.3" />
 
             <TextView
@@ -180,7 +164,6 @@
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1"
-                android:background="@color/textcolor"
                 android:alpha="0.3" />
         </LinearLayout>
 

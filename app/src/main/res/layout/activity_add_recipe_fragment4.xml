@@ -195,13 +195,14 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLoadUrl"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
                 android:text="Load Image from URL"
+                android:textSize="16sp"
                 android:textColor="@color/buttontext"
                 android:backgroundTint="@color/primary"
                 android:visibility="gone"
                 android:layout_marginBottom="16dp"
-                app:cornerRadius="8dp"/>
+                app:cornerRadius="26dp"/>
 
             <!-- Error text -->
             <TextView
@@ -223,7 +224,7 @@
                 android:textSize="16sp"
                 android:textColor="@color/buttontext"
                 android:backgroundTint="@color/secondary"
-                app:cornerRadius="26dp"/>
+                app:cornerRadius="26dp" />
 
         </LinearLayout>
     </ScrollView>

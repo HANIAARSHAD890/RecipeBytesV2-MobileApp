@@ -11,9 +11,11 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.recipebytes.MealReminderReceiver
 import com.example.recipebytes.PowerReceiver
 import com.example.recipebytes.R
@@ -22,25 +24,37 @@ import com.example.recipebytes.fragments.HomeFragment
 import com.example.recipebytes.fragments.PlannerFragment
 import com.example.recipebytes.fragments.ProfileFragment
 import com.example.recipebytes.fragments.SuggestFragment
+import com.example.recipebytes.preferences.UserPreferencesRepository
 import com.example.recipebytes.services.FirebaseAuthService
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
     private val authService = FirebaseAuthService()
     private lateinit var bottomNav: BottomNavigationView
     private lateinit var powerReceiver: PowerReceiver
+    private lateinit var preferencesRepository: UserPreferencesRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        bottomNav = findViewById(R.id.bottom_nav_view)
+        
+        // Initialize preferences repository
+        preferencesRepository = UserPreferencesRepository(this)
+        
+        // Apply saved theme BEFORE setContentView
+        lifecycleScope.launch {
+            preferencesRepository.isDarkModeFlow.collect { isDarkMode ->
+                val nightMode = if (isDarkMode) {
+                    AppCompatDelegate.MODE_NIGHT_YES
+                } else {
+                    AppCompatDelegate.MODE_NIGHT_NO
+                }
+                AppCompatDelegate.setDefaultNightMode(nightMode)
+            }
+        }
 
-        handleNotificationPermission()
-        scheduleMealReminder()
-        setupWindowInsets()
-        setupBottomNavigation()
-
+        // Get userId first
         val userId = intent.getStringExtra("userId")
             ?: authService.getCurrentUserId()
             ?: ""
@@ -51,14 +65,65 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        loadFragment(HomeFragment())
+        // Check user-specific onboarding flag
+        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        val onboardingDone = prefs.getBoolean("onboarding_done_$userId", false) || 
+                              prefs.getBoolean("onboarding_done", false)
+        
+        if (!onboardingDone) {
+            val intent = Intent(this, OnboardingActivity::class.java)
+            intent.putExtra("userId", userId)
+            startActivity(intent)
+            finish()
+            return
+        }
+
+        setContentView(R.layout.activity_main)
+        bottomNav = findViewById(R.id.bottom_nav_view)
+
+        handleNotificationPermission()
+        scheduleMealReminder()
+        setupWindowInsets()
+        setupBottomNavigation()
+
+        // Load last viewed screen
+        lifecycleScope.launch {
+            preferencesRepository.lastScreenFlow.collect { lastScreen ->
+                when (lastScreen) {
+                    "explore" -> {
+                        loadFragment(ExploreFragment())
+                        bottomNav.selectedItemId = R.id.nav_explore
+                    }
+                    "planner" -> {
+                        loadFragment(PlannerFragment())
+                        bottomNav.selectedItemId = R.id.nav_planner
+                    }
+                    "profile" -> {
+                        loadFragment(ProfileFragment())
+                        bottomNav.selectedItemId = R.id.nav_profile
+                    }
+                    "suggest" -> {
+                        loadFragment(SuggestFragment())
+                        bottomNav.selectedItemId = R.id.nav_suggest
+                    }
+                    else -> {
+                        loadFragment(HomeFragment())
+                        bottomNav.selectedItemId = R.id.nav_home
+                    }
+                }
+            }
+        }
 
         supportFragmentManager.addOnBackStackChangedListener {
             syncBottomNav()
         }
     }
 
-    // ── navigation ────────────────────────────────────────────────────────────
+    // ── navigation
+
+    fun navigateToTab(tabId: Int) {
+        bottomNav.selectedItemId = tabId
+    }
 
     private fun setupBottomNavigation() {
         val states = arrayOf(
@@ -75,13 +140,44 @@ class MainActivity : AppCompatActivity() {
 
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.nav_home      -> { loadFragment(HomeFragment());      true }
-                R.id.nav_explore   -> { loadFragment(ExploreFragment());   true }
-                R.id.nav_planner   -> { loadFragment(PlannerFragment());   true }
-                R.id.nav_profile   -> { loadFragment(ProfileFragment());   true }
-                R.id.nav_suggest  -> { loadFragment(SuggestFragment());   true }
+                R.id.nav_home -> {
+                    loadFragment(HomeFragment())
+                    lifecycleScope.launch { preferencesRepository.setLastScreen("home") }
+                    true
+                }
+                R.id.nav_explore -> {
+                    val frag = ExploreFragment()
+                    loadFragment(frag)
+                    lifecycleScope.launch { preferencesRepository.setLastScreen("explore") }
+                    true
+                }
+                R.id.nav_planner -> {
+                    loadFragment(PlannerFragment())
+                    lifecycleScope.launch { preferencesRepository.setLastScreen("planner") }
+                    true
+                }
+                R.id.nav_profile -> {
+                    loadFragment(ProfileFragment())
+                    lifecycleScope.launch { preferencesRepository.setLastScreen("profile") }
+                    true
+                }
+                R.id.nav_suggest -> {
+                    loadFragment(SuggestFragment())
+                    lifecycleScope.launch { preferencesRepository.setLastScreen("suggest") }
+                    true
+                }
                 else -> false
             }
+        }
+
+        // Handle initial navigation if opened from Favorite Recipes
+        if (intent.getBooleanExtra("open_favorites", false)) {
+            intent.removeExtra("open_favorites")
+            val frag = ExploreFragment()
+            frag.arguments = Bundle().apply { putBoolean("show_favorites", true) }
+            loadFragment(frag)
+            bottomNav.selectedItemId = R.id.nav_explore
+            lifecycleScope.launch { preferencesRepository.setLastScreen("explore") }
         }
     }
 
@@ -102,7 +198,7 @@ class MainActivity : AppCompatActivity() {
             .commit()
     }
 
-    // ── permissions ───────────────────────────────────────────────────────────
+    // ── permissions
 
     private fun handleNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -123,7 +219,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // ── alarm ─────────────────────────────────────────────────────────────────
+    // ── alarm
 
     private fun scheduleMealReminder() {
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -152,7 +248,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // ── receiver ──────────────────────────────────────────────────────────────
+    // ── receiver
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (intent.getBooleanExtra("open_favorites", false)) {
+            intent.removeExtra("open_favorites")
+            val frag = ExploreFragment()
+            frag.arguments = Bundle().apply { putBoolean("show_favorites", true) }
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, frag)
+                .commit()
+            bottomNav.selectedItemId = R.id.nav_explore
+        }
+    }
 
     override fun onStart() {
         super.onStart()

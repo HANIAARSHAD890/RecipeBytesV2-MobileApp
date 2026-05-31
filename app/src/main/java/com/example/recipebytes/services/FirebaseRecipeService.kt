@@ -5,6 +5,7 @@ import com.example.recipebytes.models.Ingredient
 import com.example.recipebytes.models.Nutrition
 import com.example.recipebytes.models.Recipe
 import com.example.recipebytes.models.Step
+import com.example.recipebytes.models.User
 import com.google.firebase.database.*
 
 class FirebaseRecipeService {
@@ -113,6 +114,90 @@ class FirebaseRecipeService {
             }
             .addOnFailureListener {
                 onResult(emptySet())
+            }
+    }
+
+    fun addLike(userId: String, recipeId: String) {
+        // Add to user's likes set
+        database.child("users").child(userId).child("likes").child(recipeId).setValue(true)
+        // Add to recipe's likedBy set (for showing who liked it)
+        recipesRef.child(recipeId).child("likedBy").child(userId).setValue(true)
+        // Update likes count
+        recipesRef.child(recipeId).child("likesCount")
+            .runTransaction(object : Transaction.Handler {
+                override fun doTransaction(currentData: MutableData): Transaction.Result {
+                    val current = currentData.getValue(Int::class.java) ?: 0
+                    currentData.value = current + 1
+                    return Transaction.success(currentData)
+                }
+                override fun onComplete(error: DatabaseError?, committed: Boolean, currentData: DataSnapshot?) {}
+            })
+    }
+
+    fun removeLike(userId: String, recipeId: String) {
+        // Remove from user's likes set
+        database.child("users").child(userId).child("likes").child(recipeId).removeValue()
+        // Remove from recipe's likedBy set
+        recipesRef.child(recipeId).child("likedBy").child(userId).removeValue()
+        // Update likes count
+        recipesRef.child(recipeId).child("likesCount")
+            .runTransaction(object : Transaction.Handler {
+                override fun doTransaction(currentData: MutableData): Transaction.Result {
+                    val current = currentData.getValue(Int::class.java) ?: 1
+                    currentData.value = (current - 1).coerceAtLeast(0)
+                    return Transaction.success(currentData)
+                }
+                override fun onComplete(error: DatabaseError?, committed: Boolean, currentData: DataSnapshot?) {}
+            })
+    }
+
+    fun getLikedIds(userId: String, onResult: (Set<String>) -> Unit) {
+        database.child("users").child(userId).child("likes").get()
+            .addOnSuccessListener { snapshot ->
+                val ids = mutableSetOf<String>()
+                for (child in snapshot.children) {
+                    child.key?.let { ids.add(it) }
+                }
+                onResult(ids)
+            }
+            .addOnFailureListener {
+                onResult(emptySet())
+            }
+    }
+
+    fun getLikedByUsers(recipeId: String, onResult: (Map<String, User>) -> Unit) {
+        val likedByRef = database.child("recipes").child(recipeId).child("likedBy")
+        likedByRef.get()
+            .addOnSuccessListener { snapshot ->
+                val likedByMap = hashMapOf<String, User>()
+                val childrenCount = snapshot.childrenCount
+                if (childrenCount == 0L) {
+                    onResult(likedByMap)
+                    return@addOnSuccessListener
+                }
+
+                for (child in snapshot.children) {
+                    val userId = child.key ?: continue
+                    // Fetch user details for this userId
+                    database.child("users").child(userId).get()
+                        .addOnSuccessListener { userSnapshot ->
+                            val user = userSnapshot.getValue(User::class.java)
+                            if (user != null) {
+                                likedByMap[userId] = user
+                            }
+                            // If we've fetched all users, call the callback
+                            if (likedByMap.size.toLong() == childrenCount) {
+                                onResult(likedByMap)
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e(TAG, "Error fetching user $userId: ${e.message}")
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Error fetching likedBy for recipe $recipeId: ${e.message}")
+                onResult(emptyMap<String, User>())
             }
     }
 
@@ -258,5 +343,39 @@ class FirebaseRecipeService {
         }
 
         return map
+    }
+
+    fun fetchUserDashboardMetrics(
+        userId: String,
+        onSuccess: (totalRecipes: Int, publicCount: Int, privateCount: Int, totalLikes: Int) -> Unit,
+        onError: (error: String) -> Unit
+    ) {
+        recipesRef.orderByChild("userId").equalTo(userId).get()
+            .addOnSuccessListener { snapshot ->
+                var totalRecipes = 0
+                var publicCount = 0
+                var privateCount = 0
+                var totalLikes = 0
+
+                for (child in snapshot.children) {
+                    val recipe = childToRecipe(child)
+                    if (recipe != null) {
+                        totalRecipes++
+                        if (recipe.isPublic) {
+                            publicCount++
+                        } else {
+                            privateCount++
+                        }
+                        totalLikes += recipe.likesCount
+                    }
+                }
+
+                Log.d(TAG, "Dashboard metrics - Total: $totalRecipes, Public: $publicCount, Private: $privateCount, Likes: $totalLikes")
+                onSuccess(totalRecipes, publicCount, privateCount, totalLikes)
+            }
+            .addOnFailureListener { error ->
+                Log.e(TAG, "Error fetching dashboard metrics: ${error.message}")
+                onError(error.message ?: "Failed to fetch dashboard metrics")
+            }
     }
 }

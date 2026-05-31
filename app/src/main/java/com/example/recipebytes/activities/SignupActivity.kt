@@ -2,6 +2,8 @@ package com.example.recipebytes.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -46,6 +48,73 @@ class SignUpActivity : AppCompatActivity() {
         // Set up listeners
         signUpBtn.setOnClickListener { handleSignUp() }
         signInLink.setOnClickListener { navigateToSignIn() }
+        
+        // Add real-time validation
+        setupEmailValidation()
+        setupPasswordValidation()
+    }
+
+    private fun setupEmailValidation() {
+        emailInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                val email = s.toString().trim()
+                when {
+                    email.isEmpty() -> {
+                        emailLayout.error = "Email is required"
+                    }
+                    !isValidEmail(email) -> {
+                        emailLayout.error = "Please enter a valid email address"
+                    }
+                    else -> {
+                        emailLayout.error = null
+                    }
+                }
+            }
+        })
+    }
+
+    private fun setupPasswordValidation() {
+        passwordInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                val password = s.toString()
+                val errors = mutableListOf<String>()
+
+                if (password.isEmpty()) {
+                    errors.add("Password is required")
+                } else {
+                    if (password.length < 8) {
+                        errors.add("• Minimum 8 characters")
+                    }
+                    if (!password.any { it.isUpperCase() }) {
+                        errors.add("• At least one uppercase letter")
+                    }
+                    if (!password.any { it.isLowerCase() }) {
+                        errors.add("• At least one lowercase letter")
+                    }
+                    if (!password.any { it.isDigit() }) {
+                        errors.add("• At least one number")
+                    }
+                }
+
+                if (errors.isNotEmpty()) {
+                    passwordLayout.error = errors.joinToString("\n")
+                } else {
+                    passwordLayout.error = null
+                }
+            }
+        })
+    }
+
+    private fun isValidEmail(email: String): Boolean {
+        return email.contains("@") && email.contains(".") && email.length > 5
     }
 
     private fun handleSignUp() {
@@ -55,16 +124,27 @@ class SignUpActivity : AppCompatActivity() {
         // Clear previous errors
         errorText.visibility = View.GONE
 
-        // Validate
         if (email.isEmpty()) {
             showError("Please enter email")
-            emailLayout.requestFocus()
+            emailInput.requestFocus()
+            return
+        }
+
+        if (!isValidEmail(email)) {
+            showError("Please enter a valid email address")
+            emailInput.requestFocus()
             return
         }
 
         if (password.isEmpty()) {
             showError("Please enter password")
-            passwordLayout.requestFocus()
+            passwordInput.requestFocus()
+            return
+        }
+
+        if (password.length < 8) {
+            showError("Password must be at least 8 characters")
+            passwordInput.requestFocus()
             return
         }
 
@@ -74,9 +154,19 @@ class SignUpActivity : AppCompatActivity() {
         authService.signUp(email, password,
             onSuccess = { userId ->
                 showProgress(false)
-                Toast.makeText(this, "Account created successfully! Please sign in.", Toast.LENGTH_SHORT).show()
-                authService.signOut()
-                navigateToSignIn()
+                Toast.makeText(this, "Account created successfully!", Toast.LENGTH_SHORT).show()
+                
+                // Mark onboarding as not done for this new user
+                val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+                prefs.edit()
+                    .putBoolean("onboarding_done_$userId", false)
+                    .apply()
+                
+                // Navigate to onboarding directly
+                val intent = Intent(this, OnboardingActivity::class.java)
+                intent.putExtra("userId", userId)
+                startActivity(intent)
+                finish()
             },
             onError = { error ->
                 showProgress(false)
@@ -99,11 +189,4 @@ class SignUpActivity : AppCompatActivity() {
         startActivity(Intent(this, SignInActivity::class.java))
         finish()
     }
-//
-//    private fun navigateToHome(userId: String) {
-//        val intent = Intent(this, MainActivity::class.java)
-//        intent.putExtra("userId", userId)
-//        startActivity(intent)
-//        finish()
-   // }
 }

@@ -66,8 +66,9 @@
             android:textColor="@color/buttontext"
             android:layout_marginTop="12dp"
             android:layout_marginBottom="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="232dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
             android:backgroundTint="@color/secondary"/>
 
         <!-- Button to proceed to the next step -->
@@ -75,8 +76,9 @@
             android:id="@+id/btnNext2"
             android:textColor="@color/buttontext"
             android:text="Next"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="232dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
             android:backgroundTint="@color/secondary"/>
     </LinearLayout>
 
