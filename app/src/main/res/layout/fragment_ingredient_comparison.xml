@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/appBackground"
+    android:fitsSystemWindows="true">
+
+    <include
+        layout="@layout/primaryheader"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"/>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Recipe title -->
+            <TextView
+                android:id="@+id/tvCompareRecipeTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/textcolor"
+                android:layout_marginBottom="4dp"/>
+
+            <!-- Match summary -->
+            <TextView
+                android:id="@+id/tvCompareSummary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:textColor="@color/secondary"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Have ingredients section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="✅ Ingredients You Have"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/textcolor"
+                android:layout_marginBottom="8dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvHaveIngredients"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Missing ingredients section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="❌ Ingredients You Need"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/textcolor"
+                android:layout_marginBottom="8dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvMissingIngredients"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:layout_marginBottom="24dp"/>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Add to shopping list button -->
+    <Button
+        android:id="@+id/btnAddToShoppingList"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_margin="16dp"
+        android:text="🛒 Add Missing to Shopping List"
+        android:textColor="@color/buttontext"
+        android:backgroundTint="@color/secondary"/>
+
+</LinearLayout>

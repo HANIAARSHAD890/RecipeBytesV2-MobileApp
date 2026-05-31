@@ -22,7 +22,8 @@ data class SuggestResult(
  * Adapter for displaying recipe suggestions and their match quality.
  */
 class SuggestResultAdapter(
-    private val results: MutableList<SuggestResult>
+    private val results: MutableList<SuggestResult>,
+    private val onItemClick: (SuggestResult) -> Unit
 ) : RecyclerView.Adapter<SuggestResultAdapter.ViewHolder>() {
 
     /**
@@ -50,6 +51,8 @@ class SuggestResultAdapter(
             "Matching ingredients: ${result.matchCount} / ${result.totalIngredients}"
 
         setupMatchLabel(holder, result.matchLabel)
+
+        holder.itemView.setOnClickListener { onItemClick(result) }
     }
 
     /**

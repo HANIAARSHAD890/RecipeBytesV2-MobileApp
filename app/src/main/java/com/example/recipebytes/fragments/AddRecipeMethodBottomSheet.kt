@@ -276,27 +276,32 @@ class AddRecipeMethodBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun callGroqWithLink(link: String): RecipeData {
-        // Step 1 — fetch the webpage content yourself
-        // Step 1 — fetch the webpage content yourself
-        val pageContent = try {
-            val pageConn = URL(link).openConnection() as HttpURLConnection
-            pageConn.setRequestProperty("User-Agent", "Mozilla/5.0")
-            pageConn.connectTimeout = 10000
-            pageConn.readTimeout    = 10000
-            val text = pageConn.inputStream.bufferedReader().readText()
-            pageConn.disconnect()
-            val cleaned = text.replace(Regex("<[^>]*>"), " ")
-                .replace(Regex("\\s+"), " ")
-                .trim()
-                .take(4000)
-            android.util.Log.d("LinkRecipe", "Page fetched, length: ${cleaned.length}")
-            cleaned
-        } catch (e: Exception) {
-            android.util.Log.e("LinkRecipe", "Fetch failed: ${e.message}")
-            throw Exception("Could not fetch page: ${e.message}")
+        val isYouTube = link.contains("youtube.com") || link.contains("youtu.be")
+
+        val pageContent = if (isYouTube) {
+            val videoId = extractYouTubeVideoId(link)
+                ?: throw Exception("Invalid YouTube URL")
+            fetchYouTubeDescription(videoId)
+        } else {
+            try {
+                val pageConn = URL(link).openConnection() as HttpURLConnection
+                pageConn.setRequestProperty("User-Agent", "Mozilla/5.0")
+                pageConn.connectTimeout = 10000
+                pageConn.readTimeout    = 10000
+                val text = pageConn.inputStream.bufferedReader().readText()
+                pageConn.disconnect()
+                val cleaned = text.replace(Regex("<[^>]*>"), " ")
+                    .replace(Regex("\\s+"), " ")
+                    .trim()
+                    .take(4000)
+                android.util.Log.d("LinkRecipe", "Page fetched, length: ${cleaned.length}")
+                cleaned
+            } catch (e: Exception) {
+                android.util.Log.e("LinkRecipe", "Fetch failed: ${e.message}")
+                throw Exception("Could not fetch page: ${e.message}")
+            }
         }
 
-        // Step 2 — send page text to Groq to extract recipe
         val url  = URL("https://api.groq.com/openai/v1/chat/completions")
         val conn = url.openConnection() as HttpURLConnection
         conn.requestMethod = "POST"
@@ -310,22 +315,27 @@ class AddRecipeMethodBottomSheet : BottomSheetDialogFragment() {
             put("messages", JSONArray().apply {
                 put(JSONObject().apply {
                     put("role", "system")
-                    put("content", "You are a recipe extractor. Always respond with only valid JSON, no markdown, no explanation.")
+                    put("content", "You are a recipe extractor. Always respond with only valid JSON, no markdown, no explanation. If content is in Urdu or any other language, translate to English.")
                 })
                 put(JSONObject().apply {
                     put("role", "user")
                     put("content", """
-                    Extract the recipe from this webpage content and respond ONLY with this JSON:
+                    Extract the recipe from this content and respond ONLY with this exact JSON:
                     {
-                      "title": "",
-                      "description": "",
-                      "category": "Breakfast|Lunch|Dinner|Dessert",
-                      "cookingTime": "",
-                      "ingredients": [{"name": "", "quantity": ""}],
-                      "steps": ["step1", "step2"]
+                      "title": "recipe name",
+                      "description": "brief description",
+                      "category": "Breakfast",
+                      "cookingTime": "30",
+                      "ingredients": [
+                        {"name": "ingredient name", "quantity": "amount"}
+                      ],
+                      "steps": [
+                        "step 1",
+                        "step 2"
+                      ]
                     }
                     
-                    Webpage content:
+                    Content:
                     $pageContent
                 """.trimIndent())
                 })
@@ -345,6 +355,7 @@ class AddRecipeMethodBottomSheet : BottomSheetDialogFragment() {
         }
         conn.disconnect()
 
+        android.util.Log.d("LinkRecipe", "Groq response: $response")
         return parseRecipeJson(response)
     }
 
@@ -421,6 +432,48 @@ class AddRecipeMethodBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun getGroqApiKey() = "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"
+    private fun getYouTubeApiKey() = "AIzaSyA4nnp7TC496TldfDH-swgSVPmv5FXSP30"
+
+    private fun extractYouTubeVideoId(url: String): String? {
+        return when {
+            url.contains("youtu.be/") ->
+                url.substringAfter("youtu.be/").substringBefore("?")
+            url.contains("youtube.com/watch") ->
+                url.substringAfter("v=").substringBefore("&")
+            url.contains("youtube.com/shorts/") ->
+                url.substringAfter("shorts/").substringBefore("?")
+            else -> null
+        }
+    }
+    private fun fetchYouTubeDescription(videoId: String): String {
+        val apiUrl = "https://www.googleapis.com/youtube/v3/videos?id=$videoId&part=snippet&key=${getYouTubeApiKey()}"
+        val conn = URL(apiUrl).openConnection() as HttpURLConnection
+        conn.requestMethod = "GET"
+        conn.connectTimeout = 10000
+        conn.readTimeout    = 10000
+
+        val responseCode = conn.responseCode
+        val response = if (responseCode == HttpURLConnection.HTTP_OK) {
+            conn.inputStream.bufferedReader().readText()
+        } else {
+            val error = conn.errorStream?.bufferedReader()?.readText() ?: "No error"
+            conn.disconnect()
+            throw Exception("YouTube API error: $error")
+        }
+        conn.disconnect()
+
+        val json    = JSONObject(response)
+        val items   = json.getJSONArray("items")
+        if (items.length() == 0) throw Exception("Video not found")
+
+        val snippet     = items.getJSONObject(0).getJSONObject("snippet")
+        val title       = snippet.optString("title", "")
+        val description = snippet.optString("description", "")
+
+        if (description.isEmpty()) throw Exception("No description found in this video")
+
+        return "Video Title: $title\n\nDescription:\n$description"
+    }
 
     data class RecipeData(
         val title: String,
