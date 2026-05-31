@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Layout for a single ingredient item row, typically used in a RecyclerView. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
@@ -20,6 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Ingredient"
+            android:inputType="text"
             android:textSize="16sp"
             android:textColor="@color/textcolor"
             android:padding="12dp"/>
@@ -37,8 +37,8 @@
             android:id="@+id/etQuantity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Qty in g"
-            android:inputType="numberDecimal"
+            android:hint="Qty (e.g. 500g, 2 cups)"
+            android:inputType="text"
             android:textSize="16sp"
             android:textColor="@color/textcolor"
             android:padding="12dp"/>

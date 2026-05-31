@@ -34,7 +34,14 @@ class AddRecipeFragment3 : Fragment(R.layout.activity_add_recipe_fragment3) {
     }
 
     private fun setupRecyclerView(recycler: RecyclerView) {
-        if (stepsList.isEmpty()) stepsList.add(Step(text = ""))
+        if (stepsList.isEmpty()) {
+            val aiSteps = (activity as? AddRecipeActivity)?.getAiSteps()
+            if (!aiSteps.isNullOrEmpty()) {
+                stepsList.addAll(aiSteps)
+            } else {
+                stepsList.add(Step(text = ""))
+            }
+        }
         adapter = StepsAdapter(stepsList)
         recycler.layoutManager = LinearLayoutManager(requireContext())
         recycler.adapter = adapter
@@ -54,6 +61,7 @@ class AddRecipeFragment3 : Fragment(R.layout.activity_add_recipe_fragment3) {
                     val to   = target.bindingAdapterPosition
                     Collections.swap(stepsList, from, to)
                     adapter.notifyItemMoved(from, to)
+                    adapter.notifyItemRangeChanged(minOf(from, to), maxOf(from, to) - minOf(from, to) + 1)
                     return true
                 }
                 override fun onSwiped(vh: RecyclerView.ViewHolder, dir: Int) {}

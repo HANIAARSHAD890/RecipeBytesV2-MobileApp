@@ -46,7 +46,8 @@ class HomeFragment : Fragment() {
             //navigateTo(SuggestFragment(), R.id.nav_suggest)
         }
         view.findViewById<CardView>(R.id.card_add_recipe).setOnClickListener {
-            startActivity(Intent(requireContext(), AddRecipeActivity::class.java))
+            AddRecipeMethodBottomSheet()
+                .show(parentFragmentManager, "AddRecipeMethodBottomSheet")
         }
     }
 

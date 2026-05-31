@@ -15,13 +15,14 @@ import com.example.recipebytes.models.Ingredient
 import com.example.recipebytes.models.Step
 import com.example.recipebytes.services.AIRecipeService
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.launch
+import com.example.recipebytes.services.DraftService
 
 class AddRecipeFragment1 : Fragment(R.layout.activity_add_recipe_fragment1) {
 
-    // Stores AI generated ingredients and steps to pass forward
     private var aiIngredients = listOf<Ingredient>()
     private var aiSteps       = listOf<Step>()
     private var aiGenerated   = false
@@ -29,16 +30,14 @@ class AddRecipeFragment1 : Fragment(R.layout.activity_add_recipe_fragment1) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val btnNext        = view.findViewById<MaterialButton>(R.id.btnNext)
-        val tilTitle       = view.findViewById<TextInputLayout>(R.id.tilTitle)
-        val tilDesc        = view.findViewById<TextInputLayout>(R.id.tilDesc)
-        val editTitle      = view.findViewById<TextInputEditText>(R.id.editTitle)
-        val editDesc       = view.findViewById<TextInputEditText>(R.id.editDesc)
-        val editCookTime   = view.findViewById<TextInputEditText>(R.id.editCookingTime)
+        val btnNext         = view.findViewById<MaterialButton>(R.id.btnNext)
+        val tilTitle        = view.findViewById<TextInputLayout>(R.id.tilTitle)
+        val tilDesc         = view.findViewById<TextInputLayout>(R.id.tilDesc)
+        val editTitle       = view.findViewById<TextInputEditText>(R.id.editTitle)
+        val editDesc        = view.findViewById<TextInputEditText>(R.id.editDesc)
+        val editCookTime    = view.findViewById<TextInputEditText>(R.id.editCookingTime)
         val spinnerCategory = view.findViewById<AutoCompleteTextView>(R.id.spinnerCategory)
-        val tilCategory    = view.findViewById<TextInputLayout>(R.id.tilCategory)
-
-        // AI views
+        val tilCategory     = view.findViewById<TextInputLayout>(R.id.tilCategory)
         val editAiDishName  = view.findViewById<TextInputEditText>(R.id.editAiDishName)
         val btnGenerateAI   = view.findViewById<MaterialButton>(R.id.btnGenerateAI)
         val aiLoadingLayout = view.findViewById<LinearLayout>(R.id.aiLoadingLayout)
@@ -47,7 +46,37 @@ class AddRecipeFragment1 : Fragment(R.layout.activity_add_recipe_fragment1) {
         setupValidationListeners(editTitle, tilTitle, editDesc, tilDesc,
             spinnerCategory, tilCategory)
 
-        // ── AI Generate button ────────────────────────────────────────────────
+        // Check for existing draft on open
+        checkForDraft(editTitle, editDesc, editCookTime, spinnerCategory)
+
+        // Pre-fill from OCR or Link
+        // Pre-fill from OCR or Link
+        val prefillTitle = arguments?.getString("prefillTitle")
+        if (!prefillTitle.isNullOrEmpty()) {
+            editTitle.setText(prefillTitle)
+            editDesc.setText(arguments?.getString("prefillDesc") ?: "")
+            editCookTime.setText(arguments?.getString("prefillCookingTime") ?: "")
+            spinnerCategory.setText(arguments?.getString("prefillCategory") ?: "", false)
+
+            // Read ingredients and steps directly from bundle — reliable
+            @Suppress("UNCHECKED_CAST", "DEPRECATION")
+            val prefillIngredients = arguments?.getSerializable("prefillIngredients") as? ArrayList<Ingredient>
+            @Suppress("UNCHECKED_CAST", "DEPRECATION")
+            val prefillSteps = arguments?.getSerializable("prefillSteps") as? ArrayList<Step>
+
+            if (!prefillIngredients.isNullOrEmpty()) {
+                aiIngredients = prefillIngredients
+                aiSteps       = prefillSteps ?: emptyList()
+                aiGenerated   = true
+            }
+        }
+
+// Focus AI section if launched from AI option
+        if (arguments?.getBoolean("focusAI") == true) {
+            editAiDishName.requestFocus()
+        }
+
+        // AI Generate
         btnGenerateAI.setOnClickListener {
             val dishName = editAiDishName.text.toString().trim()
             if (dishName.isEmpty()) {
@@ -55,39 +84,28 @@ class AddRecipeFragment1 : Fragment(R.layout.activity_add_recipe_fragment1) {
                     "Please enter a dish name", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
-            // Show loading
             aiLoadingLayout.visibility = View.VISIBLE
             btnGenerateAI.isEnabled    = false
             btnGenerateAI.text         = "Generating..."
 
             lifecycleScope.launch {
                 val result = AIRecipeService.generateRecipe(dishName)
-
-                // Hide loading
                 aiLoadingLayout.visibility = View.GONE
                 btnGenerateAI.isEnabled    = true
                 btnGenerateAI.text         = "Generate"
 
                 result.onSuccess { recipe ->
-                    // Fill all fields automatically
                     editTitle.setText(recipe.title)
                     editDesc.setText(recipe.description)
                     editCookTime.setText(recipe.cookingTime)
                     spinnerCategory.setText(recipe.category, false)
-
-                    // Store ingredients and steps for later steps
-                    aiIngredients = recipe.ingredients.map {
-                        Ingredient(it.first, it.second)
-                    }
-                    aiSteps = recipe.steps.map { Step(text = it) }
-                    aiGenerated = true
-
+                    aiIngredients = recipe.ingredients.map { Ingredient(it.first, it.second) }
+                    aiSteps       = recipe.steps.map { Step(text = it) }
+                    aiGenerated   = true
                     Toast.makeText(requireContext(),
                         "✅ Recipe generated! Review and tap Next.",
                         Toast.LENGTH_LONG).show()
                 }
-
                 result.onFailure { error ->
                     Toast.makeText(requireContext(),
                         "❌ AI failed: ${error.message}",
@@ -96,10 +114,63 @@ class AddRecipeFragment1 : Fragment(R.layout.activity_add_recipe_fragment1) {
             }
         }
 
-        // ── Next button ───────────────────────────────────────────────────────
+        // Next
         btnNext.setOnClickListener {
             handleNext(editTitle, tilTitle, editDesc, tilDesc,
                 spinnerCategory, tilCategory, editCookTime)
+        }
+    }
+
+    // Check Firebase for an existing draft and prompt user
+    private fun checkForDraft(
+        editTitle: TextInputEditText,
+        editDesc: TextInputEditText,
+        editCookTime: TextInputEditText,
+        spinnerCategory: AutoCompleteTextView
+    ) {
+        DraftService.loadDraft { draft ->
+            if (draft == null) return@loadDraft
+            // Show dialog on main thread
+            activity?.runOnUiThread {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Continue Draft?")
+                    .setMessage("You have an unfinished recipe \"${draft.title}\". Continue where you left off?")
+                    .setPositiveButton("Continue") { _, _ ->
+                        // Restore Step 1 fields
+                        editTitle.setText(draft.title)
+                        editDesc.setText(draft.desc)
+                        editCookTime.setText(draft.cookingTime)
+                        spinnerCategory.setText(draft.category, false)
+
+                        // If draft has ingredients, skip straight to the right step
+                        val activity = activity as? AddRecipeActivity ?: return@setPositiveButton
+                        when {
+                            draft.lastStep >= 3 && draft.steps.isNotEmpty() -> {
+                                // Go straight to steps screen with saved data
+                                activity.goToStep3FromDraft(
+                                    draft.title, draft.desc, draft.category,
+                                    draft.cookingTime, draft.ingredients,
+                                    draft.nutrition
+                                )
+                            }
+                            draft.lastStep >= 2 && draft.ingredients.isNotEmpty() -> {
+                                // Go straight to nutrition screen
+                                activity.goToStep2FromDraft(
+                                    draft.title, draft.desc, draft.category,
+                                    draft.cookingTime, draft.ingredients
+                                )
+                            }
+                            else -> {
+                                // Just fill the fields, user continues from step 1
+                            }
+                        }
+                    }
+                    .setNegativeButton("Start Fresh") { _, _ ->
+                        DraftService.clearDraft()
+                    }
+                    .setCancelable(false)
+                    .show()
+            }
         }
     }
 
@@ -138,33 +209,28 @@ class AddRecipeFragment1 : Fragment(R.layout.activity_add_recipe_fragment1) {
         val cookingTime = editCookTime.text.toString().trim()
         var isValid     = true
 
-        if (title.isEmpty()) {
-            tilTitle.error = "Title cannot be blank"
-            isValid = false
-        }
-        if (desc.isEmpty()) {
-            tilDesc.error = "Description cannot be blank"
-            isValid = false
-        }
-        if (category.isEmpty()) {
-            tilCategory.error = "Please select a category"
-            isValid = false
-        }
+        if (title.isEmpty())    { tilTitle.error    = "Title cannot be blank";       isValid = false }
+        if (desc.isEmpty())     { tilDesc.error     = "Description cannot be blank"; isValid = false }
+        if (category.isEmpty()) { tilCategory.error = "Please select a category";    isValid = false }
 
         if (isValid) {
-            val activity = activity as? AddRecipeActivity ?: return
+            // Auto-save draft for step 1
+            DraftService.saveDraft(
+                title = title, desc = desc,
+                category = category, cookingTime = cookingTime,
+                lastStep = 1
+            )
 
+            val activity = activity as? AddRecipeActivity ?: return
             if (aiGenerated && aiIngredients.isNotEmpty()) {
-                // AI generated — skip ingredient and steps screens
-                // go straight to step 4 with all data
-                activity.goToStep2WithAI(
-                    title, desc, category, cookingTime,
-                    aiIngredients, aiSteps
-                )
+                // Save AI data to activity first, then go through normal flow
+                // so user can review/edit ingredients, nutrition, and steps
+                activity.goToStep2WithAIEditable(title, desc, category, cookingTime,
+                    aiIngredients, aiSteps)
             } else {
-                // Manual — normal flow
                 activity.goToStep2(title, desc, category, cookingTime)
             }
+
         }
     }
 }

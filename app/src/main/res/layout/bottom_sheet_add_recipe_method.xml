@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@color/appBackground">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Recipe"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_gravity="center"
+        android:layout_marginBottom="24dp"/>
+
+    <!-- Options -->
+    <LinearLayout
+        android:id="@+id/layoutOptions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Manual Entry -->
+        <LinearLayout
+            android:id="@+id/optionManual"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/rounded_card"
+            android:clickable="true"
+            android:focusable="true">
+            <TextView
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:text="✍️"
+                android:textSize="24sp"/>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="12dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Manual Entry"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/textcolor"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Fill in recipe details yourself"
+                    android:textSize="12sp"
+                    android:alpha="0.6"
+                    android:textColor="@color/textcolor"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- AI Generate -->
+        <LinearLayout
+            android:id="@+id/optionAI"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/rounded_card"
+            android:clickable="true"
+            android:focusable="true">
+            <TextView
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:text="🤖"
+                android:textSize="24sp"/>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="12dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AI Generate"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/textcolor"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Let AI create a recipe for you"
+                    android:textSize="12sp"
+                    android:alpha="0.6"
+                    android:textColor="@color/textcolor"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- OCR Scan -->
+        <LinearLayout
+            android:id="@+id/optionOCR"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/rounded_card"
+            android:clickable="true"
+            android:focusable="true">
+            <TextView
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:text="📷"
+                android:textSize="24sp"/>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="12dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Scan Recipe Image"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/textcolor"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Take photo or pick from gallery"
+                    android:textSize="12sp"
+                    android:alpha="0.6"
+                    android:textColor="@color/textcolor"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Get from Link -->
+        <LinearLayout
+            android:id="@+id/optionLink"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/rounded_card"
+            android:clickable="true"
+            android:focusable="true">
+            <TextView
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:text="🔗"
+                android:textSize="24sp"/>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="12dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Get Recipe from Link"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/textcolor"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="YouTube or any recipe website URL"
+                    android:textSize="12sp"
+                    android:alpha="0.6"
+                    android:textColor="@color/textcolor"/>
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Loading state -->
+    <LinearLayout
+        android:id="@+id/layoutLoading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="32dp"
+        android:visibility="gone">
+        <ProgressBar
+            android:layout_width="48dp"
+            android:layout_height="48dp"/>
+        <TextView
+            android:id="@+id/tvLoadingMsg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Processing..."
+            android:layout_marginTop="12dp"
+            android:textColor="@color/textcolor"
+            android:alpha="0.7"/>
+    </LinearLayout>
+
+</LinearLayout>

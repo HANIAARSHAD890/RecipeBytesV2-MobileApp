@@ -10,6 +10,7 @@ import com.example.recipebytes.models.Ingredient
 import com.example.recipebytes.adapters.IngredientAdapter
 import com.example.recipebytes.R
 import com.example.recipebytes.activities.AddRecipeActivity
+import com.example.recipebytes.services.DraftService
 
 /**
  * Second step of adding a recipe, focused on adding and managing ingredients.
@@ -37,21 +38,27 @@ class AddRecipeFragment2 : Fragment(R.layout.activity_add_recipe_fragment2) {
         }
     }
 
-    /**
-     * Configures the RecyclerView with the ingredient adapter.
-     */
     private fun setupRecyclerView(recycler: RecyclerView) {
         if (ingredientsList.isEmpty()) {
-            ingredientsList.add(Ingredient("", ""))
+            val aiIngredients = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                @Suppress("UNCHECKED_CAST")
+                arguments?.getSerializable("aiIngredients", ArrayList::class.java) as? ArrayList<Ingredient>
+            } else {
+                @Suppress("UNCHECKED_CAST", "DEPRECATION")
+                arguments?.getSerializable("aiIngredients") as? ArrayList<Ingredient>
+            }
+
+            if (!aiIngredients.isNullOrEmpty()) {
+                ingredientsList.addAll(aiIngredients)
+            } else {
+                ingredientsList.add(Ingredient("", ""))
+            }
         }
         adapter = IngredientAdapter(ingredientsList, true)
         recycler.layoutManager = LinearLayoutManager(requireContext())
         recycler.adapter = adapter
     }
 
-    /**
-     * Adds a new blank ingredient to the list and notifies the adapter.
-     */
     private fun addNewIngredient() {
         ingredientsList.add(Ingredient("", ""))
         adapter.notifyItemInserted(ingredientsList.size - 1)
@@ -59,22 +66,39 @@ class AddRecipeFragment2 : Fragment(R.layout.activity_add_recipe_fragment2) {
 
     /**
      * Validates ingredient entries and navigates to the next step.
+     *
+     * Quantity accepts any non-empty string — "500g", "2 cups", "a handful", etc.
+     * Structured parsing is deferred to the smart suggest screen.
      */
     private fun validateAndProceed(recycler: RecyclerView) {
-        var hasError = false
+        recycler.focusedChild?.clearFocus()
 
-        for (i in 0 until ingredientsList.size) {
+        var hasError = false
+        for (i in ingredientsList.indices) {
             val ingredient = ingredientsList[i]
-            if (ingredient.name.trim().isEmpty() || ingredient.quantity.trim().isEmpty()) {
+            val nameBlank  = ingredient.name.trim().isEmpty()
+            val qtyBlank   = ingredient.quantity.trim().isEmpty()
+            if (nameBlank || qtyBlank) {
                 hasError = true
-                val holder = recycler.findViewHolderForAdapterPosition(i) as? IngredientAdapter.ViewHolder
-                if (ingredient.name.trim().isEmpty()) holder?.tilName?.error = "Required"
-                if (ingredient.quantity.trim().isEmpty()) holder?.tilQty?.error = "Required"
+                val holder = recycler.findViewHolderForAdapterPosition(i)
+                        as? IngredientAdapter.ViewHolder
+                if (nameBlank) holder?.tilName?.error = "Required"
+                if (qtyBlank)  holder?.tilQty?.error  = "Enter a quantity (e.g. 500g, 2 cups)"
             }
         }
 
         if (!hasError && ingredientsList.isNotEmpty()) {
-            (activity as? AddRecipeActivity)?.goToStep3(ingredientsList)
+            // Auto-save draft with ingredients
+            val activity = activity as? AddRecipeActivity
+            DraftService.saveDraft(
+                title       = activity?.getRecipeTitle()       ?: "",
+                desc        = activity?.getRecipeDesc()        ?: "",
+                category    = activity?.getRecipeCategory()    ?: "",
+                cookingTime = activity?.getRecipeCookingTime() ?: "",
+                ingredients = ingredientsList,
+                lastStep    = 2
+            )
+            activity?.goToStep3(ingredientsList)
         } else if (ingredientsList.isEmpty()) {
             addNewIngredient()
         }

@@ -181,8 +181,17 @@ class FirebaseRecipeService {
                 is Int -> calRaw
                 else -> 0
             }
-            val protein = nutritionSnapshot.child("protein").value as? String ?: ""
-            nutrition = Nutrition(calories = calories, protein = protein)
+            val protein  = (nutritionSnapshot.child("protein").value as? Number)?.toFloat()  ?: 0f
+            val carbs    = (nutritionSnapshot.child("carbs").value as? Number)?.toFloat()    ?: 0f
+            val fat      = (nutritionSnapshot.child("fat").value as? Number)?.toFloat()      ?: 0f
+            val netCarbs = (nutritionSnapshot.child("netCarbs").value as? Number)?.toFloat() ?: 0f
+            nutrition = Nutrition(
+                calories = calories,
+                protein  = protein,
+                carbs    = carbs,
+                fat      = fat,
+                netCarbs = netCarbs
+            )
         }
 
         return Recipe(
@@ -241,7 +250,10 @@ class FirebaseRecipeService {
         recipe.nutrition?.let {
             map["nutrition"] = mapOf(
                 "calories" to it.calories,
-                "protein" to it.protein
+                "protein"  to it.protein,
+                "carbs"    to it.carbs,
+                "fat"      to it.fat,
+                "netCarbs" to it.netCarbs
             )
         }
 

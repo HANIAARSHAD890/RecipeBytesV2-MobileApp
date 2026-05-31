@@ -33,6 +33,8 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import java.io.File
 import java.io.FileOutputStream
+import com.example.recipebytes.activities.AddRecipeActivity
+import com.example.recipebytes.services.DraftService
 
 class AddRecipeFragment4 : Fragment(R.layout.activity_add_recipe_fragment4) {
 
@@ -261,6 +263,9 @@ class AddRecipeFragment4 : Fragment(R.layout.activity_add_recipe_fragment4) {
         )
 
         RecipeRepository.addRecipe(requireContext(), recipe)
+
+        (activity as? AddRecipeActivity)?.onRecipeSaved()
+
         Toast.makeText(requireContext(),
             "Recipe saved successfully! 🎉", Toast.LENGTH_SHORT).show()
         requireActivity().finish()
