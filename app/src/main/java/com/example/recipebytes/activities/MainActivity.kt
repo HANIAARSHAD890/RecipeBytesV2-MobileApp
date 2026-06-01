@@ -86,29 +86,41 @@ class MainActivity : AppCompatActivity() {
         setupWindowInsets()
         setupBottomNavigation()
 
-        // Load last viewed screen
-        lifecycleScope.launch {
-            preferencesRepository.lastScreenFlow.collect { lastScreen ->
-                when (lastScreen) {
-                    "explore" -> {
-                        loadFragment(ExploreFragment())
-                        bottomNav.selectedItemId = R.id.nav_explore
-                    }
-                    "planner" -> {
-                        loadFragment(PlannerFragment())
-                        bottomNav.selectedItemId = R.id.nav_planner
-                    }
-                    "profile" -> {
-                        loadFragment(ProfileFragment())
-                        bottomNav.selectedItemId = R.id.nav_profile
-                    }
-                    "suggest" -> {
-                        loadFragment(SuggestFragment())
-                        bottomNav.selectedItemId = R.id.nav_suggest
-                    }
-                    else -> {
-                        loadFragment(HomeFragment())
-                        bottomNav.selectedItemId = R.id.nav_home
+        // Check if opened from Favorites first
+        val shouldOpenFavorites = intent.getBooleanExtra("open_favorites", false)
+        
+        if (shouldOpenFavorites) {
+            intent.removeExtra("open_favorites")
+            val frag = ExploreFragment()
+            frag.arguments = Bundle().apply { putBoolean("show_favorites", true) }
+            loadFragment(frag)
+            bottomNav.selectedItemId = R.id.nav_explore
+            lifecycleScope.launch { preferencesRepository.setLastScreen("explore") }
+        } else {
+            // Load last viewed screen
+            lifecycleScope.launch {
+                preferencesRepository.lastScreenFlow.collect { lastScreen ->
+                    when (lastScreen) {
+                        "explore" -> {
+                            loadFragment(ExploreFragment())
+                            bottomNav.selectedItemId = R.id.nav_explore
+                        }
+                        "planner" -> {
+                            loadFragment(PlannerFragment())
+                            bottomNav.selectedItemId = R.id.nav_planner
+                        }
+                        "profile" -> {
+                            loadFragment(ProfileFragment())
+                            bottomNav.selectedItemId = R.id.nav_profile
+                        }
+                        "suggest" -> {
+                            loadFragment(SuggestFragment())
+                            bottomNav.selectedItemId = R.id.nav_suggest
+                        }
+                        else -> {
+                            loadFragment(HomeFragment())
+                            bottomNav.selectedItemId = R.id.nav_home
+                        }
                     }
                 }
             }
@@ -168,16 +180,6 @@ class MainActivity : AppCompatActivity() {
                 }
                 else -> false
             }
-        }
-
-        // Handle initial navigation if opened from Favorite Recipes
-        if (intent.getBooleanExtra("open_favorites", false)) {
-            intent.removeExtra("open_favorites")
-            val frag = ExploreFragment()
-            frag.arguments = Bundle().apply { putBoolean("show_favorites", true) }
-            loadFragment(frag)
-            bottomNav.selectedItemId = R.id.nav_explore
-            lifecycleScope.launch { preferencesRepository.setLastScreen("explore") }
         }
     }
 

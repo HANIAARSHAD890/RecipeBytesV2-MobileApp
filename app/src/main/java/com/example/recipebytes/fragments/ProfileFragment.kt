@@ -196,23 +196,33 @@ class ProfileFragment : Fragment() {
     private fun uploadProfileImage(uri: Uri) {
         val userId = authService.getCurrentUserId() ?: return
         val ref = storageRef.child("profile_images/$userId/profile.jpg")
-        ref.putFile(uri)
-            .addOnSuccessListener {
-                ref.downloadUrl.addOnSuccessListener { downloadUrl ->
-                    val url = downloadUrl.toString()
-                    authService.updateUser(userId, mapOf("profileImage" to url),
-                        onSuccess = {
-                            Toast.makeText(requireContext(), "Profile picture updated!", Toast.LENGTH_SHORT).show()
-                        },
-                        onError = {
-                            Toast.makeText(requireContext(), "Failed to save", Toast.LENGTH_SHORT).show()
+        
+        try {
+            val inputStream = requireContext().contentResolver.openInputStream(uri)
+            if (inputStream != null) {
+                ref.putStream(inputStream)
+                    .addOnSuccessListener {
+                        ref.downloadUrl.addOnSuccessListener { downloadUrl ->
+                            val url = downloadUrl.toString()
+                            authService.updateUser(userId, mapOf("profileImage" to url),
+                                onSuccess = {
+                                    Toast.makeText(requireContext(), "Profile picture updated!", Toast.LENGTH_SHORT).show()
+                                },
+                                onError = {
+                                    Toast.makeText(requireContext(), "Failed to save", Toast.LENGTH_SHORT).show()
+                                }
+                            )
                         }
-                    )
-                }
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(requireContext(), "Upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+            } else {
+                Toast.makeText(requireContext(), "Failed to read image", Toast.LENGTH_SHORT).show()
             }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Upload failed", Toast.LENGTH_SHORT).show()
-            }
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Failed to process image: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun showLogoutDialog() {

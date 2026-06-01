@@ -2,6 +2,7 @@ package com.example.recipebytes.activities
 
 import android.os.Bundle
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,6 +17,7 @@ class MyRecipesActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: MyRecipesAdapter
     private lateinit var tvNoRecipes: TextView
+    private lateinit var layoutLoading: LinearLayout
     private val currentUserId = FirebaseAuthService().getCurrentUserId() ?: ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,6 +28,7 @@ class MyRecipesActivity : AppCompatActivity() {
 
         recyclerView = findViewById(R.id.myRecipeRecyclerView)
         tvNoRecipes = findViewById(R.id.tvNoRecipes)
+        layoutLoading = findViewById(R.id.layoutLoading)
 
         adapter = MyRecipesAdapter(mutableListOf(), currentUserId)
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -35,10 +38,15 @@ class MyRecipesActivity : AppCompatActivity() {
     }
 
     private fun loadMyRecipes() {
+        layoutLoading.visibility = View.VISIBLE
+        recyclerView.visibility = View.GONE
+        tvNoRecipes.visibility = View.GONE
+        
         RecipeRepository.loadFromFirebase {
             val allRecipes = RecipeRepository.getAllRecipes()
             val myRecipes = allRecipes.filter { it.userId == currentUserId }
 
+            layoutLoading.visibility = View.GONE
             if (myRecipes.isEmpty()) {
                 tvNoRecipes.visibility = View.VISIBLE
                 recyclerView.visibility = View.GONE

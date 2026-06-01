@@ -169,7 +169,7 @@ class RecipeAdapter(
     }
 
     private fun setupClickListeners(holder: ViewHolder, recipe: Recipe) {
-        holder.delete.setOnClickListener { onDelete(recipe) }
+        holder.delete.visibility = View.GONE
 
         holder.itemView.setOnClickListener {
             val intent = Intent(holder.itemView.context, RecipeViewDetailsScreen::class.java)

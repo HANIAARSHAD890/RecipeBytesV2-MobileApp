@@ -64,16 +64,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="true"
-                    app:thumbTint="@color/textcolor"
-                    app:trackTint="@color/gray"/>
+                    app:thumbTint="@color/switch_thumb"
+                    app:trackTint="@color/switch_track"/>
             </LinearLayout>
 
-            <ImageView
-                android:id="@+id/iconDelete"
-                android:src="@android:drawable/ic_menu_delete"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                app:tint="@color/red" />
         </LinearLayout>
 
         <!-- Recipe Image with Heart Overlay -->
@@ -105,13 +99,14 @@
         <TextView
             android:id="@+id/textTitle"
             android:textStyle="bold"
-            android:textSize="16sp"
-            android:maxLines="1"
+            android:textSize="15sp"
+            android:maxLines="2"
             android:ellipsize="end"
             android:textColor="@color/textcolor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"/>
+            android:layout_marginTop="6dp"
+            android:lineSpacingMultiplier="0.9"/>
 
         <TextView
             android:id="@+id/textDescription"
@@ -119,6 +114,8 @@
             android:layout_height="wrap_content"
             android:maxLines="2"
             android:ellipsize="end"
+            android:textSize="13sp"
+            android:lineSpacingMultiplier="0.9"
             android:textColor="@color/textcolor"/>
 
         <!-- Likers count -->
@@ -178,6 +175,16 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:scaleType="fitCenter" />
+
+            <ImageView
+                android:id="@+id/iconDelete"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="12dp"
+                android:src="@android:drawable/ic_menu_delete"
+                app:tint="@color/red"
+                android:clickable="true"
+                android:focusable="true" />
         </LinearLayout>
 
         <TextView

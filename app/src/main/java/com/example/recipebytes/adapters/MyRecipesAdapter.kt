@@ -2,6 +2,9 @@ package com.example.recipebytes.adapters
 
 import android.app.Dialog
 import androidx.appcompat.widget.SwitchCompat
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
@@ -13,6 +16,7 @@ import android.view.Window
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -38,6 +42,12 @@ class MyRecipesAdapter(
         val textCreatedAt: TextView = view.findViewById(R.id.textCreatedAt)
         val switchPublic: SwitchCompat = view.findViewById(R.id.switchPublic)
         val iconDelete: ImageView = view.findViewById(R.id.iconDelete)
+        val iconFavorite: TextView = view.findViewById(R.id.iconFavorite)
+        val iconLike: ImageView = view.findViewById(R.id.iconLike)
+        val textLikesCount: TextView = view.findViewById(R.id.textLikesCount)
+        val textLikersCount: TextView = view.findViewById(R.id.textLikersCount)
+        val iconShare: ImageView = view.findViewById(R.id.iconShare)
+        val iconCopy: ImageView = view.findViewById(R.id.iconCopy)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -55,7 +65,6 @@ class MyRecipesAdapter(
         holder.desc.text = recipe.description
         holder.textUsername.text = "You"
         holder.profileCircle.text = "You".take(1).uppercase()
-        holder.iconDelete.visibility = View.GONE
 
         val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
         holder.textCreatedAt.text = "${dateFormat.format(Date(recipe.createdAt))}"
@@ -94,6 +103,66 @@ class MyRecipesAdapter(
                 holder.switchPublic.isChecked = !isChecked
             }
 
+            dialog.show()
+        }
+
+        // Like
+        holder.iconLike.setOnClickListener {
+            Toast.makeText(holder.itemView.context, "Like from My Recipes", Toast.LENGTH_SHORT).show()
+        }
+        holder.textLikesCount.text = recipe.likesCount.toString()
+        holder.textLikersCount.text = "${recipe.likesCount} likes"
+        holder.textLikersCount.setOnClickListener {
+            Toast.makeText(holder.itemView.context, "Likers feature in Explore", Toast.LENGTH_SHORT).show()
+        }
+
+        // Favorite
+        holder.iconFavorite.setOnClickListener {
+            Toast.makeText(holder.itemView.context, "Favorite feature in Explore", Toast.LENGTH_SHORT).show()
+        }
+
+        // Share
+        holder.iconShare.setOnClickListener {
+            val shareText = "${recipe.title}\n\n${recipe.description}"
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, shareText)
+            }
+            holder.itemView.context.startActivity(
+                Intent.createChooser(intent, "Share Recipe")
+            )
+        }
+
+        // Copy
+        holder.iconCopy.setOnClickListener {
+            val shareText = "${recipe.title}\n\n${recipe.description}"
+            val clipboard = holder.itemView.context
+                .getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            clipboard.setPrimaryClip(ClipData.newPlainText("Recipe", shareText))
+            Toast.makeText(holder.itemView.context, "Recipe copied to clipboard", Toast.LENGTH_SHORT).show()
+        }
+
+        // Delete
+        holder.iconDelete.setOnClickListener {
+            val context = holder.itemView.context
+            val dialog = Dialog(context)
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            dialog.setContentView(R.layout.dialog_recipe_delete)
+            dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+            val tvMessage = dialog.findViewById<TextView>(R.id.tvDeleteMessage)
+            tvMessage.text = "Are you sure you want to delete \"${recipe.title}\"?"
+
+            dialog.findViewById<ImageView>(R.id.ivCloseDialog).setOnClickListener { dialog.dismiss() }
+            dialog.findViewById<Button>(R.id.btnDeleteConfirm).setOnClickListener {
+                val pos = holder.bindingAdapterPosition
+                if (pos >= 0) {
+                    RecipeRepository.deleteRecipe(context, recipe.title)
+                    recipes.removeAt(pos)
+                    notifyItemRemoved(pos)
+                }
+                dialog.dismiss()
+            }
             dialog.show()
         }
 

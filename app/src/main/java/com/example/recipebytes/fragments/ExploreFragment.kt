@@ -34,6 +34,7 @@ class ExploreFragment : Fragment() {
     private lateinit var categoryDropdown: AutoCompleteTextView
     private lateinit var etSearch: TextInputEditText
     private lateinit var tvNoRecipes: TextView
+    private lateinit var layoutLoading: LinearLayout
     private var isAscending = true
     private var isGridView = false
     private var currentUserId = ""
@@ -69,17 +70,25 @@ class ExploreFragment : Fragment() {
     }
 
     private fun loadAndDisplay() {
+        layoutLoading.visibility = View.VISIBLE
+        recyclerView.visibility = View.GONE
+        tvNoRecipes.visibility = View.GONE
         try {
             RecipeRepository.loadFromFirebase {
                 refreshFromFirebase()
             }
         } catch (e: Exception) {
             android.util.Log.e("ExploreFragment", "loadAndDisplay failed", e)
+            layoutLoading.visibility = View.GONE
+            tvNoRecipes.visibility = View.VISIBLE
         }
     }
 
     private fun refreshFromFirebase() {
-        if (!isAdded) return
+        if (!isAdded) {
+            layoutLoading.visibility = View.GONE
+            return
+        }
         buildUserMapAndRefresh()
     }
 
@@ -119,6 +128,7 @@ class ExploreFragment : Fragment() {
     private fun initializeViews(view: View) {
         recyclerView = view.findViewById(R.id.recipeRecyclerView)
         tvNoRecipes = view.findViewById(R.id.tvNoRecipes)
+        layoutLoading = view.findViewById(R.id.layoutLoading)
         etSearch = view.findViewById(R.id.etSearch)
         view.findViewById<TextView>(R.id.headerTitle).text = "Recipes to Explore"
     }
@@ -278,6 +288,7 @@ class ExploreFragment : Fragment() {
             filteredList.sortedByDescending { it.title.lowercase() }
         }
 
+        layoutLoading.visibility = View.GONE
         tvNoRecipes.visibility = if (sortedList.isEmpty()) View.VISIBLE else View.GONE
         recyclerView.visibility = if (sortedList.isEmpty()) View.GONE else View.VISIBLE
         adapter.refresh(sortedList)
