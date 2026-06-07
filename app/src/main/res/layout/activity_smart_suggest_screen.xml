@@ -2,7 +2,6 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,7 +11,7 @@
     <include
         layout="@layout/primaryheader"
         android:layout_width="match_parent"
-        android:layout_height="56dp" />
+        android:layout_height="56dp"/>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -24,16 +23,17 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <!-- Section label -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Enter your ingredients"
-                android:textSize="16sp"
+                android:text="What's in your kitchen?"
+                android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@color/secondary"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="10dp"/>
 
-            <!-- Ingredient input with autocomplete -->
+            <!-- Ingredient input with dropdown icon -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilIngredient"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -41,6 +41,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 app:endIconMode="dropdown_menu"
+                app:endIconTint="@color/secondary"
+                app:boxStrokeColor="@color/secondary"
                 app:boxBackgroundColor="@color/appBackground">
 
                 <AutoCompleteTextView
@@ -58,34 +60,168 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Selected ingredient badges -->
+            <!-- Chips -->
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chipGroupIngredients"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"/>
+                android:layout_marginBottom="12dp"/>
 
+            <!-- Find Recipes button -->
             <Button
                 android:id="@+id/btnSuggest"
-                android:layout_width="232dp"
-                android:layout_height="48dp"
-                android:layout_gravity="center"
-                android:text="Suggest Recipes"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:text="🔍  Find Recipes"
+                android:textSize="15sp"
                 android:textColor="@color/buttontext"
                 android:backgroundTint="@color/secondary"
-                android:layout_marginBottom="16dp"/>
+                android:layout_marginBottom="10dp"/>
 
-            <!-- Results label -->
+            <!-- Shopping List Button -->
+            <LinearLayout
+                android:id="@+id/btnViewShoppingList"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/rounded_card"
+                android:padding="12dp"
+                android:layout_marginBottom="16dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🛒"
+                    android:textSize="20sp"
+                    android:layout_marginEnd="10dp"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="View My Shopping Lists"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/textcolor"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="→"
+                    android:textSize="16sp"
+                    android:textColor="@color/secondary"/>
+
+            </LinearLayout>
+
+            <!-- Filter tabs -->
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:layout_marginBottom="12dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:id="@+id/filterTabsLayout">
+
+                    <TextView
+                        android:id="@+id/tabAll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:text="All"
+                        android:gravity="center"
+                        android:paddingStart="18dp"
+                        android:paddingEnd="18dp"
+                        android:textSize="13sp"
+                        android:textColor="@color/buttontext"
+                        android:background="@drawable/tab_selected_bg"
+                        android:layout_marginEnd="8dp"/>
+
+                    <TextView
+                        android:id="@+id/tabCanMake"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:text="✅ Can Make"
+                        android:gravity="center"
+                        android:paddingStart="18dp"
+                        android:paddingEnd="18dp"
+                        android:textSize="13sp"
+                        android:textColor="@color/textcolor"
+                        android:background="@drawable/tab_unselected_bg"
+                        android:layout_marginEnd="8dp"/>
+
+                    <TextView
+                        android:id="@+id/tabAlmost"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:text="🔶 Almost There"
+                        android:gravity="center"
+                        android:paddingStart="18dp"
+                        android:paddingEnd="18dp"
+                        android:textSize="13sp"
+                        android:textColor="@color/textcolor"
+                        android:background="@drawable/tab_unselected_bg"
+                        android:layout_marginEnd="8dp"/>
+
+                    <TextView
+                        android:id="@+id/tabMissing"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:text="🔴 Missing Many"
+                        android:gravity="center"
+                        android:paddingStart="18dp"
+                        android:paddingEnd="18dp"
+                        android:textSize="13sp"
+                        android:textColor="@color/textcolor"
+                        android:background="@drawable/tab_unselected_bg"/>
+
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <!-- Results count -->
             <TextView
+                android:id="@+id/tvResultsCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Suggested Recipes"
-                android:textSize="16sp"
-                android:textStyle="bold"
+                android:text=""
+                android:textSize="13sp"
                 android:textColor="@color/secondary"
                 android:layout_marginBottom="8dp"/>
 
-            <!-- Results list -->
+            <!-- Empty state -->
+            <LinearLayout
+                android:id="@+id/layoutEmptySuggest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="32dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🍽️"
+                    android:textSize="48sp"
+                    android:layout_marginBottom="12dp"/>
+
+                <TextView
+                    android:id="@+id/tvEmptyMessage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Add ingredients above to find matching recipes"
+                    android:textSize="15sp"
+                    android:textColor="@color/secondary"
+                    android:gravity="center"/>
+
+            </LinearLayout>
+
+            <!-- Results -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/suggestResultsRecycler"
                 android:layout_width="match_parent"

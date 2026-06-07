@@ -1,17 +1,18 @@
-<LinearLayout android:orientation="vertical"
+<LinearLayout
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-        <!-- HEADER (fixed) -->
+    <!-- HEADER (fixed) -->
     <include
         layout="@layout/primaryheader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-        <!-- SCROLLABLE CONTENT -->
+    <!-- SCROLLABLE CONTENT -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -19,135 +20,419 @@
         android:fillViewport="true"
         android:background="@color/appBackground">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- ── Recipe Image ── -->
+            <ImageView
+                android:id="@+id/recipeImage"
+                android:background="@color/bgcolor"
+                android:padding="10dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/camera_upload_icon"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:contentDescription="Recipe Image" />
+
+            <!-- ── Title ── -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilRecipeTitle"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                app:errorEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etRecipeTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Title"
+                    android:enabled="false"
+                    android:textColor="@color/secondary"
+                    android:textStyle="bold"
+                    android:textSize="22sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ── Category ── -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilRecipeCategory"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="8dp"
+                app:errorEnabled="true"
+                app:endIconMode="dropdown_menu"
+                app:boxBackgroundColor="@color/appBackground"
+                app:boxStrokeWidth="1dp"
+                app:boxStrokeWidthFocused="2dp">
+
+                <AutoCompleteTextView
+                    android:id="@+id/etRecipeCategory"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:enabled="false"
+                    android:hint="Select Category"
+                    android:inputType="none"
+                    android:padding="16dp"
+                    android:popupBackground="@color/appBackground"
+                    android:textColor="@color/textcolor" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ── Cooking Time ── -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilRecipeCookingTime"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="8dp"
+                app:errorEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etRecipeCookingTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Cooking Time (e.g. 30 mins)"
+                    android:enabled="false"
+                    android:inputType="text"
+                    android:textColor="@color/textcolor" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ── Description ── -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilRecipeDesc"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="8dp"
+                app:errorEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etRecipeDesc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Description"
+                    android:enabled="false"
+                    android:inputType="textMultiLine"
+                    android:minLines="3"
+                    android:gravity="top"
+                    android:textColor="@color/textcolor" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ══════════════════════════════════════
+                 NUTRITION SECTION
+            ══════════════════════════════════════ -->
             <LinearLayout
+                android:id="@+id/nutritionSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-        <!-- Recipe Image -->
-        <ImageView
-            android:background="@color/bgcolor"
-            android:padding="10dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/camera_upload_icon"
-            android:id="@+id/recipeImage"
-            android:layout_width="match_parent"
-            android:layout_height="250dp"
-            android:contentDescription="Recipe Image"
-            />
-                <!-- Replace the Title TextView in activity_recipe_view_details_screen.xml -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/tilRecipeTitle"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    app:errorEnabled="true">
+                    android:text="Nutrition"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:paddingHorizontal="16dp"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="8dp"
+                    android:textColor="@color/secondary" />
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etRecipeTitle"
-                        android:layout_width="match_parent"
-                        android:hint="Title"
+                <!-- Row 1: Carbs | Fat | Protein -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginHorizontal="12dp"
+                    android:layout_marginBottom="8dp">
+
+                    <!-- Carbs Card -->
+                    <LinearLayout
+                        android:id="@+id/cardCarbs"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:enabled="false"
-                        android:textColor="@color/secondary"
-                        android:textStyle="bold"
-                        android:textSize="22sp"/>
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_weight="1"
+                        android:layout_margin="4dp"
+                        android:orientation="vertical"
+                        android:padding="12dp"
+                        android:gravity="center"
+                        android:background="@drawable/nutrition_card_blue">
 
-                <!-- Add Category field (below title) -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/tilRecipeCategory"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    app:errorEnabled="true"
-                    app:endIconMode="dropdown_menu"
-                    app:boxBackgroundColor="@color/appBackground"
-                    app:boxStrokeWidth="1dp"
-                    app:boxStrokeWidthFocused="2dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Net carbs"
+                            android:textSize="12sp"
+                            android:textColor="#5B8DEF"
+                            android:layout_marginBottom="4dp"/>
 
-                    <AutoCompleteTextView
-                        android:id="@+id/etRecipeCategory"
-                        android:layout_width="match_parent"
+                        <TextView
+                            android:id="@+id/tvCarbs"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="--"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/secondary" />
+
+                        <com.google.android.material.progressindicator.CircularProgressIndicator
+                            android:id="@+id/progressCarbs"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:layout_marginTop="8dp"
+                            app:trackColor="#DDEAFF"
+                            app:indicatorColor="#5B8DEF"
+                            app:trackThickness="6dp"
+                            app:indicatorSize="64dp" />
+
+                        <TextView
+                            android:id="@+id/tvCarbsPct"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0%"
+                            android:textSize="12sp"
+                            android:textColor="#5B8DEF"
+                            android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+
+                    <!-- Fat Card -->
+                    <LinearLayout
+                        android:id="@+id/cardFat"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:enabled="false"
-                        android:hint="Select Category"
-                        android:inputType="none"
-                        android:padding="16dp"
-                        android:popupBackground="@color/appBackground"
-                        android:textColor="@color/textcolor" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_weight="1"
+                        android:layout_margin="4dp"
+                        android:orientation="vertical"
+                        android:padding="12dp"
+                        android:gravity="center"
+                        android:background="@drawable/nutrition_card_green">
 
-                <!-- Replace Description TextView -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/tilRecipeDesc"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    app:errorEnabled="true">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Fat"
+                            android:textSize="12sp"
+                            android:textColor="#4CAF50"
+                            android:layout_marginBottom="4dp"/>
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etRecipeDesc"
-                        android:hint="Description"
-                        android:layout_width="match_parent"
-                        android:textColor="@color/textcolor"
+                        <TextView
+                            android:id="@+id/tvFat"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="--"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/secondary" />
+
+                        <com.google.android.material.progressindicator.CircularProgressIndicator
+                            android:id="@+id/progressFat"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:layout_marginTop="8dp"
+                            app:trackColor="#D6F5D6"
+                            app:indicatorColor="#4CAF50"
+                            app:trackThickness="6dp"
+                            app:indicatorSize="64dp" />
+
+                        <TextView
+                            android:id="@+id/tvFatPct"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0%"
+                            android:textSize="12sp"
+                            android:textColor="#4CAF50"
+                            android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+
+                    <!-- Protein Card -->
+                    <LinearLayout
+                        android:id="@+id/cardProtein"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:enabled="false"
-                        android:inputType="textMultiLine" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_weight="1"
+                        android:layout_margin="4dp"
+                        android:orientation="vertical"
+                        android:padding="12dp"
+                        android:gravity="center"
+                        android:background="@drawable/nutrition_card_orange">
 
-        <!-- Ingredients Title -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Ingredients"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:padding="16dp"
-            android:textColor="@color/secondary" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Protein"
+                            android:textSize="12sp"
+                            android:textColor="#FF8A65"
+                            android:layout_marginBottom="4dp"/>
 
-        <!-- Ingredients RecyclerView -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/ingredientsRecycler"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false"
-            android:paddingHorizontal="16dp"
-            android:paddingBottom="16dp"
-            />
+                        <TextView
+                            android:id="@+id/tvProtein"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="--"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/secondary" />
 
-        <!-- Steps Title -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Steps"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:padding="16dp"
-            android:textColor="@color/secondary" />
+                        <com.google.android.material.progressindicator.CircularProgressIndicator
+                            android:id="@+id/progressProtein"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:layout_marginTop="8dp"
+                            app:trackColor="#FFE0D0"
+                            app:indicatorColor="#FF8A65"
+                            app:trackThickness="6dp"
+                            app:indicatorSize="64dp" />
 
-        <!-- Steps RecyclerVew -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/stepsRecycler"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false"
-            android:paddingHorizontal="16dp"
-            android:paddingBottom="16dp" />
-                <Button
-                    android:id="@+id/btnUpdateRecipe"
+                        <TextView
+                            android:id="@+id/tvProteinPct"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0%"
+                            android:textSize="12sp"
+                            android:textColor="#FF8A65"
+                            android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- Row 2: Calories | Net Carbs -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    android:text="Update Recipe"
-                    android:visibility="gone"
-                    app:backgroundTint="@color/secondary"
-                    android:textColor="@color/buttontext" />
+                    android:orientation="horizontal"
+                    android:layout_marginHorizontal="12dp"
+                    android:layout_marginBottom="12dp">
 
-    </LinearLayout>
+                    <!-- Calories chip -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="4dp"
+                        android:padding="10dp"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:background="@drawable/nutrition_card_blue">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Calories"
+                            android:textSize="11sp"
+                            android:textColor="#5B8DEF"/>
+                        <TextView
+                            android:id="@+id/tvCalories"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="--"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/secondary"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="kcal"
+                            android:textSize="10sp"
+                            android:textColor="#5B8DEF"/>
+                    </LinearLayout>
+
+                    <!-- Net Carbs chip -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="4dp"
+                        android:padding="10dp"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:background="@drawable/nutrition_card_orange">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Net Carbs"
+                            android:textSize="11sp"
+                            android:textColor="#FF8A65"/>
+                        <TextView
+                            android:id="@+id/tvNetCarbs"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="--"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/secondary"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="g"
+                            android:textSize="10sp"
+                            android:textColor="#FF8A65"/>
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+            <!-- END nutritionSection -->
+
+            <!-- ══════════════════════════════════════
+                 INGREDIENTS SECTION
+            ══════════════════════════════════════ -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ingredients"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:padding="16dp"
+                android:paddingBottom="8dp"
+                android:textColor="@color/secondary" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/ingredientsRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:paddingHorizontal="16dp"
+                android:paddingBottom="8dp" />
+
+            <!-- ══════════════════════════════════════
+                 STEPS SECTION
+            ══════════════════════════════════════ -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Steps"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:padding="16dp"
+                android:paddingBottom="8dp"
+                android:textColor="@color/secondary" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/stepsRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:paddingHorizontal="16dp"
+                android:paddingBottom="16dp" />
+
+            <!-- ── Update Button ── -->
+            <Button
+                android:id="@+id/btnUpdateRecipe"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:text="Update Recipe"
+                android:visibility="gone"
+                app:backgroundTint="@color/secondary"
+                android:textColor="@color/buttontext" />
+
+        </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    </LinearLayout>
+</LinearLayout>

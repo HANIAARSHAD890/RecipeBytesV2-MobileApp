@@ -67,39 +67,113 @@
         <LinearLayout
             android:id="@+id/optionAI"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="12dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:layout_marginBottom="8dp"
             android:background="@drawable/rounded_card"
             android:clickable="true"
             android:focusable="true">
-            <TextView
-                android:layout_width="40dp"
-                android:layout_height="wrap_content"
-                android:text="🤖"
-                android:textSize="24sp"/>
+
+            <!-- Header row -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp">
+                <TextView
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:text="🤖"
+                    android:textSize="24sp"/>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="AI Generate"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/textcolor"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Let AI create a recipe for you"
+                        android:textSize="12sp"
+                        android:alpha="0.6"
+                        android:textColor="@color/textcolor"/>
+                </LinearLayout>
+                <TextView
+                    android:id="@+id/tvAIArrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="▼"
+                    android:textSize="14sp"
+                    android:textColor="@color/secondary"/>
+            </LinearLayout>
+
+            <!-- Expandable AI input — hidden by default -->
+            <LinearLayout
+                android:id="@+id/layoutAIInput"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:orientation="vertical"
-                android:layout_marginStart="12dp">
-                <TextView
-                    android:layout_width="wrap_content"
+                android:padding="12dp"
+                android:paddingTop="0dp"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilAiDishName"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="AI Generate"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/textcolor"/>
-                <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    xmlns:app="http://schemas.android.com/apk/res-auto"
+                    app:boxStrokeColor="@color/secondary">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etAiDishName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="e.g. Chicken Biryani"
+                        android:inputType="textCapWords"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Loading indicator -->
+                <LinearLayout
+                    android:id="@+id/aiLoadingLayout"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Let AI create a recipe for you"
-                    android:textSize="12sp"
-                    android:alpha="0.6"
-                    android:textColor="@color/textcolor"/>
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginBottom="8dp"
+                    android:visibility="gone">
+                    <ProgressBar
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="8dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Generating recipe..."
+                        android:textColor="@color/secondary"
+                        android:textSize="13sp"/>
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnGenerateAI"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="✨ Generate Recipe"
+                    android:textColor="@color/buttontext"
+                    android:backgroundTint="@color/secondary"
+                    android:layout_marginBottom="8dp"
+                    xmlns:app="http://schemas.android.com/apk/res-auto"
+                    app:cornerRadius="24dp"/>
+
             </LinearLayout>
         </LinearLayout>
 

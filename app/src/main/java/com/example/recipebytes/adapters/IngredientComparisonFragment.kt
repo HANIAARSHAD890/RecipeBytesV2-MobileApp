@@ -97,7 +97,10 @@ class IngredientComparisonFragment : Fragment(R.layout.fragment_ingredient_compa
             onSuccess = {
                 Toast.makeText(requireContext(),
                     "✅ Shopping list saved!", Toast.LENGTH_SHORT).show()
-                requireActivity().onBackPressed()
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, ShoppingListFragment())
+                    .addToBackStack(null)
+                    .commit()
             },
             onError = { error ->
                 Toast.makeText(requireContext(),
