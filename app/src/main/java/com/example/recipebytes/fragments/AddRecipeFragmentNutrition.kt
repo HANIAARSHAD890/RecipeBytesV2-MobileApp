@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
+import com.example.recipebytes.BuildConfig
 import com.example.recipebytes.R
 import com.example.recipebytes.activities.AddRecipeActivity
 import com.example.recipebytes.models.Ingredient
@@ -181,11 +182,7 @@ class AddRecipeFragmentNutrition : Fragment(R.layout.activity_add_recipe_fragmen
         )
     }
 
-    private fun getGroqApiKey(): String {
-        // Replace with however you currently store your Groq key
-        // e.g. BuildConfig.GROQ_API_KEY or getString from resources
-        return "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"
-    }
+    private fun getGroqApiKey(): String = BuildConfig.GROQ_API_KEY
 
     private fun populateFields(nutrition: Nutrition) {
         etCalories.setText(nutrition.calories.toString())

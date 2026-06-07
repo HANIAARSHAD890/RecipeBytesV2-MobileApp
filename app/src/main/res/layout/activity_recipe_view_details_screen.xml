@@ -211,7 +211,8 @@
                             android:text="--"
                             android:textSize="18sp"
                             android:textStyle="bold"
-                            android:textColor="@color/secondary" />
+                            android:alpha="0.7"
+                            android:textColor="@color/textcolor" />
 
                         <com.google.android.material.progressindicator.CircularProgressIndicator
                             android:id="@+id/progressCarbs"
@@ -260,7 +261,8 @@
                             android:text="--"
                             android:textSize="18sp"
                             android:textStyle="bold"
-                            android:textColor="@color/secondary" />
+                            android:alpha="0.7"
+                            android:textColor="@color/textcolor" />
 
                         <com.google.android.material.progressindicator.CircularProgressIndicator
                             android:id="@+id/progressFat"
@@ -309,7 +311,8 @@
                             android:text="--"
                             android:textSize="18sp"
                             android:textStyle="bold"
-                            android:textColor="@color/secondary" />
+                            android:alpha="0.7"
+                            android:textColor="@color/textcolor" />
 
                         <com.google.android.material.progressindicator.CircularProgressIndicator
                             android:id="@+id/progressProtein"
@@ -364,7 +367,8 @@
                             android:text="--"
                             android:textSize="15sp"
                             android:textStyle="bold"
-                            android:textColor="@color/secondary"/>
+                            android:alpha="0.7"
+                            android:textColor="@color/textcolor"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -396,7 +400,8 @@
                             android:text="--"
                             android:textSize="15sp"
                             android:textStyle="bold"
-                            android:textColor="@color/secondary"/>
+                            android:alpha="0.7"
+                            android:textColor="@color/textcolor"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"

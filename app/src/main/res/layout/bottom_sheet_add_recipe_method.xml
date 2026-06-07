@@ -27,7 +27,8 @@
         <LinearLayout
             android:id="@+id/optionManual"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
+            android:layout_height="wrap_content"
+            android:minHeight="56dp"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:padding="12dp"
@@ -77,7 +78,8 @@
             <!-- Header row -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="64dp"
+                android:layout_height="wrap_content"
+                android:minHeight="56dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:padding="12dp">
@@ -181,7 +183,8 @@
         <LinearLayout
             android:id="@+id/optionOCR"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
+            android:layout_height="wrap_content"
+            android:minHeight="56dp"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:padding="12dp"
@@ -221,39 +224,93 @@
         <LinearLayout
             android:id="@+id/optionLink"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="12dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:layout_marginBottom="8dp"
             android:background="@drawable/rounded_card"
             android:clickable="true"
             android:focusable="true">
-            <TextView
-                android:layout_width="40dp"
-                android:layout_height="wrap_content"
-                android:text="🔗"
-                android:textSize="24sp"/>
+
+            <!-- Header row -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:minHeight="56dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp">
+                <TextView
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:text="🔗"
+                    android:textSize="24sp"/>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Get Recipe from Link"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/textcolor"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="YouTube or any recipe website URL"
+                        android:textSize="12sp"
+                        android:alpha="0.6"
+                        android:textColor="@color/textcolor"/>
+                </LinearLayout>
+                <TextView
+                    android:id="@+id/tvLinkArrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="▼"
+                    android:textSize="14sp"
+                    android:textColor="@color/secondary"/>
+            </LinearLayout>
+
+            <!-- Expandable link input — hidden by default -->
+            <LinearLayout
+                android:id="@+id/layoutLinkInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginStart="12dp">
-                <TextView
-                    android:layout_width="wrap_content"
+                android:padding="12dp"
+                android:paddingTop="0dp"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilLinkUrl"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Get Recipe from Link"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/textcolor"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="YouTube or any recipe website URL"
-                    android:textSize="12sp"
-                    android:alpha="0.6"
-                    android:textColor="@color/textcolor"/>
+                    android:layout_marginBottom="8dp"
+                    xmlns:app="http://schemas.android.com/apk/res-auto"
+                    app:boxStrokeColor="@color/secondary">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etLinkUrl"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Paste YouTube or recipe website URL"
+                        android:inputType="textUri"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnExtractLink"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="🔗 Extract Recipe"
+                    android:textColor="@color/buttontext"
+                    android:backgroundTint="@color/secondary"
+                    android:layout_marginBottom="8dp"
+                    xmlns:app="http://schemas.android.com/apk/res-auto"
+                    app:cornerRadius="24dp"/>
+
             </LinearLayout>
         </LinearLayout>
 

@@ -16,7 +16,7 @@ import com.google.android.material.textfield.TextInputLayout
  * Adapter for managing and displaying the list of preparation steps for a recipe.
  */
 class StepsAdapter(
-    private val list: MutableList<Step>,
+    val list: MutableList<Step>,
     var isEditable: Boolean = true
 ) : RecyclerView.Adapter<StepsAdapter.ViewHolder>() {
 

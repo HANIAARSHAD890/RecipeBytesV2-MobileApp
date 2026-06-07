@@ -31,6 +31,8 @@ android {
         buildConfigField("String", "CLOUDINARY_API_KEY", "\"${localProps["CLOUDINARY_API_KEY"]}\"")
         buildConfigField("String", "CLOUDINARY_UPLOAD_PRESET", "\"${localProps["CLOUDINARY_UPLOAD_PRESET"]}\"")
         buildConfigField("String", "CLOUDINARY_API_SECRET", "\"${localProps["CLOUDINARY_API_SECRET"]}\"")
+        buildConfigField("String", "GROQ_API_KEY", "\"${localProps["GROQ_API_KEY"]}\"")
+        buildConfigField("String", "YOUTUBE_API_KEY", "\"${localProps["YOUTUBE_API_KEY"]}\"")
     }
 
     buildTypes {

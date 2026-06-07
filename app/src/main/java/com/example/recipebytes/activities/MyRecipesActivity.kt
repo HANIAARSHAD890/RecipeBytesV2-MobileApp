@@ -1,16 +1,23 @@
 package com.example.recipebytes.activities
 
+import android.app.Dialog
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.View
+import android.view.Window
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.recipebytes.R
+import com.example.recipebytes.adapters.LikersAdapter
 import com.example.recipebytes.adapters.MyRecipesAdapter
 import com.example.recipebytes.models.RecipeRepository
 import com.example.recipebytes.services.FirebaseAuthService
+import com.example.recipebytes.services.FirebaseRecipeService
 
 class MyRecipesActivity : AppCompatActivity() {
 
@@ -20,6 +27,7 @@ class MyRecipesActivity : AppCompatActivity() {
     private lateinit var layoutLoading: LinearLayout
     private val currentUserId = FirebaseAuthService().getCurrentUserId() ?: ""
     private var userProfileImageUrl = ""
+    private val firebaseService = FirebaseRecipeService()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +58,10 @@ class MyRecipesActivity : AppCompatActivity() {
     }
 
     private fun setupAdapter() {
-        adapter = MyRecipesAdapter(mutableListOf(), currentUserId, userProfileImageUrl)
+        adapter = MyRecipesAdapter(
+            mutableListOf(), currentUserId, userProfileImageUrl,
+            onShowLikers = { recipeId -> showLikersDialog(recipeId) }
+        )
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
 
@@ -76,5 +87,25 @@ class MyRecipesActivity : AppCompatActivity() {
                 adapter.refresh(myRecipes)
             }
         }
+    }
+
+    private fun showLikersDialog(recipeId: String) {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.dialog_likers)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        val ivClose = dialog.findViewById<ImageView>(R.id.ivCloseDialog)
+        val rvLikers = dialog.findViewById<RecyclerView>(R.id.rvLikers)
+
+        rvLikers.layoutManager = LinearLayoutManager(this)
+
+        firebaseService.getLikedByUsers(recipeId) { likedByMap ->
+            val adapter = LikersAdapter(this, likedByMap)
+            rvLikers.adapter = adapter
+        }
+
+        ivClose.setOnClickListener { dialog.dismiss() }
+        dialog.show()
     }
 }

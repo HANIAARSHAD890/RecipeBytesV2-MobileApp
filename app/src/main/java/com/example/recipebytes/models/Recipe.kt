@@ -20,7 +20,12 @@ data class Recipe(
     val commentsCount: Int = 0,
     val likesCount: Int = 0,
     var recipeId: String = ""
-) : Serializable
+) : Serializable {
+    companion object {
+        val CATEGORIES = arrayOf("Breakfast", "Lunch", "Dinner", "Baked Goods", "Dessert")
+        val CATEGORIES_WITH_ALL = arrayOf("All", *CATEGORIES)
+    }
+}
 
 object RecipeRepository {
 

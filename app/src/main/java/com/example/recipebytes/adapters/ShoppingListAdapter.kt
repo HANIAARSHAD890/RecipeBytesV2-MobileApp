@@ -70,9 +70,11 @@ class ShoppingItemsAdapter(
         val item = items[position]
         holder.tvName.text = item.name
         holder.tvQty.text  = item.quantity
+
+        // Detach old listener before setting checked state to avoid infinite loop
+        holder.cb.setOnCheckedChangeListener(null)
         holder.cb.isChecked = item.isChecked
 
-        // Strikethrough if checked
         if (item.isChecked) {
             holder.tvName.paintFlags = holder.tvName.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
         } else {

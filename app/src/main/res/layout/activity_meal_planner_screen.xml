@@ -125,7 +125,7 @@
         android:paddingEnd="16dp"
         android:paddingTop="2dp"
         android:paddingBottom="6dp"
-        android:text="📅  All meals this month"
+        android:text="All meals this month"
         android:textSize="13sp"
         android:textStyle="bold"
         android:textColor="@color/secondary"/>

@@ -7,6 +7,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.widget.CompoundButton
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
@@ -31,7 +32,8 @@ import java.util.Locale
 class MyRecipesAdapter(
     private val recipes: MutableList<Recipe>,
     private val currentUserId: String,
-    private val userProfileImageUrl: String = ""
+    private val userProfileImageUrl: String = "",
+    private val onShowLikers: (String) -> Unit = {}
 ) : RecyclerView.Adapter<MyRecipesAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -82,13 +84,15 @@ class MyRecipesAdapter(
 
         holder.switchPublic.isChecked = recipe.isPublic
         holder.switchPublic.setOnCheckedChangeListener(null)
-        holder.switchPublic.setOnCheckedChangeListener { _, isChecked ->
+        var toggleListener: CompoundButton.OnCheckedChangeListener? = null
+        toggleListener = CompoundButton.OnCheckedChangeListener { _, isChecked ->
             val context = holder.itemView.context
             val dialog = Dialog(context)
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
             dialog.setContentView(R.layout.dialog_recipe_delete)
             dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
+            dialog.findViewById<TextView>(R.id.tvDialogHeader).text = if (isChecked) "Make Public" else "Make Private"
             val titleView = dialog.findViewById<TextView>(R.id.tvDeleteMessage)
             titleView.text = if (isChecked) "Are you sure you want to make this recipe public?" else "Are you sure you want to make this recipe private?"
 
@@ -99,7 +103,9 @@ class MyRecipesAdapter(
             )
 
             dialog.findViewById<ImageView>(R.id.ivCloseDialog).setOnClickListener {
+                holder.switchPublic.setOnCheckedChangeListener(null)
                 holder.switchPublic.isChecked = !isChecked
+                holder.switchPublic.setOnCheckedChangeListener(toggleListener!!)
                 dialog.dismiss()
             }
 
@@ -110,11 +116,14 @@ class MyRecipesAdapter(
             }
 
             dialog.setOnCancelListener {
+                holder.switchPublic.setOnCheckedChangeListener(null)
                 holder.switchPublic.isChecked = !isChecked
+                holder.switchPublic.setOnCheckedChangeListener(toggleListener!!)
             }
 
             dialog.show()
         }
+        holder.switchPublic.setOnCheckedChangeListener(toggleListener!!)
 
         // Like
         holder.iconLike.alpha = 0.5f
@@ -122,7 +131,7 @@ class MyRecipesAdapter(
         holder.textLikesCount.text = recipe.likesCount.toString()
         holder.textLikersCount.text = "${recipe.likesCount} likes"
         holder.textLikersCount.setOnClickListener {
-            Toast.makeText(holder.itemView.context, "View likes in Explore", Toast.LENGTH_SHORT).show()
+            onShowLikers(recipe.recipeId)
         }
 
         // Favorite
@@ -159,6 +168,7 @@ class MyRecipesAdapter(
             dialog.setContentView(R.layout.dialog_recipe_delete)
             dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
+            dialog.findViewById<TextView>(R.id.tvDialogHeader).text = "Delete Recipe"
             val tvMessage = dialog.findViewById<TextView>(R.id.tvDeleteMessage)
             tvMessage.text = "Are you sure you want to delete \"${recipe.title}\"?"
 

@@ -14,11 +14,13 @@ import com.example.recipebytes.R
 import com.example.recipebytes.adapters.ShoppingListAdapter
 import com.example.recipebytes.models.ShoppingList
 import com.example.recipebytes.services.ShoppingListService
+import com.google.firebase.database.ValueEventListener
 
 class ShoppingListFragment : Fragment(R.layout.fragment_shopping_list) {
 
     private lateinit var adapter: ShoppingListAdapter
     private val lists = mutableListOf<ShoppingList>()
+    private var shoppingListener: ValueEventListener? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -43,8 +45,8 @@ class ShoppingListFragment : Fragment(R.layout.fragment_shopping_list) {
         rv.layoutManager = LinearLayoutManager(requireContext())
         rv.adapter = adapter
 
-        // Load from Firebase
-        ShoppingListService.getShoppingLists { fetchedLists ->
+        // Listen for real-time updates from Firebase
+        shoppingListener = ShoppingListService.listenShoppingLists { fetchedLists ->
             activity?.runOnUiThread {
                 lists.clear()
                 lists.addAll(fetchedLists)
@@ -57,6 +59,13 @@ class ShoppingListFragment : Fragment(R.layout.fragment_shopping_list) {
                     rv.visibility          = View.VISIBLE
                 }
             }
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        shoppingListener?.let {
+            ShoppingListService.removeListener(it)
         }
     }
 }

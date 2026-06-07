@@ -120,7 +120,12 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         primaryIcon.setOnClickListener {
             if (!isCurrentlyEditing) {
                 enterEditMode()
-                btnUpdate.visibility = View.VISIBLE
+            } else {
+                syncDataFromUI()
+                if (validateAllFields()) {
+                    saveAndExitEditMode()
+                    Toast.makeText(this, "Recipe Updated Successfully", Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
@@ -131,8 +136,6 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
             syncDataFromUI()
             if (validateAllFields()) {
                 saveAndExitEditMode()
-                btnUpdate.visibility = View.GONE
-                primaryIcon.imageTintList = ContextCompat.getColorStateList(this, R.color.buttontext)
                 Toast.makeText(this, "Recipe Updated Successfully", Toast.LENGTH_SHORT).show()
             }
         }
@@ -237,7 +240,7 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
             isValid = false
         }
 
-        recipe?.ingredients?.forEachIndexed { index, ingredient ->
+        ingAdapter.list.forEachIndexed { index, ingredient ->
             if (ingredient.name.trim().isEmpty() || ingredient.quantity.trim().isEmpty()) {
                 isValid = false
                 val holder = ingredientsRecycler.findViewHolderForAdapterPosition(index)
@@ -248,7 +251,7 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
             }
         }
 
-        recipe?.steps?.forEachIndexed { index, step ->
+        stepAdapter.list.forEachIndexed { index, step ->
             if (step.text.trim().isEmpty()) {
                 isValid = false
                 val holder = stepsRecycler.findViewHolderForAdapterPosition(index)
@@ -279,10 +282,12 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         primaryIcon.imageTintList = ContextCompat.getColorStateList(this, R.color.buttontext)
         primaryIcon.setImageResource(android.R.drawable.ic_menu_save)
 
-        etTitle.isEnabled    = false
-        etDesc.isEnabled     = true
-        etCategory.isEnabled = true
+        etTitle.isEnabled     = true
+        etDesc.isEnabled      = true
+        etCategory.isEnabled  = true
         tilCategory.isEnabled = true
+        etCookingTime.isEnabled = true
+        etCategory.setOnClickListener { (it as AutoCompleteTextView).showDropDown() }
         etDesc.requestFocus()
 
         ingAdapter.isEditMode   = true
@@ -292,10 +297,17 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
     }
 
     private fun syncDataFromUI() {
-        recipe?.let {
-            it.description = etDesc.text.toString().trim()
-            it.category    = etCategory.text.toString().trim()
-        }
+        val r = recipe ?: return
+        val timeStr = etCookingTime.text.toString().trim()
+        val newCookingTime = timeStr.filter { it.isDigit() }.toIntOrNull() ?: r.cookingTime
+        recipe = r.copy(
+            title = etTitle.text.toString().trim(),
+            description = etDesc.text.toString().trim(),
+            category = etCategory.text.toString().trim(),
+            cookingTime = newCookingTime,
+            ingredients = ingAdapter.list.toList(),
+            steps = stepAdapter.list.toList()
+        )
     }
 
     private fun buildFullRecipeText(): String {

@@ -191,7 +191,7 @@ class ExploreFragment : Fragment() {
                 chip.setTextColor(whiteColor)
                 chip.chipStrokeColor = android.content.res.ColorStateList.valueOf(primaryColor)
             } else {
-                chip.setChipBackgroundColorResource(android.R.color.transparent)
+                chip.setChipBackgroundColorResource(R.color.background)
                 chip.setTextColor(textColor)
                 chip.chipStrokeColor = android.content.res.ColorStateList.valueOf(
                     ContextCompat.getColor(requireContext(), R.color.gray)

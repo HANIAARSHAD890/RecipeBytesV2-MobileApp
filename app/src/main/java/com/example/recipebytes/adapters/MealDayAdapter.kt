@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.recipebytes.R
 import com.example.recipebytes.models.MealDay
@@ -96,6 +97,7 @@ class MealDayAdapter(
             val chip = Chip(chipGroup.context)
             chip.text = meal
             chip.isCloseIconVisible = true
+            chip.setTextColor(ContextCompat.getColor(chipGroup.context, R.color.primary))
             chip.setOnCloseIconClickListener {
                 meals.remove(meal)
                 // Save to Firebase

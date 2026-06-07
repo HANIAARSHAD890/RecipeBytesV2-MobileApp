@@ -70,9 +70,9 @@
             <!-- Find Recipes button -->
             <Button
                 android:id="@+id/btnSuggest"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:text="🔍  Find Recipes"
+                android:layout_width="232dp"
+                android:layout_height="48dp"
+                android:text="Find Recipes"
                 android:textSize="15sp"
                 android:textColor="@color/buttontext"
                 android:backgroundTint="@color/secondary"

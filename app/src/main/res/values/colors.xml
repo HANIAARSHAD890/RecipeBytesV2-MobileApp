@@ -19,4 +19,10 @@
     <color name="gray">#888780</color>
     <color name = "toggleon" >#3F51B5</color>
     <color name="grayLight">#E0E0E0</color>
+    <color name="nutritiondarker_blue">#EEF4FF</color>
+    <color name="nutritiondarker_orange">#FFF3EE</color>
+    <color name="nutritiondarker_green">#EDFAED</color>
+
+
+
 </resources>

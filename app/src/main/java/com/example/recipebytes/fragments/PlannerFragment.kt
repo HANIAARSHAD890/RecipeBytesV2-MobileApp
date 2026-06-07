@@ -142,9 +142,10 @@ class PlannerFragment : Fragment() {
                 todayCal.get(Calendar.MONTH) == month
         val todayDay       = todayCal.get(Calendar.DAY_OF_MONTH)
 
-        // Fix Saturday cut off — increased padding from 24 to 32
         val screenWidth = resources.displayMetrics.widthPixels
-        val totalPadding = (resources.displayMetrics.density * 16).toInt() * 2
+        val cardMarginPx   = (resources.displayMetrics.density * 12).toInt() * 2
+        val innerPaddingPx = (resources.displayMetrics.density * 16).toInt() * 2
+        val totalPadding = cardMarginPx + innerPaddingPx
         val cellSize = (screenWidth - totalPadding) / 7
 
         val datesWithMeals = cachedDays.filter {
@@ -184,7 +185,7 @@ class PlannerFragment : Fragment() {
                     }
                     isToday -> {
                         setBackgroundResource(R.drawable.calendar_today_bg)
-                        setTextColor(ContextCompat.getColor(requireContext(), R.color.secondary))
+                        setTextColor(ContextCompat.getColor(requireContext(), R.color.textcolor))
                     }
                     else -> {
                         background = null
@@ -245,6 +246,9 @@ class PlannerFragment : Fragment() {
     }
 
     private fun showMealPickerDialog(mealDay: MealDay) {
+        // Capture fragment view BEFORE the local 'view' variable shadows it
+        val fragmentView = view
+
         // Clear then pre-fill with existing meals
         breakfastMeals.clear()
         lunchMeals.clear()
@@ -312,6 +316,7 @@ class PlannerFragment : Fragment() {
                 val chip = Chip(requireContext())
                 chip.text = meal
                 chip.isCloseIconVisible = true
+                chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.primary))
                 chip.setOnCloseIconClickListener {
                     currentList.remove(meal)
                     chipGroup.removeView(chip)
@@ -343,66 +348,41 @@ class PlannerFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            // Update mealDay with all category meals
+            // Update cachedDays immediately so the calendar shows dots right away
+            val cached = cachedDays.find { it.date == mealDay.date }
+            cached?.let {
+                it.breakfast.clear(); it.breakfast.addAll(breakfastMeals)
+                it.lunch.clear();     it.lunch.addAll(lunchMeals)
+                it.dinner.clear();    it.dinner.addAll(dinnerMeals)
+                it.dessert.clear();   it.dessert.addAll(dessertMeals)
+            }
+
+            // Also update mealDay for the Firebase save
             mealDay.breakfast.clear(); mealDay.breakfast.addAll(breakfastMeals)
             mealDay.lunch.clear();     mealDay.lunch.addAll(lunchMeals)
             mealDay.dinner.clear();    mealDay.dinner.addAll(dinnerMeals)
             mealDay.dessert.clear();   mealDay.dessert.addAll(dessertMeals)
 
-            btnSave.isEnabled = false
-            btnSave.text      = "Saving..."
+            dialog.dismiss()
 
-            MealFirebaseRepository.saveDayMeals(
-                mealDay,
-                onSuccess = {
-                    Handler(Looper.getMainLooper()).post {
-                        val cached = cachedDays.find { it.date == mealDay.date }
-                        cached?.let {
-                            it.breakfast.clear(); it.breakfast.addAll(mealDay.breakfast)
-                            it.lunch.clear();     it.lunch.addAll(mealDay.lunch)
-                            it.dinner.clear();    it.dinner.addAll(mealDay.dinner)
-                            it.dessert.clear();   it.dessert.addAll(mealDay.dessert)
-                        }
-                        this.view?.let { v -> buildCalendarGrid(v) }
-                        filterRecycler()
-                        dialog.dismiss()
-                        Toast.makeText(
-                            requireContext(),
-                            "✅ Meals saved for ${mealDay.day}!",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                },
+            // Rebuild calendar and recycler immediately on the fragment view
+            fragmentView?.let { v ->
+                buildCalendarGrid(v)
+                filterRecycler()
+            }
+
+            Toast.makeText(requireContext(),
+                "✅ Meals saved for ${mealDay.day}!", Toast.LENGTH_SHORT).show()
+
+            // Persist to Firebase in the background
+            MealFirebaseRepository.saveDayMeals(mealDay,
                 onError = { error ->
                     Handler(Looper.getMainLooper()).post {
-                        btnSave.isEnabled = true
-                        btnSave.text      = "Save Meals"
                         Toast.makeText(requireContext(),
                             "Failed to save: $error", Toast.LENGTH_SHORT).show()
                     }
                 }
             )
-
-// Fallback — close after 3 seconds even if callback doesn't fire
-            Handler(Looper.getMainLooper()).postDelayed({
-                if (dialog.isShowing) {
-                    val cached = cachedDays.find { it.date == mealDay.date }
-                    cached?.let {
-                        it.breakfast.clear(); it.breakfast.addAll(mealDay.breakfast)
-                        it.lunch.clear();     it.lunch.addAll(mealDay.lunch)
-                        it.dinner.clear();    it.dinner.addAll(mealDay.dinner)
-                        it.dessert.clear();   it.dessert.addAll(mealDay.dessert)
-                    }
-                    this.view?.let { v -> buildCalendarGrid(v) }
-                    filterRecycler()
-                    dialog.dismiss()
-                    Toast.makeText(
-                        requireContext(),
-                        "✅ Meals saved for ${mealDay.day}!",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }, 2000)
         }
 
         dialog.show()
@@ -454,6 +434,7 @@ class PlannerFragment : Fragment() {
                 val chip = Chip(requireContext())
                 chip.text = selected
                 chip.isCloseIconVisible = true
+                chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.primary))
                 chip.setOnCloseIconClickListener {
                     currentCategoryList.remove(selected)
                     chipGroup.removeView(chip)

@@ -19,4 +19,8 @@
     <color name="dark">#2C2C2A</color>
     <color name="gray">#888780</color>
     <color name="grayLight">#424242</color>
+    <color name="nutritiondarker_blue">#1E293B</color>
+    <color name="nutritiondarker_orange">#4A3228</color>
+    <color name="nutritiondarker_green">#1F3A2E</color>
+
 </resources>

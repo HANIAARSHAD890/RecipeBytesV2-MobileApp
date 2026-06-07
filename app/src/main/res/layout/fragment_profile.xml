@@ -142,12 +142,14 @@
                         android:layout_marginStart="12dp"
                         android:layout_weight="1"
                         android:text="Dark Mode"
+                        android:textColor="@color/textcolor"
                         android:textStyle="bold" />
 
                     <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/switchTheme"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        />
                 </LinearLayout>
                 <LinearLayout
                     android:id="@+id/tabMyRecipes"

@@ -18,6 +18,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import com.example.recipebytes.BuildConfig
 import com.example.recipebytes.R
 import com.example.recipebytes.activities.AddRecipeActivity
 import com.example.recipebytes.models.Ingredient
@@ -169,8 +170,31 @@ class AddRecipeMethodBottomSheet : BottomSheetDialogFragment() {
             showImageSourceDialog()
         }
 
+        // Link option — toggle expand/collapse (matches AI Generate design)
+        val layoutLinkInput  = view.findViewById<LinearLayout>(R.id.layoutLinkInput)
+        val tvLinkArrow      = view.findViewById<TextView>(R.id.tvLinkArrow)
+        val etLinkUrl        = view.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etLinkUrl)
+        val btnExtractLink   = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnExtractLink)
+
         view.findViewById<LinearLayout>(R.id.optionLink).setOnClickListener {
-            showLinkDialog()
+            if (layoutLinkInput.visibility == android.view.View.GONE) {
+                layoutLinkInput.visibility = android.view.View.VISIBLE
+                tvLinkArrow.text = "▲"
+                etLinkUrl.requestFocus()
+            } else {
+                layoutLinkInput.visibility = android.view.View.GONE
+                tvLinkArrow.text = "▼"
+            }
+        }
+
+        btnExtractLink.setOnClickListener {
+            val url = etLinkUrl.text.toString().trim()
+            if (url.isEmpty()) {
+                Toast.makeText(requireContext(), "Please enter a URL", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            showLoading("Extracting recipe from link...")
+            processLinkWithGroq(url)
         }
     }
 
@@ -499,8 +523,8 @@ class AddRecipeMethodBottomSheet : BottomSheetDialogFragment() {
         layoutLoading.visibility = View.GONE
     }
 
-    private fun getGroqApiKey() = "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"
-    private fun getYouTubeApiKey() = "AIzaSyA4nnp7TC496TldfDH-swgSVPmv5FXSP30"
+    private fun getGroqApiKey() = BuildConfig.GROQ_API_KEY
+    private fun getYouTubeApiKey() = BuildConfig.YOUTUBE_API_KEY
 
     private fun extractYouTubeVideoId(url: String): String? {
         return when {

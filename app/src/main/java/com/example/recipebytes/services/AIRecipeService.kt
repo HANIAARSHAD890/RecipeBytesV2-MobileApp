@@ -1,5 +1,6 @@
 package com.example.recipebytes.services
 
+import com.example.recipebytes.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -21,7 +22,7 @@ data class AIRecipeResult(
 
 object AIRecipeService {
 
-    private const val API_KEY = "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" // ← paste Groq key here
+    private val API_KEY = BuildConfig.GROQ_API_KEY
     private const val API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
     private val client = OkHttpClient.Builder()

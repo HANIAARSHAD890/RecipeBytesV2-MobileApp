@@ -1,7 +1,9 @@
 package com.example.recipebytes.fragments
 
+import android.Manifest
 import android.app.Dialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -18,6 +20,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SwitchCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import android.util.Log
@@ -163,13 +166,19 @@ class ProfileFragment : Fragment() {
     }
 
     private fun showImagePicker() {
-        val items = arrayOf("🖼️ Gallery", "📷 Camera")
-        android.app.AlertDialog.Builder(requireContext())
-            .setTitle("Select Image Source")
+        val items = arrayOf("📷 Camera", "🖼️ Gallery")
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Choose Image Source")
             .setItems(items) { _, which ->
-                when (which) {
-                    0 -> imagePickerLauncher.launch("image/*")
-                    1 -> requestCameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+                if (which == 0) {
+                    if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+                        == PackageManager.PERMISSION_GRANTED) {
+                        cameraLauncher.launch(null)
+                    } else {
+                        requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                    }
+                } else {
+                    imagePickerLauncher.launch("image/*")
                 }
             }
             .show()

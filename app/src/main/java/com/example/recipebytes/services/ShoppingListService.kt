@@ -3,7 +3,10 @@ package com.example.recipebytes.services
 import com.example.recipebytes.models.ShoppingList
 import com.example.recipebytes.models.ShoppingListItem
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 object ShoppingListService {
 
@@ -45,11 +48,11 @@ object ShoppingListService {
             .addOnFailureListener { onError(it.message ?: "Failed") }
     }
 
-    fun getShoppingLists(onResult: (List<ShoppingList>) -> Unit) {
-        val ref = shoppingRef() ?: run { onResult(emptyList()); return }
+    fun listenShoppingLists(onResult: (List<ShoppingList>) -> Unit): ValueEventListener? {
+        val ref = shoppingRef() ?: run { onResult(emptyList()); return null }
 
-        ref.get()
-            .addOnSuccessListener { snapshot ->
+        val listener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
                 val lists = mutableListOf<ShoppingList>()
                 for (child in snapshot.children) {
                     val id          = child.child("id").value as? String ?: ""
@@ -69,12 +72,23 @@ object ShoppingListService {
                 }
                 onResult(lists)
             }
-            .addOnFailureListener { onResult(emptyList()) }
+
+            override fun onCancelled(error: DatabaseError) {
+                onResult(emptyList())
+            }
+        }
+
+        ref.addValueEventListener(listener)
+        return listener
     }
 
     fun updateItemChecked(listId: String, itemIndex: Int, isChecked: Boolean) {
         shoppingRef()?.child(listId)?.child("items")
             ?.child(itemIndex.toString())?.child("isChecked")?.setValue(isChecked)
+    }
+
+    fun removeListener(listener: ValueEventListener) {
+        shoppingRef()?.removeEventListener(listener)
     }
 
     fun deleteShoppingList(listId: String) {

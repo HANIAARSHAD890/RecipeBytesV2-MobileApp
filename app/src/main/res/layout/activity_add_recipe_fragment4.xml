@@ -70,13 +70,12 @@
                 <!-- Remove image button -->
                 <ImageButton
                     android:id="@+id/btnRemoveImage"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:layout_gravity="top|end"
                     android:layout_margin="8dp"
+                    android:background="@color/primary"
                     android:src="@android:drawable/ic_menu_close_clear_cancel"
-                    android:backgroundTint="@color/red"
-                    android:tint="@color/buttontext"
                     android:visibility="gone"/>
 
                 <!-- Loading indicator -->
