@@ -47,9 +47,10 @@ class ExploreFragment : Fragment() {
     private var favoriteIds = mutableSetOf<String>()
     private var likedIds = mutableSetOf<String>()
     private var showFavoritesOnly = false
-    private var selectedTimeFilter = "all"      // "all", "under30", "30to60", "over60"
-    private var selectedRecencyFilter = ""       // "", "newest", "weekly", "monthly"
+    private var selectedTimeFilter = "all"
+    private var selectedRecencyFilter = ""
     private val firebaseService = FirebaseRecipeService()
+    private var hasLoadedOnce = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -75,6 +76,14 @@ class ExploreFragment : Fragment() {
         setupEventListeners(view)
 
         loadAndDisplay()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (hasLoadedOnce) {
+            loadAndDisplay()
+        }
+        hasLoadedOnce = true
     }
 
     private fun loadAndDisplay() {

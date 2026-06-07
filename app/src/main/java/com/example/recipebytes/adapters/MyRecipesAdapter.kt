@@ -30,11 +30,12 @@ import java.util.Locale
 
 class MyRecipesAdapter(
     private val recipes: MutableList<Recipe>,
-    private val currentUserId: String
+    private val currentUserId: String,
+    private val userProfileImageUrl: String = ""
 ) : RecyclerView.Adapter<MyRecipesAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val profileCircle: TextView = view.findViewById(R.id.profileCircle)
+        val profileImage: ImageView = view.findViewById(R.id.profileImage)
         val textUsername: TextView = view.findViewById(R.id.textUsername)
         val title: TextView = view.findViewById(R.id.textTitle)
         val desc: TextView = view.findViewById(R.id.textDescription)
@@ -64,7 +65,16 @@ class MyRecipesAdapter(
         holder.title.text = recipe.title
         holder.desc.text = recipe.description
         holder.textUsername.text = "You"
-        holder.profileCircle.text = "You".take(1).uppercase()
+        if (userProfileImageUrl.isNotEmpty()) {
+            Glide.with(holder.itemView.context)
+                .load(userProfileImageUrl)
+                .circleCrop()
+                .placeholder(R.drawable.ic_profile)
+                .error(R.drawable.ic_profile)
+                .into(holder.profileImage)
+        } else {
+            holder.profileImage.setImageResource(R.drawable.ic_profile)
+        }
 
         val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
         holder.textCreatedAt.text = "${dateFormat.format(Date(recipe.createdAt))}"

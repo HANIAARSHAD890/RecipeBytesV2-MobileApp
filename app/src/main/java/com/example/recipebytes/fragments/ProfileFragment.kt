@@ -192,13 +192,13 @@ class ProfileFragment : Fragment() {
     private fun setupThemeToggle(view: View) {
         val themeSwitchCompat = view.findViewById<SwitchCompat?>(R.id.switchTheme)
         if (themeSwitchCompat != null) {
-            // Temporarily disable listener to set initial state without triggering recreate
             themeSwitchCompat.setOnCheckedChangeListener(null)
-            // Get initial state once (not continuous collect)
             lifecycleScope.launch {
                 val isDarkMode = preferencesRepository.isDarkModeFlow.first()
-                themeSwitchCompat.isChecked = isDarkMode
-                // Re-enable listener after initial state is set
+                val mode = resources.configuration.uiMode and
+                        android.content.res.Configuration.UI_MODE_NIGHT_MASK
+                val isSystemDark = mode == android.content.res.Configuration.UI_MODE_NIGHT_YES
+                themeSwitchCompat.isChecked = if (isDarkMode != null) isDarkMode else isSystemDark
                 themeSwitchCompat.setOnCheckedChangeListener { _, isChecked ->
                     lifecycleScope.launch {
                         preferencesRepository.setDarkMode(isChecked)

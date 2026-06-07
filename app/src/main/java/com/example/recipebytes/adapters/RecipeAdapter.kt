@@ -44,8 +44,7 @@ class RecipeAdapter(
 ) : RecyclerView.Adapter<RecipeAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val profileCircle: TextView = view.findViewById(R.id.profileCircle)
-        val profileImage: ImageView? = view.findViewById(R.id.profileImage)
+        val profileImage: ImageView = view.findViewById(R.id.profileImage)
         val textUsername: TextView = view.findViewById(R.id.textUsername)
         val switchPublic: SwitchCompat = view.findViewById(R.id.switchPublic)
         val title: TextView = view.findViewById(R.id.textTitle)
@@ -103,20 +102,14 @@ class RecipeAdapter(
 
         val profileImageUrl = userProfileMap[recipe.userId]
         if (!profileImageUrl.isNullOrEmpty()) {
-            holder.profileImage?.visibility = View.VISIBLE
-            holder.profileImage?.let {
-                Glide.with(holder.itemView.context)
-                    .load(profileImageUrl)
-                    .circleCrop()
-                    .placeholder(R.drawable.circle_bg)
-                    .error(R.drawable.circle_bg)
-                    .into(it)
-            }
-            holder.profileCircle.text = ""
-            holder.profileCircle.background = null
+            Glide.with(holder.itemView.context)
+                .load(profileImageUrl)
+                .circleCrop()
+                .placeholder(R.drawable.ic_profile)
+                .error(R.drawable.ic_profile)
+                .into(holder.profileImage)
         } else {
-            holder.profileImage?.visibility = View.GONE
-            holder.profileCircle.text = displayName.take(1).uppercase()
+            holder.profileImage.setImageResource(R.drawable.ic_profile)
         }
     }
 

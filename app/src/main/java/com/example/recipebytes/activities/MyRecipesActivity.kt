@@ -19,6 +19,7 @@ class MyRecipesActivity : AppCompatActivity() {
     private lateinit var tvNoRecipes: TextView
     private lateinit var layoutLoading: LinearLayout
     private val currentUserId = FirebaseAuthService().getCurrentUserId() ?: ""
+    private var userProfileImageUrl = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,7 +31,26 @@ class MyRecipesActivity : AppCompatActivity() {
         tvNoRecipes = findViewById(R.id.tvNoRecipes)
         layoutLoading = findViewById(R.id.layoutLoading)
 
-        adapter = MyRecipesAdapter(mutableListOf(), currentUserId)
+        fetchUserProfile()
+    }
+
+    private fun fetchUserProfile() {
+        val authService = FirebaseAuthService()
+        authService.fetchUserFromDatabase(currentUserId,
+            onSuccess = { user ->
+                if (user != null) {
+                    userProfileImageUrl = user.profileImage
+                }
+                setupAdapter()
+            },
+            onError = {
+                setupAdapter()
+            }
+        )
+    }
+
+    private fun setupAdapter() {
+        adapter = MyRecipesAdapter(mutableListOf(), currentUserId, userProfileImageUrl)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
 

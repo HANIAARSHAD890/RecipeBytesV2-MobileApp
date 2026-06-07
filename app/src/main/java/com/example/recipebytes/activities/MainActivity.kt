@@ -45,10 +45,10 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             preferencesRepository.isDarkModeFlow.collect { isDarkMode ->
-                val nightMode = if (isDarkMode) {
-                    AppCompatDelegate.MODE_NIGHT_YES
-                } else {
-                    AppCompatDelegate.MODE_NIGHT_NO
+                val nightMode = when (isDarkMode) {
+                    null  -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                    true  -> AppCompatDelegate.MODE_NIGHT_YES
+                    false -> AppCompatDelegate.MODE_NIGHT_NO
                 }
                 AppCompatDelegate.setDefaultNightMode(nightMode)
             }
