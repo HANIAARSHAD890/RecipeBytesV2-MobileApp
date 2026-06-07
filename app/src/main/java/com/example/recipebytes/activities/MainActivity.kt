@@ -27,6 +27,7 @@ import com.example.recipebytes.fragments.SuggestFragment
 import com.example.recipebytes.preferences.UserPreferencesRepository
 import com.example.recipebytes.services.FirebaseAuthService
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -35,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var bottomNav: BottomNavigationView
     private lateinit var powerReceiver: PowerReceiver
     private lateinit var preferencesRepository: UserPreferencesRepository
+    private  var isDeepLinking = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,43 +83,102 @@ class MainActivity : AppCompatActivity() {
         scheduleMealReminder()
         setupWindowInsets()
         setupBottomNavigation()
+        val openFavorites = intent.getBooleanExtra("open_favorites", false)
+        val openPlanner = intent.getBooleanExtra("open_planner", false)
+        val openExplore = intent.getBooleanExtra("open_explore", false)
+        isDeepLinking = false
+        if (openFavorites) {
+            intent.removeExtra("open_favorites")
+            val frag = ExploreFragment().apply {
+                arguments = Bundle().apply { putBoolean("show_favorites", true) }
+            }
+            isDeepLinking = true
+            loadFragment(frag)
+            bottomNav.selectedItemId = R.id.nav_explore
+            isDeepLinking = false
+            lifecycleScope.launch { preferencesRepository.setLastScreen("explore") }
+            return  // ← STOP HERE, don't fall into lastScreen logic
+        }
 
-        // ✅ ADDED — handle notification tap navigation on cold start
-        if (intent.getBooleanExtra("open_planner", false)) {
+        if (openPlanner) {
             loadFragment(PlannerFragment())
             bottomNav.selectedItemId = R.id.nav_planner
-        } else if (intent.getBooleanExtra("open_explore", false)) {
+            lifecycleScope.launch { preferencesRepository.setLastScreen("planner") }
+            return
+        }
+
+        if (openExplore) {
             loadFragment(ExploreFragment())
             bottomNav.selectedItemId = R.id.nav_explore
-        } else {
-            // Load last viewed screen
+            lifecycleScope.launch { preferencesRepository.setLastScreen("explore") }
+            return
+        }
+//
+////        // Handle deep-link navigation on cold start
+////        if (intent.getBooleanExtra("open_planner", false)) {
+////            loadFragment(PlannerFragment())
+////            bottomNav.selectedItemId = R.id.nav_planner
+////            lifecycleScope.launch { preferencesRepository.setLastScreen("planner") }
+////        } else if (intent.getBooleanExtra("open_explore", false)) {
+////            loadFragment(ExploreFragment())
+////            bottomNav.selectedItemId = R.id.nav_explore
+////            lifecycleScope.launch { preferencesRepository.setLastScreen("explore") }
+////        } else if (intent.getBooleanExtra("open_favorites", false)) {
+////            intent.removeExtra("open_favorites")
+////            val frag = ExploreFragment()
+////            frag.arguments = Bundle().apply { putBoolean("show_favorites", true) }
+////            loadFragment(frag)
+////            bottomNav.selectedItemId = R.id.nav_explore
+////            lifecycleScope.launch { preferencesRepository.setLastScreen("explore") }
+////        }
+//      else
+//
+//
+//        {
+//            // Load last viewed screen
             lifecycleScope.launch {
-                preferencesRepository.lastScreenFlow.collect { lastScreen ->
+                val lastScreen = preferencesRepository.lastScreenFlow.first() // ← read once, done
+
+              ///  val lastScreen = preferencesRepository.lastScreenFlow.first() // ← read once, done
+
+
+//                preferencesRepository.lastScreenFlow.collect { lastScreen ->
+                    val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
                     when (lastScreen) {
                         "explore" -> {
-                            loadFragment(ExploreFragment())
-                            bottomNav.selectedItemId = R.id.nav_explore
+                            if (currentFragment !is ExploreFragment) {
+                                loadFragment(ExploreFragment())
+                                bottomNav.selectedItemId = R.id.nav_explore
+                            }
                         }
                         "planner" -> {
-                            loadFragment(PlannerFragment())
-                            bottomNav.selectedItemId = R.id.nav_planner
+                            if (currentFragment !is PlannerFragment) {
+                                loadFragment(PlannerFragment())
+                                bottomNav.selectedItemId = R.id.nav_planner
+                            }
                         }
                         "profile" -> {
-                            loadFragment(ProfileFragment())
-                            bottomNav.selectedItemId = R.id.nav_profile
+                            if (currentFragment !is ProfileFragment) {
+                                loadFragment(ProfileFragment())
+                                bottomNav.selectedItemId = R.id.nav_profile
+                            }
                         }
                         "suggest" -> {
-                            loadFragment(SuggestFragment())
-                            bottomNav.selectedItemId = R.id.nav_suggest
+                            if (currentFragment !is SuggestFragment) {
+                                loadFragment(SuggestFragment())
+                                bottomNav.selectedItemId = R.id.nav_suggest
+                            }
                         }
                         else -> {
-                            loadFragment(HomeFragment())
-                            bottomNav.selectedItemId = R.id.nav_home
+                            if (currentFragment !is HomeFragment) {
+                                loadFragment(HomeFragment())
+                                bottomNav.selectedItemId = R.id.nav_home
+                            }
                         }
                     }
                 }
-            }
-        }
+           /// }
+       /// }
 
         supportFragmentManager.addOnBackStackChangedListener {
             syncBottomNav()
@@ -144,6 +205,7 @@ class MainActivity : AppCompatActivity() {
         bottomNav.itemBackground    = null
 
         bottomNav.setOnItemSelectedListener { item ->
+            if (isDeepLinking) return@setOnItemSelectedListener true  // ← skip if deep-linking
             val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
             when (item.itemId) {
                 R.id.nav_home -> {
@@ -186,14 +248,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        if (intent.getBooleanExtra("open_favorites", false)) {
-            intent.removeExtra("open_favorites")
-            val frag = ExploreFragment()
-            frag.arguments = Bundle().apply { putBoolean("show_favorites", true) }
-            loadFragment(frag)
-            bottomNav.selectedItemId = R.id.nav_explore
-            lifecycleScope.launch { preferencesRepository.setLastScreen("explore") }
-        }
     }
 
     private fun syncBottomNav() {
@@ -281,12 +335,14 @@ class MainActivity : AppCompatActivity() {
 
         if (intent.getBooleanExtra("open_favorites", false)) {
             intent.removeExtra("open_favorites")
-            val frag = ExploreFragment()
-            frag.arguments = Bundle().apply { putBoolean("show_favorites", true) }
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, frag)
-                .commit()
+            val frag = ExploreFragment().apply {
+                arguments = Bundle().apply { putBoolean("show_favorites", true) }
+            }
+            isDeepLinking = true
+            loadFragment(frag)
             bottomNav.selectedItemId = R.id.nav_explore
+            isDeepLinking = false
+            lifecycleScope.launch { preferencesRepository.setLastScreen("explore") }
         }
     }
 

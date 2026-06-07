@@ -197,8 +197,8 @@ class RecipeAdapter(
             holder.itemView.context.startActivity(intent)
         }
 
-        val shareText = "${recipe.title}\n\n${recipe.description}"
         holder.iconShare.setOnClickListener {
+            val shareText = buildFullRecipeText(recipe)
             val intent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
                 putExtra(Intent.EXTRA_TEXT, shareText)
@@ -209,11 +209,55 @@ class RecipeAdapter(
         }
 
         holder.iconCopy.setOnClickListener {
+            val shareText = buildFullRecipeText(recipe)
             val clipboard = holder.itemView.context
                 .getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             clipboard.setPrimaryClip(ClipData.newPlainText("Recipe", shareText))
             Toast.makeText(holder.itemView.context, "Recipe copied to clipboard", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun buildFullRecipeText(recipe: Recipe): String {
+        val sb = StringBuilder()
+        sb.appendLine("🍽 ${recipe.title}")
+        sb.appendLine()
+        if (recipe.description.isNotBlank()) {
+            sb.appendLine("📖 ${recipe.description}")
+            sb.appendLine()
+        }
+        sb.appendLine("⏱ Cooking Time: ${recipe.cookingTime} mins")
+        sb.appendLine("📂 Category: ${recipe.category}")
+        sb.appendLine()
+        if (recipe.ingredients.isNotEmpty()) {
+            sb.appendLine("🥗 Ingredients:")
+            recipe.ingredients.forEachIndexed { i, ing ->
+                sb.appendLine("  ${i + 1}. ${ing.quantity} ${ing.name}")
+            }
+            sb.appendLine()
+        }
+        if (recipe.steps.isNotEmpty()) {
+            sb.appendLine("👨‍🍳 Steps:")
+            recipe.steps.forEachIndexed { i, step ->
+                sb.appendLine("  ${i + 1}. ${step.text}")
+            }
+            sb.appendLine()
+        }
+        recipe.nutrition?.let { n ->
+            if (n.calories > 0 || n.carbs > 0f || n.fat > 0f || n.protein > 0f) {
+                sb.appendLine("📊 Nutrition:")
+                if (n.calories > 0) sb.appendLine("  Calories: ${n.calories} kcal")
+                if (n.carbs > 0f) sb.appendLine("  Carbs: ${n.carbs}g")
+                if (n.fat > 0f) sb.appendLine("  Fat: ${n.fat}g")
+                if (n.protein > 0f) sb.appendLine("  Protein: ${n.protein}g")
+                sb.appendLine()
+            }
+        }
+        if (!recipe.imageUri.isNullOrEmpty()) {
+            sb.appendLine("📸 ${recipe.imageUri}")
+        }
+        sb.appendLine()
+        sb.append("— Shared from RecipeBytes")
+        return sb.toString()
     }
 
     private fun loadImage(holder: ViewHolder, recipe: Recipe) {

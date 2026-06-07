@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -28,6 +29,7 @@ import com.google.android.material.textfield.TextInputEditText
 import java.util.Locale
 import com.example.recipebytes.fragments.AddRecipeMethodBottomSheet
 import android.widget.ImageView
+import com.google.android.material.chip.Chip
 
 class ExploreFragment : Fragment() {
 
@@ -45,6 +47,8 @@ class ExploreFragment : Fragment() {
     private var favoriteIds = mutableSetOf<String>()
     private var likedIds = mutableSetOf<String>()
     private var showFavoritesOnly = false
+    private var selectedTimeFilter = "all"      // "all", "under30", "30to60", "over60"
+    private var selectedRecencyFilter = ""       // "", "newest", "weekly", "monthly"
     private val firebaseService = FirebaseRecipeService()
 
     override fun onCreateView(
@@ -66,6 +70,7 @@ class ExploreFragment : Fragment() {
 
         initializeViews(view)
         setupCategoryDropdown(view)
+        setupFilterChips(view)
         setupRecipeAdapter()
         setupEventListeners(view)
 
@@ -148,6 +153,97 @@ class ExploreFragment : Fragment() {
         categoryDropdown.setText("All", false)
         categoryDropdown.setOnItemClickListener { _, _, _, _ ->
             performFilterAndSort(etSearch.text.toString())
+        }
+    }
+
+    private fun setupFilterChips(view: View) {
+        // Time filter chips
+        val chipAll = view.findViewById<com.google.android.material.chip.Chip>(R.id.chipAll)
+        val chipUnder30 = view.findViewById<com.google.android.material.chip.Chip>(R.id.chipUnder30)
+        val chip30to60 = view.findViewById<com.google.android.material.chip.Chip>(R.id.chip30to60)
+        val chipOver60 = view.findViewById<com.google.android.material.chip.Chip>(R.id.chipOver60)
+        // Recency filter chips
+        val chipNewest = view.findViewById<com.google.android.material.chip.Chip>(R.id.chipNewest)
+        val chipWeekly = view.findViewById<com.google.android.material.chip.Chip>(R.id.chipWeekly)
+        val chipMonthly = view.findViewById<com.google.android.material.chip.Chip>(R.id.chipMonthly)
+
+        val timeChips = listOf(chipAll, chipUnder30, chip30to60, chipOver60)
+        val recencyChips = listOf(chipNewest, chipWeekly, chipMonthly)
+        val allChips = timeChips + recencyChips
+
+        val primaryColor = ContextCompat.getColor(requireContext(), R.color.primary)
+        val whiteColor = ContextCompat.getColor(requireContext(), R.color.buttontext)
+        val textColor = ContextCompat.getColor(requireContext(), R.color.textcolor)
+
+        // Style chips: blue bg + white text when checked; transparent + gray border when unchecked
+        fun styleChip(chip: com.google.android.material.chip.Chip, checked: Boolean) {
+            if (checked) {
+                chip.setChipBackgroundColorResource(R.color.primary)
+                chip.setTextColor(whiteColor)
+                chip.chipStrokeColor = android.content.res.ColorStateList.valueOf(primaryColor)
+            } else {
+                chip.setChipBackgroundColorResource(android.R.color.transparent)
+                chip.setTextColor(textColor)
+                chip.chipStrokeColor = android.content.res.ColorStateList.valueOf(
+                    ContextCompat.getColor(requireContext(), R.color.gray)
+                )
+            }
+        }
+
+        // Apply initial style to all chips
+        for (chip in allChips) {
+            styleChip(chip, chip.isChecked)
+        }
+
+        // Time chip click: mutual exclusion within time group
+        for (chip in timeChips) {
+            chip.setOnCheckedChangeListener { buttonView, isChecked ->
+                styleChip(buttonView as Chip, isChecked)
+                if (isChecked) {
+                    selectedTimeFilter = when (buttonView.id) {
+                        R.id.chipUnder30 -> "under30"
+                        R.id.chip30to60 -> "30to60"
+                        R.id.chipOver60 -> "over60"
+                        else -> "all"
+                    }
+                    // Uncheck other time chips
+                    for (other in timeChips) {
+                        if (other != buttonView) {
+                            other.isChecked = false
+                            styleChip(other, false)
+                        }
+                    }
+                    performFilterAndSort(etSearch.text.toString())
+                } else if (!timeChips.any { it.isChecked }) {
+                    // Ensure at least one time chip is always selected
+                    chipAll.isChecked = true
+                    styleChip(chipAll, true)
+                }
+            }
+        }
+
+        // Recency chip click: mutual exclusion within recency group
+        for (chip in recencyChips) {
+            chip.setOnCheckedChangeListener { buttonView, isChecked ->
+                styleChip(buttonView as Chip, isChecked)
+                if (isChecked) {
+                    selectedRecencyFilter = when (buttonView.id) {
+                        R.id.chipWeekly -> "weekly"
+                        R.id.chipMonthly -> "monthly"
+                        else -> "newest"
+                    }
+                    // Uncheck other recency chips
+                    for (other in recencyChips) {
+                        if (other != buttonView) {
+                            other.isChecked = false
+                            styleChip(other, false)
+                        }
+                    }
+                    performFilterAndSort(etSearch.text.toString())
+                } else if (!recencyChips.any { it.isChecked }) {
+                    selectedRecencyFilter = ""
+                }
+            }
         }
     }
 
@@ -274,6 +370,8 @@ class ExploreFragment : Fragment() {
         val allRecipes = RecipeRepository.getAllRecipes()
         val selectedCategory = categoryDropdown.text.toString()
         val lowerQuery = query.lowercase(Locale.ROOT).trim()
+        val now = System.currentTimeMillis()
+        val dayMs = 86400000L
 
         val filteredList = allRecipes.filter { recipe ->
             val canView = recipe.isPublic || recipe.userId == currentUserId
@@ -288,13 +386,28 @@ class ExploreFragment : Fragment() {
 
             val matchesFavorites = !showFavoritesOnly || recipe.recipeId in favoriteIds
 
-            matchesCategory && matchesSearch && matchesFavorites
+            // Time filter
+            val matchesTime = when (selectedTimeFilter) {
+                "under30" -> recipe.cookingTime in 1..30
+                "30to60" -> recipe.cookingTime in 31..60
+                "over60" -> recipe.cookingTime >= 61
+                else -> true // "all"
+            }
+
+            // Recency filter (date range)
+            val matchesRecency = when (selectedRecencyFilter) {
+                "weekly" -> (now - recipe.createdAt) <= 7 * dayMs
+                "monthly" -> (now - recipe.createdAt) <= 30 * dayMs
+                else -> true
+            }
+
+            matchesCategory && matchesSearch && matchesFavorites && matchesTime && matchesRecency
         }
 
-        val sortedList = if (isAscending) {
-            filteredList.sortedBy { it.title.lowercase() }
-        } else {
-            filteredList.sortedByDescending { it.title.lowercase() }
+        val sortedList = when {
+            selectedRecencyFilter == "newest" -> filteredList.sortedByDescending { it.createdAt }
+            isAscending -> filteredList.sortedBy { it.title.lowercase() }
+            else -> filteredList.sortedByDescending { it.title.lowercase() }
         }
 
         layoutLoading.visibility = View.GONE

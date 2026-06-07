@@ -36,6 +36,37 @@
                 android:layout_height="250dp"
                 android:contentDescription="Recipe Image" />
 
+            <!-- ── Share / Copy row ── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="end"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="4dp">
+
+                <ImageView
+                    android:id="@+id/iconShare"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_menu_share"
+                    app:tint="@color/primary"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="Share recipe" />
+
+                <ImageView
+                    android:id="@+id/iconCopy"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="16dp"
+                    android:src="@drawable/ic_copy"
+                    app:tint="@color/primary"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="Copy recipe" />
+            </LinearLayout>
+
             <!-- ── Title ── -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilRecipeTitle"

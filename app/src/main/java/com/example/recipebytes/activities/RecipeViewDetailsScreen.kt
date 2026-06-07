@@ -1,6 +1,14 @@
 package com.example.recipebytes.activities
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
@@ -10,6 +18,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -25,6 +34,8 @@ import com.example.recipebytes.models.RecipeRepository
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import java.io.File
+import java.io.FileOutputStream
 
 class RecipeViewDetailsScreen : AppCompatActivity() {
     private var isCurrentlyEditing = false
@@ -44,6 +55,10 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
     private lateinit var stepsRecycler: RecyclerView
     private lateinit var btnUpdate: Button
     private var recipe: Recipe? = null
+
+    companion object {
+        private const val TAG = "RecipeViewDetailsScreen"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,6 +118,9 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
                 btnUpdate.visibility = View.VISIBLE
             }
         }
+
+        findViewById<ImageView>(R.id.iconShare).setOnClickListener { shareRecipe() }
+        findViewById<ImageView>(R.id.iconCopy).setOnClickListener { copyRecipe() }
 
         btnUpdate.setOnClickListener {
             syncDataFromUI()
@@ -273,6 +291,111 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
             it.description = etDesc.text.toString().trim()
             it.category    = etCategory.text.toString().trim()
         }
+    }
+
+    private fun buildFullRecipeText(): String {
+        val r = recipe ?: return ""
+        val sb = StringBuilder()
+
+        sb.appendLine("🍽 ${r.title}")
+        sb.appendLine()
+        if (r.description.isNotBlank()) {
+            sb.appendLine("📖 ${r.description}")
+            sb.appendLine()
+        }
+        sb.appendLine("⏱ Cooking Time: ${r.cookingTime} mins")
+        sb.appendLine("📂 Category: ${r.category}")
+        sb.appendLine()
+
+        if (r.ingredients.isNotEmpty()) {
+            sb.appendLine("🥗 Ingredients:")
+            r.ingredients.forEachIndexed { i, ing ->
+                sb.appendLine("  ${i + 1}. ${ing.quantity} ${ing.name}")
+            }
+            sb.appendLine()
+        }
+
+        if (r.steps.isNotEmpty()) {
+            sb.appendLine("👨‍🍳 Steps:")
+            r.steps.forEachIndexed { i, step ->
+                sb.appendLine("  ${i + 1}. ${step.text}")
+            }
+            sb.appendLine()
+        }
+
+        r.nutrition?.let { n ->
+            if (n.calories > 0 || n.carbs > 0f || n.fat > 0f || n.protein > 0f) {
+                sb.appendLine("📊 Nutrition:")
+                if (n.calories > 0) sb.appendLine("  Calories: ${n.calories} kcal")
+                if (n.carbs > 0f) sb.appendLine("  Carbs: ${n.carbs}g")
+                if (n.fat > 0f) sb.appendLine("  Fat: ${n.fat}g")
+                if (n.protein > 0f) sb.appendLine("  Protein: ${n.protein}g")
+                sb.appendLine()
+            }
+        }
+
+        if (!r.imageUri.isNullOrEmpty()) {
+            sb.appendLine("📸 ${r.imageUri}")
+        }
+
+        sb.appendLine()
+        sb.append("— Shared from RecipeBytes")
+        return sb.toString()
+    }
+
+    private fun shareRecipe() {
+        val recipeText = buildFullRecipeText()
+        val recipeImageUri = recipe?.imageUri
+
+        if (!recipeImageUri.isNullOrEmpty()) {
+            try {
+                Glide.with(this)
+                    .asBitmap()
+                    .load(recipeImageUri)
+                    .submit()
+                    .get()
+                    .let { bitmap ->
+                        val cacheDir = File(cacheDir, "shared_images")
+                        cacheDir.mkdirs()
+                        val file = File(cacheDir, "recipe_share_${System.currentTimeMillis()}.png")
+                        FileOutputStream(file).use { out ->
+                            bitmap.compress(Bitmap.CompressFormat.PNG, 90, out)
+                        }
+                        val uri = FileProvider.getUriForFile(
+                            this,
+                            "${packageName}.provider",
+                            file
+                        )
+                        val intent = Intent(Intent.ACTION_SEND).apply {
+                            type = "image/*"
+                            putExtra(Intent.EXTRA_STREAM, uri)
+                            putExtra(Intent.EXTRA_TEXT, recipeText)
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        startActivity(Intent.createChooser(intent, "Share Recipe"))
+                    }
+            } catch (e: Exception) {
+                Log.e(TAG, "Share with image failed, falling back to text", e)
+                shareTextOnly(recipeText)
+            }
+        } else {
+            shareTextOnly(recipeText)
+        }
+    }
+
+    private fun shareTextOnly(text: String) {
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, text)
+        }
+        startActivity(Intent.createChooser(intent, "Share Recipe"))
+    }
+
+    private fun copyRecipe() {
+        val text = buildFullRecipeText()
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.setPrimaryClip(ClipData.newPlainText("Recipe", text))
+        Toast.makeText(this, "Full recipe copied to clipboard", Toast.LENGTH_SHORT).show()
     }
 
     private fun saveAndExitEditMode() {

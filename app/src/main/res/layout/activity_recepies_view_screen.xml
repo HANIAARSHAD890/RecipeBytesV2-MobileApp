@@ -35,6 +35,114 @@
 
     </LinearLayout>
 
+    <!-- Horizontal scrollable chip bar for time/sort filters -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="12dp"
+        android:paddingTop="4dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipAll"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:layout_marginEnd="6dp"
+                android:text="All"
+                android:textSize="14sp"
+                android:checkable="true"
+                android:checked="true"
+                app:chipCornerRadius="19dp"
+                app:chipStrokeWidth="1dp"
+                app:chipMinHeight="38dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipUnder30"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:layout_marginEnd="6dp"
+                android:text="&lt; 30m"
+                android:textSize="14sp"
+                android:checkable="true"
+                app:chipCornerRadius="19dp"
+                app:chipStrokeWidth="1dp"
+                app:chipMinHeight="38dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip30to60"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:layout_marginEnd="6dp"
+                android:text="30-60m"
+                android:textSize="14sp"
+                android:checkable="true"
+                app:chipCornerRadius="19dp"
+                app:chipStrokeWidth="1dp"
+                app:chipMinHeight="38dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipOver60"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:layout_marginEnd="12dp"
+                android:text="1h+"
+                android:textSize="14sp"
+                android:checkable="true"
+                app:chipCornerRadius="19dp"
+                app:chipStrokeWidth="1dp"
+                app:chipMinHeight="38dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipNewest"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:layout_marginEnd="6dp"
+                android:text="Newest"
+                android:textSize="14sp"
+                android:checkable="true"
+                app:chipCornerRadius="19dp"
+                app:chipStrokeWidth="1dp"
+                app:chipMinHeight="38dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipWeekly"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:layout_marginEnd="6dp"
+                android:text="Weekly"
+                android:textSize="14sp"
+                android:checkable="true"
+                app:chipCornerRadius="19dp"
+                app:chipStrokeWidth="1dp"
+                app:chipMinHeight="38dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipMonthly"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:text="Monthly"
+                android:textSize="14sp"
+                android:checkable="true"
+                app:chipCornerRadius="19dp"
+                app:chipStrokeWidth="1dp"
+                app:chipMinHeight="38dp" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
     <!-- Segmented Control: All Recipes | Favorites -->
     <LinearLayout
         android:layout_width="match_parent"
