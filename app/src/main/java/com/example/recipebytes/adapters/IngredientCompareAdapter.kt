@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.recipebytes.R
 import com.example.recipebytes.models.Ingredient
 
+// Adapter for displaying ingredient name and quantity in comparison view
 class IngredientCompareAdapter(
     private val items: List<Ingredient>
 ) : RecyclerView.Adapter<IngredientCompareAdapter.ViewHolder>() {

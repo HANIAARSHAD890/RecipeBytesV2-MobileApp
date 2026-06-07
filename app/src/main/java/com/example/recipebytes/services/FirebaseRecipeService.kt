@@ -10,6 +10,7 @@ import com.example.recipebytes.models.User
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
 
+// Manages recipe CRUD operations and user interactions via Firebase
 class FirebaseRecipeService {
 
     private val database = FirebaseDatabase.getInstance().reference
@@ -20,6 +21,7 @@ class FirebaseRecipeService {
         private const val TAG = "FirebaseRecipeService"
     }
 
+    // Fetches all recipes from the database
     fun getAllRecipes(
         onSuccess: (recipes: List<Pair<String, Recipe>>) -> Unit,
         onError: (error: String) -> Unit
@@ -43,6 +45,7 @@ class FirebaseRecipeService {
             }
     }
 
+    // Adds a new recipe to the database
     fun addRecipe(
         recipe: Recipe,
         onSuccess: (recipeId: String) -> Unit,
@@ -61,6 +64,7 @@ class FirebaseRecipeService {
             }
     }
 
+    // Uploads a recipe image to Firebase Storage and returns the download URL
     fun uploadRecipeImage(
         recipeId: String,
         imageUri: Uri,
@@ -89,6 +93,7 @@ class FirebaseRecipeService {
             }
     }
 
+    // Updates an existing recipe in the database
     fun updateRecipe(
         recipeId: String,
         recipe: Recipe,
@@ -106,6 +111,7 @@ class FirebaseRecipeService {
             }
     }
 
+    // Deletes a recipe from the database
     fun deleteRecipe(
         recipeId: String,
         onSuccess: () -> Unit,
@@ -122,18 +128,21 @@ class FirebaseRecipeService {
             }
     }
 
+    // Marks a recipe as favorite for the given user
     fun addFavorite(userId: String, recipeId: String) {
         database.child("users").child(userId).child("favorites").child(recipeId).setValue(true)
             .addOnSuccessListener { Log.d(TAG, "Favorite added: $recipeId") }
             .addOnFailureListener { e -> Log.e(TAG, "Error adding favorite: ${e.message}") }
     }
 
+    // Removes a recipe from the user's favorites
     fun removeFavorite(userId: String, recipeId: String) {
         database.child("users").child(userId).child("favorites").child(recipeId).removeValue()
             .addOnSuccessListener { Log.d(TAG, "Favorite removed: $recipeId") }
             .addOnFailureListener { e -> Log.e(TAG, "Error removing favorite: ${e.message}") }
     }
 
+    // Retrieves the set of favorite recipe IDs for a user
     fun getFavoriteIds(userId: String, onResult: (Set<String>) -> Unit) {
         database.child("users").child(userId).child("favorites").get()
             .addOnSuccessListener { snapshot ->
@@ -148,6 +157,7 @@ class FirebaseRecipeService {
             }
     }
 
+    // Adds a like from a user to a recipe and updates the like count
     fun addLike(userId: String, recipeId: String) {
         // Add to user's likes set
         database.child("users").child(userId).child("likes").child(recipeId).setValue(true)
@@ -165,6 +175,7 @@ class FirebaseRecipeService {
             })
     }
 
+    // Removes a like from a user on a recipe and updates the like count
     fun removeLike(userId: String, recipeId: String) {
         // Remove from user's likes set
         database.child("users").child(userId).child("likes").child(recipeId).removeValue()
@@ -182,6 +193,7 @@ class FirebaseRecipeService {
             })
     }
 
+    // Retrieves the set of liked recipe IDs for a user
     fun getLikedIds(userId: String, onResult: (Set<String>) -> Unit) {
         database.child("users").child(userId).child("likes").get()
             .addOnSuccessListener { snapshot ->
@@ -196,6 +208,7 @@ class FirebaseRecipeService {
             }
     }
 
+    // Fetches user details of everyone who liked a recipe
     fun getLikedByUsers(recipeId: String, onResult: (Map<String, User>) -> Unit) {
         val likedByRef = database.child("recipes").child(recipeId).child("likedBy")
         likedByRef.get()
@@ -376,6 +389,7 @@ class FirebaseRecipeService {
         return map
     }
 
+    // Calculates dashboard stats (total, public, private recipes, total likes) for a user
     fun fetchUserDashboardMetrics(
         userId: String,
         onSuccess: (totalRecipes: Int, publicCount: Int, privateCount: Int, totalLikes: Int) -> Unit,

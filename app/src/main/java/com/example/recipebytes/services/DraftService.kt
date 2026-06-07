@@ -6,6 +6,7 @@ import com.example.recipebytes.models.Step
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 
+// Manages recipe draft persistence in Firebase for multi-step creation
 object DraftService {
 
     private val database = FirebaseDatabase.getInstance().reference
@@ -15,7 +16,7 @@ object DraftService {
         database.child("users").child(it).child("recipeDraft")
     }
 
-    // Save draft after each step
+    // Saves the current recipe draft to Firebase
     fun saveDraft(
         title: String = "",
         desc: String = "",
@@ -67,7 +68,7 @@ object DraftService {
         ref.setValue(draft)
     }
 
-    // Load draft from Firebase
+    // Loads a saved recipe draft from Firebase
     fun loadDraft(onResult: (DraftData?) -> Unit) {
         val ref = draftRef() ?: run { onResult(null); return }
 
@@ -134,11 +135,12 @@ object DraftService {
             .addOnFailureListener { onResult(null) }
     }
 
-    // Delete draft after recipe is saved
+    // Removes the recipe draft from Firebase after publishing
     fun clearDraft() {
         draftRef()?.removeValue()
     }
 
+    // Holds all fields of a recipe draft in progress
     data class DraftData(
         val title: String,
         val desc: String,

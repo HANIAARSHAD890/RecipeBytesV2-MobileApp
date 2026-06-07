@@ -12,6 +12,7 @@ import com.example.recipebytes.R
 import com.example.recipebytes.models.User
 import de.hdodenhof.circleimageview.CircleImageView
 
+// Adapter for displaying users who liked a recipe
 class LikersAdapter(
     private val context: Context,
     private val likers: Map<String, User>
@@ -24,12 +25,14 @@ class LikersAdapter(
         val username: TextView = itemView.findViewById(R.id.tvUsername)
     }
 
+    // Inflates the liker item layout
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LikerViewHolder {
         val view = LayoutInflater.from(context)
             .inflate(R.layout.item_liker, parent, false)
         return LikerViewHolder(view)
     }
 
+    // Binds liker data including profile image and username
     override fun onBindViewHolder(holder: LikerViewHolder, position: Int) {
         val liker = likerList[position]
         holder.username.text = liker.username

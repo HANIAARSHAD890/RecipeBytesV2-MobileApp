@@ -8,6 +8,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
+// Manages shopping list CRUD and real-time updates via Firebase
 object ShoppingListService {
 
     private val database = FirebaseDatabase.getInstance().reference
@@ -17,6 +18,7 @@ object ShoppingListService {
         database.child("users").child(it).child("shoppingLists")
     }
 
+    // Saves a shopping list to Firebase (creates new or updates existing)
     fun saveShoppingList(
         list: ShoppingList,
         onSuccess: () -> Unit = {},
@@ -48,6 +50,7 @@ object ShoppingListService {
             .addOnFailureListener { onError(it.message ?: "Failed") }
     }
 
+    // Sets up a real-time listener for shopping list changes
     fun listenShoppingLists(onResult: (List<ShoppingList>) -> Unit): ValueEventListener? {
         val ref = shoppingRef() ?: run { onResult(emptyList()); return null }
 
@@ -82,15 +85,18 @@ object ShoppingListService {
         return listener
     }
 
+    // Toggles the checked state of a shopping list item
     fun updateItemChecked(listId: String, itemIndex: Int, isChecked: Boolean) {
         shoppingRef()?.child(listId)?.child("items")
             ?.child(itemIndex.toString())?.child("isChecked")?.setValue(isChecked)
     }
 
+    // Detaches a real-time database listener
     fun removeListener(listener: ValueEventListener) {
         shoppingRef()?.removeEventListener(listener)
     }
 
+    // Deletes a shopping list from Firebase
     fun deleteShoppingList(listId: String) {
         shoppingRef()?.child(listId)?.removeValue()
     }

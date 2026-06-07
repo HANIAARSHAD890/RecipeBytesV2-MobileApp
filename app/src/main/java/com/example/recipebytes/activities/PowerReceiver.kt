@@ -10,14 +10,17 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.example.recipebytes.activities.MainActivity
 
+// Broadcast receiver that shows a notification when power is connected
 class PowerReceiver : BroadcastReceiver() {
 
+    // Shows a notification when the device power is connected
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_POWER_CONNECTED) {
             showNotification(context)
         }
     }
 
+    // Builds and displays the power-connected notification
     private fun showNotification(context: Context) {
         val channelId = "power_channel"
         val notificationManager =

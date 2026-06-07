@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.util.Calendar
 
+// Local persistence repository for meal plans using SharedPreferences
 object MealRepository {
 
     private const val PREFS_NAME = "meal_prefs"
@@ -12,14 +13,17 @@ object MealRepository {
 
     private val cache = mutableMapOf<String, MutableList<MealDay>>()
 
+    // Returns the cached meal plan for a given month; loads from disk if needed
     fun getMealPlanForMonth(context: Context, monthKey: String): MutableList<MealDay> {
         return cache.getOrPut(monthKey) { loadFromDisk(context, monthKey) }
     }
 
+    // Persists the current meal plan for a month to disk
     fun saveMealPlan(context: Context, monthKey: String) {
         saveToDisk(context, monthKey, cache[monthKey] ?: return)
     }
 
+    // Removes a meal from a specific day and saves the change
     fun removeMealFromDay(context: Context, monthKey: String, dateKey: String, meal: String) {
         cache[monthKey]?.find { it.date == dateKey }?.meals?.remove(meal)
         saveToDisk(context, monthKey, cache[monthKey] ?: return)

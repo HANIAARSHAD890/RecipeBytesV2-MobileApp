@@ -13,7 +13,9 @@ import com.example.recipebytes.models.MealRepository
 import com.example.recipebytes.models.RecipeRepository
 import com.example.recipebytes.services.FirebaseAuthService
 
+// Entry point that routes to MainActivity or SignUpActivity
 class SplashScreen : AppCompatActivity() {
+    // Routes authenticated users to MainActivity, others to a sign-up entry point
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

@@ -35,7 +35,6 @@
 
     </LinearLayout>
 
-    <!-- Horizontal scrollable chip bar for time/sort filters -->
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -143,7 +142,6 @@
         </LinearLayout>
     </HorizontalScrollView>
 
-    <!-- Segmented Control: All Recipes | Favorites -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -183,7 +181,6 @@
 
     </LinearLayout>
 
-    <!-- Toolbar: category filter + sort/icons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -241,7 +238,6 @@
             app:tint="@color/primary" />
     </LinearLayout>
 
-    <!-- Loading state -->
     <LinearLayout
         android:id="@+id/layoutLoading"
         android:layout_width="match_parent"

@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.recipebytes.services.FirebaseRecipeService
 import java.io.Serializable
 
+// Recipe data class representing a single recipe with all its details
 data class Recipe(
     var title: String,
     var description: String,
@@ -27,6 +28,7 @@ data class Recipe(
     }
 }
 
+// Repository for managing recipes with Firebase persistence
 object RecipeRepository {
 
     private var recipes = mutableListOf<Recipe>()
@@ -37,6 +39,7 @@ object RecipeRepository {
         // Intentionally empty - recipes load from Firebase via loadFromFirebase()
     }
 
+    // Loads all recipes from Firebase into local cache
     fun loadFromFirebase(onComplete: () -> Unit = {}) {
         firebaseService.getAllRecipes(
             onSuccess = { fetched ->
@@ -55,6 +58,7 @@ object RecipeRepository {
         )
     }
 
+    // Adds a new recipe; returns false if title already exists
     fun addRecipe(context: android.content.Context, recipe: Recipe): Boolean {
         if (recipes.any { it.title == recipe.title }) {
             return false
@@ -69,6 +73,7 @@ object RecipeRepository {
         return true
     }
 
+    // Deletes a recipe by title from Firebase and local cache
     fun deleteRecipe(context: android.content.Context, title: String): Boolean {
         val key = recipeIdMap[title]
         if (key != null) {
@@ -82,6 +87,7 @@ object RecipeRepository {
         return recipes
     }
 
+    // Updates like count locally without a Firebase round-trip
     fun updateLikesCountLocally(recipeId: String, delta: Int) {
         val idx = recipes.indexOfFirst { it.recipeId == recipeId }
         if (idx >= 0) {
@@ -90,6 +96,7 @@ object RecipeRepository {
         }
     }
 
+    // Updates an existing recipe by old title and syncs to Firebase
     fun updateRecipe(context: android.content.Context, oldTitle: String, updatedRecipe: Recipe): Boolean {
         val index = recipes.indexOfFirst {
             it.title.equals(oldTitle, ignoreCase = true)

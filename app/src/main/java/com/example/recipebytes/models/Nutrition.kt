@@ -2,6 +2,7 @@ package com.example.recipebytes.models
 
 import java.io.Serializable
 
+// Nutritional information for a recipe including calories and macros
 data class Nutrition(
     var calories: Int = 0,
     var protein: Float = 0f,

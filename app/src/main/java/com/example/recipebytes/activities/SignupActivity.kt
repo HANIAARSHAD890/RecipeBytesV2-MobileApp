@@ -15,6 +15,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
+// Handles new user registration with email/password validation
 class SignUpActivity : AppCompatActivity() {
 
     private val authService = FirebaseAuthService()
@@ -31,6 +32,7 @@ class SignUpActivity : AppCompatActivity() {
         private const val TAG = "SignUpActivity"
     }
 
+    // Initializes views and sets up validation and button listeners on creation
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_signup)
@@ -54,6 +56,7 @@ class SignUpActivity : AppCompatActivity() {
         setupPasswordValidation()
     }
 
+    // Adds real-time email format validation as the user types
     private fun setupEmailValidation() {
         emailInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -77,6 +80,7 @@ class SignUpActivity : AppCompatActivity() {
         })
     }
 
+    // Adds real-time password strength validation as the user types
     private fun setupPasswordValidation() {
         passwordInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -117,6 +121,7 @@ class SignUpActivity : AppCompatActivity() {
         return email.contains("@") && email.contains(".") && email.length > 5
     }
 
+    // Validates input and calls Firebase auth to create a new account
     private fun handleSignUp() {
         val email = emailInput.text.toString().trim()
         val password = passwordInput.text.toString().trim()
@@ -185,6 +190,7 @@ class SignUpActivity : AppCompatActivity() {
         signUpBtn.isEnabled = !show
     }
 
+    // Navigates to the sign-in activity
     private fun navigateToSignIn() {
         startActivity(Intent(this, SignInActivity::class.java))
         finish()

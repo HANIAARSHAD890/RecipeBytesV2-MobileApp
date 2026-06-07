@@ -8,7 +8,6 @@
     android:background="@color/appBackground"
     tools:context=".activities.MainActivity">
 
-    <!-- ================= FRAGMENT CONTAINER ================= -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
@@ -18,7 +17,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- ================= BOTTOM NAV ================= -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_nav_view"
         style="@style/Widget.MaterialComponents.BottomNavigationView.Colored"

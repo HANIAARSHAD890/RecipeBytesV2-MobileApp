@@ -12,14 +12,13 @@ import com.example.recipebytes.R
 import com.example.recipebytes.activities.AddRecipeActivity
 import com.example.recipebytes.services.DraftService
 
-/**
- * Second step of adding a recipe, focused on adding and managing ingredients.
- */
+// Fragment for step 2 of adding a recipe: ingredient entry and management
 class AddRecipeFragment2 : Fragment(R.layout.activity_add_recipe_fragment2) {
 
     private val ingredientsList = mutableListOf<Ingredient>()
     private lateinit var adapter: IngredientAdapter
 
+    // Sets up the ingredient recycler, add button, and next button
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -38,6 +37,7 @@ class AddRecipeFragment2 : Fragment(R.layout.activity_add_recipe_fragment2) {
         }
     }
 
+    // Initializes the ingredient recycler with existing or AI-generated ingredients
     private fun setupRecyclerView(recycler: RecyclerView) {
         if (ingredientsList.isEmpty()) {
             val aiIngredients = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
@@ -59,17 +59,13 @@ class AddRecipeFragment2 : Fragment(R.layout.activity_add_recipe_fragment2) {
         recycler.adapter = adapter
     }
 
+    // Adds a blank ingredient row to the list
     private fun addNewIngredient() {
         ingredientsList.add(Ingredient("", ""))
         adapter.notifyItemInserted(ingredientsList.size - 1)
     }
 
-    /**
-     * Validates ingredient entries and navigates to the next step.
-     *
-     * Quantity accepts any non-empty string — "500g", "2 cups", "a handful", etc.
-     * Structured parsing is deferred to the smart suggest screen.
-     */
+    // Validates all ingredient rows and navigates to step 3 (nutrition)
     private fun validateAndProceed(recycler: RecyclerView) {
         recycler.focusedChild?.clearFocus()
 

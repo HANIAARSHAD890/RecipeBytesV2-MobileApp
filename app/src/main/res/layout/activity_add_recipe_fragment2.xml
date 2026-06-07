@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Second step in adding a recipe: focused on adding and managing ingredients. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:padding="20dp"
     android:orientation="vertical"
@@ -7,7 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Progress indicator dots -->
     <LinearLayout
         android:id="@+id/dotsLayout"
         android:layout_width="wrap_content"
@@ -52,14 +50,12 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <!-- List for adding ingredients dynamically -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/ingredientsRecycler"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:maxHeight="250dp"/>
 
-        <!-- Button to add a new ingredient row -->
         <Button
             android:id="@+id/btnAddIngredient"
             android:text="Add Ingredient"
@@ -71,7 +67,6 @@
             android:layout_gravity="center"
             android:backgroundTint="@color/secondary"/>
 
-        <!-- Button to proceed to the next step -->
         <Button
             android:id="@+id/btnNext2"
             android:textColor="@color/buttontext"

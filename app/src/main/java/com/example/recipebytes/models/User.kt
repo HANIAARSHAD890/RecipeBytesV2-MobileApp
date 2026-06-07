@@ -1,4 +1,5 @@
 package com.example.recipebytes.models
+// Represents a user account with profile details
 data class User(
     val uid: String = "",
     val email: String = "",

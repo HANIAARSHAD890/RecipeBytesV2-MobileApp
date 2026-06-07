@@ -13,6 +13,7 @@ import com.example.recipebytes.adapters.StepsAdapter
 import com.example.recipebytes.models.Step
 import java.util.Collections
 
+// Fragment for step 3 of adding a recipe: cooking steps with drag-to-reorder
 class AddRecipeFragment3 : Fragment(R.layout.activity_add_recipe_fragment3) {
 
     private val stepsList = mutableListOf<Step>()

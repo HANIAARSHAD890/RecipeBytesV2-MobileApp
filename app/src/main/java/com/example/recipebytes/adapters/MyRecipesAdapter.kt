@@ -29,10 +29,12 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+// Adapter for displaying user's own recipes with edit/delete/share/like options
 class MyRecipesAdapter(
     private val recipes: MutableList<Recipe>,
     private val currentUserId: String,
     private val userProfileImageUrl: String = "",
+    private val onToggleLike: (recipeId: String, isLiked: Boolean) -> Unit = { _, _ -> },
     private val onShowLikers: (String) -> Unit = {}
 ) : RecyclerView.Adapter<MyRecipesAdapter.ViewHolder>() {
 
@@ -53,6 +55,7 @@ class MyRecipesAdapter(
         val iconCopy: ImageView = view.findViewById(R.id.iconCopy)
     }
 
+    // Inflates the recipe item layout
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_recipe, parent, false)
@@ -61,6 +64,7 @@ class MyRecipesAdapter(
 
     override fun getItemCount() = recipes.size
 
+    // Binds recipe data to the view holder
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val recipe = recipes[position]
 
@@ -203,6 +207,7 @@ class MyRecipesAdapter(
         }
     }
 
+    // Builds a formatted text string for sharing the recipe
     private fun buildFullRecipeText(recipe: Recipe): String {
         val sb = StringBuilder()
         sb.appendLine("🍽 ${recipe.title}")
@@ -246,6 +251,7 @@ class MyRecipesAdapter(
         return sb.toString()
     }
 
+    // Replaces the recipe list and refreshes the display
     fun refresh(newList: List<Recipe>) {
         recipes.clear()
         recipes.addAll(newList)

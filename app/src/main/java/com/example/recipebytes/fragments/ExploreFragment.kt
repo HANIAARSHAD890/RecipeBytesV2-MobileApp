@@ -32,6 +32,7 @@ import com.example.recipebytes.fragments.AddRecipeMethodBottomSheet
 import android.widget.ImageView
 import com.google.android.material.chip.Chip
 
+// Fragment for browsing, filtering, searching, and managing recipes
 class ExploreFragment : Fragment() {
 
     private lateinit var adapter: RecipeAdapter
@@ -53,6 +54,7 @@ class ExploreFragment : Fragment() {
     private val firebaseService = FirebaseRecipeService()
     private var hasLoadedOnce = false
 
+    // Inflates the explore recipes layout
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -60,6 +62,7 @@ class ExploreFragment : Fragment() {
         return inflater.inflate(R.layout.activity_recepies_view_screen, container, false)
     }
 
+    // Initializes views, adapters, and loads recipe data
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -79,6 +82,7 @@ class ExploreFragment : Fragment() {
         loadAndDisplay()
     }
 
+    // Reloads recipes when returning to the fragment
     override fun onResume() {
         super.onResume()
         if (hasLoadedOnce) {
@@ -87,6 +91,7 @@ class ExploreFragment : Fragment() {
         hasLoadedOnce = true
     }
 
+    // Loads recipes from Firebase and refreshes the display
     private fun loadAndDisplay() {
         layoutLoading.visibility = View.VISIBLE
         recyclerView.visibility = View.GONE
@@ -102,6 +107,7 @@ class ExploreFragment : Fragment() {
         }
     }
 
+    // Refreshes recipe list after Firebase data loads
     private fun refreshFromFirebase() {
         if (!isAdded) {
             layoutLoading.visibility = View.GONE
@@ -110,6 +116,7 @@ class ExploreFragment : Fragment() {
         buildUserMapAndRefresh()
     }
 
+    // Builds username and profile picture maps, then refreshes
     private fun buildUserMapAndRefresh() {
         val authService = FirebaseAuthService()
         authService.getAllUsers(
@@ -130,6 +137,7 @@ class ExploreFragment : Fragment() {
         )
     }
 
+    // Loads user favorites and liked IDs, then filters and sorts recipes
     private fun loadFavoritesAndRefresh() {
         if (currentUserId.isNotEmpty()) {
             firebaseService.getFavoriteIds(currentUserId) { favIds ->
@@ -147,6 +155,7 @@ class ExploreFragment : Fragment() {
         }
     }
 
+    // Binds UI elements from the layout
     private fun initializeViews(view: View) {
         recyclerView = view.findViewById(R.id.recipeRecyclerView)
         tvNoRecipes = view.findViewById(R.id.tvNoRecipes)
@@ -155,6 +164,7 @@ class ExploreFragment : Fragment() {
         view.findViewById<TextView>(R.id.headerTitle).text = "Recipes to Explore"
     }
 
+    // Sets up the category filter dropdown with all categories
     private fun setupCategoryDropdown(view: View) {
         categoryDropdown = view.findViewById(R.id.autoCompleteCategory)
         val adapterCategory = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, Recipe.CATEGORIES_WITH_ALL)
@@ -165,6 +175,7 @@ class ExploreFragment : Fragment() {
         }
     }
 
+    // Sets up time and recency filter chips with mutual exclusion
     private fun setupFilterChips(view: View) {
         // Time filter chips
         val chipAll = view.findViewById<com.google.android.material.chip.Chip>(R.id.chipAll)
@@ -256,6 +267,7 @@ class ExploreFragment : Fragment() {
         }
     }
 
+    // Configures the recipe adapter with all interaction callbacks
     private fun setupRecipeAdapter() {
         adapter = RecipeAdapter(
             mutableListOf(),
@@ -309,6 +321,7 @@ class ExploreFragment : Fragment() {
         recyclerView.adapter = adapter
     }
 
+    // Sets up button clicks, search text watcher, sort toggle, and segment tabs
     private fun setupEventListeners(view: View) {
         val layoutToggleBtn = view.findViewById<ImageView>(R.id.ivLayoutToggle)
         val sortBtn = view.findViewById<ImageView>(R.id.ivSort)
@@ -360,6 +373,7 @@ class ExploreFragment : Fragment() {
         }
     }
 
+    // Updates the visual style of All/Favorites segment toggle buttons
     private fun updateSegmentStyle(btnAll: TextView, btnFav: TextView) {
         if (showFavoritesOnly) {
             btnAll.background = resources.getDrawable(R.drawable.segment_left_unselected, null)
@@ -374,6 +388,7 @@ class ExploreFragment : Fragment() {
         }
     }
 
+    // Filters recipes by category, search query, favorites, time, and recency
     private fun performFilterAndSort(query: String) {
         if (!isAdded) return
         val allRecipes = RecipeRepository.getAllRecipes()
@@ -425,11 +440,13 @@ class ExploreFragment : Fragment() {
         adapter.refresh(sortedList)
     }
 
+    // Toggles the RecyclerView between list and grid layout
     private fun updateLayoutManager() {
         val spanCount = if (isGridView) 2 else 1
         recyclerView.layoutManager = GridLayoutManager(requireContext(), spanCount)
     }
 
+    // Shows a confirmation dialog before deleting a recipe
     private fun showDeleteConfirmationDialog(context: Context, recipe: com.example.recipebytes.models.Recipe) {
         val dialog = Dialog(requireContext())
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -452,6 +469,7 @@ class ExploreFragment : Fragment() {
         dialog.show()
     }
 
+    // Shows a dialog listing users who liked a specific recipe
     private fun showLikersDialog(recipeId: String) {
         val dialog = Dialog(requireContext())
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)

@@ -8,13 +8,16 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 
+// Broadcast receiver that shows a reminder notification after device boot
 class BootReceiver : BroadcastReceiver() {
+    // Shows a reminder notification after the device completes booting
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
             showNotification(context)
         }
     }
 
+    // Builds and displays the boot reminder notification
     private fun showNotification(context: Context) {
         val channelId = "meal_reminder_channel"
         val notificationManager =

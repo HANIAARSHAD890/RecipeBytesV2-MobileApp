@@ -12,17 +12,13 @@ import com.example.recipebytes.models.Step
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
-/**
- * Adapter for managing and displaying the list of preparation steps for a recipe.
- */
+// Adapter for displaying and editing recipe preparation steps
 class StepsAdapter(
     val list: MutableList<Step>,
     var isEditable: Boolean = true
 ) : RecyclerView.Adapter<StepsAdapter.ViewHolder>() {
 
-    /**
-     * ViewHolder class for individual recipe step items.
-     */
+    // ViewHolder holding views for a recipe step item
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val stepNumber: TextView = view.findViewById(R.id.tvStepNumber)
         val etStepContent: TextInputEditText = view.findViewById(R.id.etStepContent)
@@ -31,6 +27,7 @@ class StepsAdapter(
         val dragHandle: ImageView = view.findViewById(R.id.btnDragHandle)
     }
 
+    // Inflates the step item layout
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_step, parent, false)
@@ -39,6 +36,7 @@ class StepsAdapter(
 
     override fun getItemCount() = list.size
 
+    // Binds step data and switches between view/edit modes
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val step = list[position]
 
@@ -57,9 +55,7 @@ class StepsAdapter(
         }
     }
 
-    /**
-     * Configures the UI for read-only view mode.
-     */
+    // Configures the step display for read-only viewing
     private fun setupViewMode(holder: ViewHolder, step: Step) {
         holder.etStepContent.setText(step.text)
         holder.tilStepContent.boxStrokeWidth = 0
@@ -67,9 +63,7 @@ class StepsAdapter(
         holder.etStepContent.background = null
     }
 
-    /**
-     * Configures the UI for edit mode, including delete and text change listeners.
-     */
+    // Configures step editing with delete and text change listeners
     private fun setupEditMode(holder: ViewHolder, step: Step) {
         if (holder.etStepContent.text.toString() != step.text) {
             holder.etStepContent.setText(step.text)
@@ -93,9 +87,7 @@ class StepsAdapter(
         }
     }
 
-    /**
-     * Validates the step content input and updates the data model "Step"
-     */
+    // Validates step content and updates the step text
     private fun validateInput(holder: ViewHolder, input: String, position: Int) {
         when {
             input.trim().isEmpty() -> {

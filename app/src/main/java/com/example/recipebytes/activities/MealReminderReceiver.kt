@@ -13,8 +13,10 @@ import com.example.recipebytes.activities.MainActivity
 import com.example.recipebytes.models.MealFirebaseRepository
 import java.util.Calendar
 
+// Broadcast receiver for periodic meal reminder notifications
 class MealReminderReceiver : BroadcastReceiver() {
 
+    // Handles the meal reminder alarm and shows a notification if meals are planned
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == "com.example.recipebytes.MEAL_REMINDER") {
 
@@ -64,6 +66,7 @@ class MealReminderReceiver : BroadcastReceiver() {
         }
     }
 
+    // Schedules the next meal reminder alarm one minute from now
     private fun scheduleNext(context: Context) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val nextIntent = Intent("com.example.recipebytes.MEAL_REMINDER")
@@ -96,6 +99,7 @@ class MealReminderReceiver : BroadcastReceiver() {
         }
     }
 
+    // Builds and displays the meal reminder notification with meal details
     private fun showCategoryNotification(
         context: Context,
         dayName: String,
@@ -166,6 +170,7 @@ class MealReminderReceiver : BroadcastReceiver() {
         notificationManager.notify(4001, notification)
     }
 
+    // Returns the full month name for a given month number
     private fun monthFullName(month: Int) = arrayOf(
         "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"

@@ -26,6 +26,7 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import java.util.Calendar
 
+// Fragment for the weekly meal planner with a calendar grid
 class PlannerFragment : Fragment() {
 
     private lateinit var adapter: MealDayAdapter
@@ -40,11 +41,13 @@ class PlannerFragment : Fragment() {
     private val dessertMeals          = mutableListOf<String>()
     private val selectedMealsInDialog = mutableListOf<String>()
 
+    // Inflates the meal planner layout
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? = inflater.inflate(R.layout.activity_meal_planner_screen, container, false)
 
+    // Initializes the recycler, month navigation, calendar, and loads meals
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         view.findViewById<TextView>(R.id.headerTitle).text = "Meal Planner"
@@ -55,6 +58,7 @@ class PlannerFragment : Fragment() {
         loadCurrentMonthFromFirebase(view)
     }
 
+    // Reloads meal data when returning to the fragment
     override fun onResume() {
         super.onResume()
         if (::adapter.isInitialized) {
@@ -62,6 +66,7 @@ class PlannerFragment : Fragment() {
         }
     }
 
+    // Loads saved meals for the current month from Firebase
     private fun loadCurrentMonthFromFirebase(view: View) {
         val monthKey = currentMonthKey()
         cachedDays = MealFirebaseRepository.buildDaysForMonth(monthKey)
@@ -96,6 +101,7 @@ class PlannerFragment : Fragment() {
         )
     }
 
+    // Sets up previous/next month navigation buttons
     private fun setupMonthNavigation(view: View) {
         view.findViewById<ImageButton>(R.id.btnPrevMonth).setOnClickListener {
             calendar.add(Calendar.MONTH, -1)
@@ -114,6 +120,7 @@ class PlannerFragment : Fragment() {
         updateMonthLabel(view)
     }
 
+    // Updates the displayed month/year label
     private fun updateMonthLabel(view: View) {
         val months = arrayOf(
             "January","February","March","April","May","June",
@@ -126,6 +133,7 @@ class PlannerFragment : Fragment() {
     private fun currentMonthKey() =
         "%d-%02d".format(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1)
 
+    // Builds the calendar day grid with selection, today highlight, and meal dots
     private fun buildCalendarGrid(view: View) {
         val grid  = view.findViewById<GridLayout>(R.id.calendarGrid)
         grid.removeAllViews()
@@ -228,6 +236,7 @@ class PlannerFragment : Fragment() {
         "Jul","Aug","Sep","Oct","Nov","Dec"
     )[month]
 
+    // Sets up the meal day list with item click to open picker dialog
     private fun setupRecyclerView(view: View) {
         val rv = view.findViewById<RecyclerView>(R.id.mealPlannerRecycler)
         adapter = MealDayAdapter(mutableListOf(), currentMonthKey()) { mealDay ->
@@ -237,6 +246,7 @@ class PlannerFragment : Fragment() {
         rv.adapter = adapter
     }
 
+    // Filters meal days by selected date or shows all
     private fun filterRecycler() {
         val filtered = if (selectedDateKey != null)
             cachedDays.filter { it.date == selectedDateKey }.toMutableList()
@@ -245,6 +255,7 @@ class PlannerFragment : Fragment() {
         adapter.updateList(filtered)
     }
 
+    // Shows a bottom sheet dialog to pick meals per category for a day
     private fun showMealPickerDialog(mealDay: MealDay) {
         // Capture fragment view BEFORE the local 'view' variable shadows it
         val fragmentView = view
@@ -388,6 +399,7 @@ class PlannerFragment : Fragment() {
         dialog.show()
     }
 
+    // Configures the meal search autocomplete and chip selection UI
     private fun setupMealSelection(
         autoComplete: AutoCompleteTextView,
         chipGroup: ChipGroup,

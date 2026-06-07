@@ -38,6 +38,7 @@ import com.google.android.material.textfield.TextInputLayout
 import java.io.File
 import java.io.FileOutputStream
 
+// Screen for viewing and editing a single recipe's details
 class RecipeViewDetailsScreen : AppCompatActivity() {
     private var isCurrentlyEditing = false
     private lateinit var ingAdapter: IngredientAdapter
@@ -62,6 +63,7 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         private const val TAG = "RecipeViewDetailsScreen"
     }
 
+    // Sets up views, category adapter, intent data, and click listeners on creation
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_recipe_view_details_screen)
@@ -73,6 +75,7 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         setupDynamicErrorClearing()
     }
 
+    // Binds all UI view references from the layout
     private fun initializeViews() {
         findViewById<TextView>(R.id.headerTitle).text = "View Recipe"
 
@@ -91,6 +94,7 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         stepsRecycler       = findViewById(R.id.stepsRecycler)
     }
 
+    // Configures the dropdown category adapter for the AutoCompleteTextView
     private fun setupCategoryAdapter() {
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, Recipe.CATEGORIES)
         etCategory.setAdapter(adapter)
@@ -102,6 +106,7 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         tilCategory.isEnabled = false
     }
 
+    // Extracts the recipe object from the launching intent
     private fun handleIntentData() {
         recipe = intent.getSerializableExtra("recipe") as? Recipe
         recipe?.let {
@@ -112,6 +117,7 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         }
     }
 
+    // Sets up edit, share, copy, and update button click listeners
     private fun setupClickListeners() {
         val allowEdit = intent.getBooleanExtra("allow_edit", false)
         if (allowEdit) {
@@ -149,6 +155,7 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
     /**
      * Populates all fields including cookingTime and nutrition cards.
      */
+    // Populates all recipe fields and sets up ingredient/step adapters
     private fun setupInitialData(recipe: Recipe) {
         etCategory.isEnabled = false
         tilCategory.isEnabled = false
@@ -183,6 +190,7 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         stepsRecycler.adapter = stepAdapter
     }
 
+    // Displays nutrition card data including carbs, fat, protein, and calories
     private fun bindNutrition(nutrition: Nutrition) {
         try {
             val total = (nutrition.carbs + nutrition.fat + nutrition.protein)
@@ -234,6 +242,7 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         }
     }
 
+    // Validates all editable fields and shows errors where needed
     private fun validateAllFields(): Boolean {
         var isValid = true
 
@@ -273,6 +282,7 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         return isValid
     }
 
+    // Clears error hints as the user types in text fields
     private fun setupDynamicErrorClearing() {
         etDesc.addTextChangedListener { text ->
             if (text.toString().trim().isNotEmpty()) tilDesc.error = null
@@ -282,6 +292,7 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         }
     }
 
+    // Switches the UI into editable mode for all recipe fields
     private fun enterEditMode() {
         isCurrentlyEditing = true
         btnUpdate.visibility = View.VISIBLE
@@ -316,6 +327,7 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         stepAdapter.notifyDataSetChanged()
     }
 
+    // Copies current UI values back into the recipe data object
     private fun syncDataFromUI() {
         val r = recipe ?: return
         val timeStr = etCookingTime.text.toString().trim()
@@ -330,6 +342,7 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         )
     }
 
+    // Builds a formatted text block of the full recipe for sharing
     private fun buildFullRecipeText(): String {
         val r = recipe ?: return ""
         val sb = StringBuilder()
@@ -380,6 +393,7 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         return sb.toString()
     }
 
+    // Shares the recipe via an Android share intent with optional image
     private fun shareRecipe() {
         val recipeText = buildFullRecipeText()
         val recipeImageUri = recipe?.imageUri
@@ -420,6 +434,7 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         }
     }
 
+    // Falls back to text-only sharing when image sharing fails
     private fun shareTextOnly(text: String) {
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
@@ -428,6 +443,7 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         startActivity(Intent.createChooser(intent, "Share Recipe"))
     }
 
+    // Copies the full recipe text to the system clipboard
     private fun copyRecipe() {
         val text = buildFullRecipeText()
         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -435,10 +451,14 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         Toast.makeText(this, "Full recipe copied to clipboard", Toast.LENGTH_SHORT).show()
     }
 
+    // Saves the updated recipe and returns the UI to read-only mode
     private fun saveAndExitEditMode() {
         isCurrentlyEditing = false
         recipe?.let {
             RecipeRepository.updateRecipe(this, it.title, it)
+             val resultIntent = Intent()
+        resultIntent.putExtra("updated_recipe", it)
+        setResult(RESULT_OK, resultIntent)
         }
 
         btnUpdate.visibility = View.GONE

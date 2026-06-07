@@ -30,6 +30,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
+// Main hub activity with bottom navigation and fragment swapping
 class MainActivity : AppCompatActivity() {
 
     private val authService = FirebaseAuthService()
@@ -38,6 +39,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var preferencesRepository: UserPreferencesRepository
     private  var isDeepLinking = false
 
+    // Sets up dark mode, checks authentication, handles deep links, and initializes navigation
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -187,10 +189,12 @@ class MainActivity : AppCompatActivity() {
 
     // ── navigation
 
+    // Programmatically switches to a bottom navigation tab by ID
     fun navigateToTab(tabId: Int) {
         bottomNav.selectedItemId = tabId
     }
 
+    // Configures the bottom nav bar styling and item selection listeners
     private fun setupBottomNavigation() {
         val states = arrayOf(
             intArrayOf(android.R.attr.state_checked),
@@ -250,6 +254,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    // Syncs the bottom nav selection to match the current visible fragment
     private fun syncBottomNav() {
         when (supportFragmentManager.findFragmentById(R.id.fragment_container)) {
             is HomeFragment      -> bottomNav.selectedItemId = R.id.nav_home
@@ -260,6 +265,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Replaces the fragment container with the given fragment
     private fun loadFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
@@ -269,6 +275,7 @@ class MainActivity : AppCompatActivity() {
 
     // ── permissions
 
+    // Requests POST_NOTIFICATIONS permission on Android 13+
     private fun handleNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
@@ -280,6 +287,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Applies system bar insets as padding on the root view
     private fun setupWindowInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -290,6 +298,7 @@ class MainActivity : AppCompatActivity() {
 
     // ── alarm
 
+    // Schedules a repeating meal reminder alarm that fires after 1 minute
     private fun scheduleMealReminder() {
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent("com.example.recipebytes.MEAL_REMINDER")
@@ -318,6 +327,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // ── receiver
+    // Handles deep-link navigation when the activity is already running
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
 
@@ -346,12 +356,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Registers the power-connected broadcast receiver on start
     override fun onStart() {
         super.onStart()
         powerReceiver = PowerReceiver()
         registerReceiver(powerReceiver, IntentFilter(Intent.ACTION_POWER_CONNECTED))
     }
 
+    // Unregisters the power-connected broadcast receiver on stop
     override fun onStop() {
         super.onStop()
         unregisterReceiver(powerReceiver)

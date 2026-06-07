@@ -15,6 +15,7 @@ import com.example.recipebytes.R
 import com.example.recipebytes.models.Step
 import com.example.recipebytes.services.DraftService
 
+// Multi-step activity for creating a new recipe with fragments
 class AddRecipeActivity : AppCompatActivity() {
 
     private var title       = ""
@@ -32,6 +33,7 @@ class AddRecipeActivity : AppCompatActivity() {
     fun getRecipeCookingTime() = cookingTime
     fun getRecipeIngredients() = ingredients
 
+    // Initializes the activity and launches the appropriate first fragment based on mode
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -89,6 +91,7 @@ class AddRecipeActivity : AppCompatActivity() {
     }
 
     // STEP 1 → STEP 2
+    // Navigates from step 1 (details) to step 2 (ingredients)
     fun goToStep2(titler: String, descr: String, categoryr: String, cookingTimer: String) {
         title       = titler
         desc        = descr
@@ -101,6 +104,7 @@ class AddRecipeActivity : AppCompatActivity() {
     }
 
     // STEP 1 → STEP 4 (AI flow)
+    // Navigates from step 1 directly to step 4 with AI-generated ingredients and steps
     fun goToStep2WithAI(
         titler: String, descr: String, categoryr: String, cookingTimer: String,
         ingredientsList: List<Ingredient>, stepsList: List<Step>
@@ -128,6 +132,7 @@ class AddRecipeActivity : AppCompatActivity() {
     }
 
     // STEP 2 → NUTRITION
+    // Navigates from step 2 (ingredients) to the nutrition step
     fun goToStep3(ingredientsList: List<Ingredient>) {
         ingredients = ArrayList(ingredientsList)
         val bundle = Bundle().apply {
@@ -142,6 +147,7 @@ class AddRecipeActivity : AppCompatActivity() {
     }
 
     // NUTRITION → STEP 3 (Steps)
+    // Navigates from the nutrition step to step 3 (cooking steps)
     fun goToStep3WithNutrition(nutritionData: Nutrition) {
         nutrition = nutritionData
         supportFragmentManager.beginTransaction()
@@ -151,6 +157,7 @@ class AddRecipeActivity : AppCompatActivity() {
     }
 
     // STEP 3 → STEP 4
+    // Navigates from step 3 to the final review step with all recipe data
     fun goToStep4(steps: List<Step>) {
         stepsList = ArrayList(steps)
         val bundle = Bundle().apply {
@@ -171,6 +178,7 @@ class AddRecipeActivity : AppCompatActivity() {
     }
 
     // STEP 1 → STEP 2 (AI generated but editable — goes through full flow)
+    // Navigates from step 1 to step 2 with AI-generated data that is still editable
     fun goToStep2WithAIEditable(
         titler: String, descr: String, categoryr: String, cookingTimer: String,
         ingredientsList: List<Ingredient>, aiStepsList: List<Step>
@@ -196,6 +204,7 @@ class AddRecipeActivity : AppCompatActivity() {
     // Getter so Fragment3 can access AI-generated steps
     fun getAiSteps() = stepsList
     // DRAFT → Skip to nutrition (draft had ingredients)
+    // Skips to nutrition step from draft when ingredients already exist
     fun goToStep2FromDraft(
         titler: String, descr: String, categoryr: String,
         cookingTimer: String, ingredientsList: List<Ingredient>
@@ -217,6 +226,7 @@ class AddRecipeActivity : AppCompatActivity() {
     }
 
     // DRAFT → Skip to steps (draft had ingredients + nutrition)
+    // Skips to steps step from draft when ingredients and nutrition already exist
     fun goToStep3FromDraft(
         titler: String, descr: String, categoryr: String,
         cookingTimer: String, ingredientsList: List<Ingredient>,
@@ -235,6 +245,7 @@ class AddRecipeActivity : AppCompatActivity() {
     }
 
     // Called from AddRecipeFragment4 when recipe is saved — clears draft
+    // Clears the draft after the recipe is successfully saved
     fun onRecipeSaved() {
         DraftService.clearDraft()
     }

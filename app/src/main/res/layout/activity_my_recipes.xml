@@ -7,7 +7,6 @@
 
     <include layout="@layout/primaryheader" />
 
-    <!-- Loading state -->
     <LinearLayout
         android:id="@+id/layoutLoading"
         android:layout_width="match_parent"

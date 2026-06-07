@@ -6,7 +6,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- Progress dots -->
     <LinearLayout
         android:id="@+id/dotsLayout"
         android:layout_width="wrap_content"
@@ -36,7 +35,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Recipe Title -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilTitle"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -52,7 +50,6 @@
                     android:inputType="textCapWords"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Description -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilDesc"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -70,7 +67,6 @@
                     android:minLines="3"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Cooking Time -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilCookingTime"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -86,7 +82,6 @@
                     android:inputType="text"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Category -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilCategory"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -109,7 +104,6 @@
                     android:popupBackground="@color/appBackground"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Next button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnNext"
                 android:layout_width="232dp"

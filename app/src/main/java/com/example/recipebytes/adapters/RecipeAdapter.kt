@@ -28,6 +28,7 @@ import com.example.recipebytes.activities.RecipeViewDetailsScreen
 import com.example.recipebytes.models.Recipe
 import com.example.recipebytes.models.RecipeRepository
 
+// Adapter for displaying recipes from various users with likes/favorites
 class RecipeAdapter(
     private val recipes: MutableList<Recipe>,
     private val currentUserId: String,
@@ -60,6 +61,7 @@ class RecipeAdapter(
         val iconCopy: ImageView = view.findViewById(R.id.iconCopy)
     }
 
+    // Inflates the recipe item layout
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_recipe, parent, false)
@@ -68,6 +70,7 @@ class RecipeAdapter(
 
     override fun getItemCount() = recipes.size
 
+    // Binds recipe data and sets up interactive elements
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         try {
             val recipe = recipes[position]
@@ -92,6 +95,7 @@ class RecipeAdapter(
         }
     }
 
+    // Sets up user profile image and display name
     private fun setupProfileSection(holder: ViewHolder, recipe: Recipe) {
         val displayName = if (recipe.userId == currentUserId) {
             "You"
@@ -113,6 +117,7 @@ class RecipeAdapter(
         }
     }
 
+    // Sets up public/private toggle with confirmation dialog
     private fun setupToggle(holder: ViewHolder, recipe: Recipe) {
         holder.switchPublic.setOnCheckedChangeListener(null)
         holder.switchPublic.isChecked = recipe.isPublic
@@ -151,6 +156,7 @@ class RecipeAdapter(
         }
     }
 
+    // Configures favorite button appearance and click handling
     private fun setupFavorite(holder: ViewHolder, recipe: Recipe) {
         val isFav = favoriteIds.contains(recipe.recipeId)
         holder.iconFavorite.text = if (isFav) "\u2764" else "\u2661"
@@ -161,6 +167,7 @@ class RecipeAdapter(
         }
     }
 
+    // Configures like button appearance and click handling
     private fun setupLike(holder: ViewHolder, recipe: Recipe) {
         val isLiked = likedIds.contains(recipe.recipeId)
         holder.iconLike.setImageResource(
@@ -185,6 +192,7 @@ class RecipeAdapter(
         }
     }
 
+    // Configures share, copy, and navigation click listeners
     private fun setupClickListeners(holder: ViewHolder, recipe: Recipe) {
         holder.delete.visibility = View.GONE
 
@@ -215,6 +223,7 @@ class RecipeAdapter(
         }
     }
 
+    // Builds a formatted text string for sharing the recipe
     private fun buildFullRecipeText(recipe: Recipe): String {
         val sb = StringBuilder()
         sb.appendLine("🍽 ${recipe.title}")
@@ -258,6 +267,7 @@ class RecipeAdapter(
         return sb.toString()
     }
 
+    // Loads recipe image using Glide with placeholder
     private fun loadImage(holder: ViewHolder, recipe: Recipe) {
         if (!recipe.imageUri.isNullOrEmpty()) {
             Glide.with(holder.itemView.context)
@@ -270,6 +280,7 @@ class RecipeAdapter(
         }
     }
 
+    // Replaces the recipe list and refreshes the display
     fun refresh(newList: List<Recipe>) {
         recipes.clear()
         recipes.addAll(newList)

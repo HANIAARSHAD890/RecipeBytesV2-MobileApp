@@ -12,7 +12,6 @@
         android:layout_width="match_parent"
         android:layout_height="56dp" />
 
-    <!-- Calendar Card -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -29,7 +28,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Month navigation -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -68,7 +66,6 @@
 
             </LinearLayout>
 
-            <!-- Day name headers -->
             <GridLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -106,7 +103,6 @@
 
             </GridLayout>
 
-            <!-- Calendar day grid -->
             <GridLayout
                 android:id="@+id/calendarGrid"
                 android:layout_width="match_parent"
@@ -116,7 +112,6 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Selected day label -->
     <TextView
         android:id="@+id/tvSelectedDay"
         android:layout_width="match_parent"
@@ -130,7 +125,6 @@
         android:textStyle="bold"
         android:textColor="@color/secondary"/>
 
-    <!-- Meals RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/mealPlannerRecycler"
         android:layout_width="match_parent"

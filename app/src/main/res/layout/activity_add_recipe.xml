@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Main container for the multi-step recipe addition process. -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -7,14 +6,12 @@
     android:fitsSystemWindows="true"
     android:orientation="vertical">
 
-    <!-- Standard header included at the top -->
     <include
         android:id="@+id/header"
         layout="@layout/primaryheader"
         android:layout_width="match_parent"
         android:layout_height="56dp" />
 
-    <!-- Fragment container where step-by-step forms are loaded -->
     <FrameLayout
         android:layout_height="0dp"
         android:layout_weight="1"

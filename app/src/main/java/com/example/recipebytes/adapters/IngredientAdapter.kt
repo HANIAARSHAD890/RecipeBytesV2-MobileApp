@@ -11,17 +11,13 @@ import com.example.recipebytes.models.Ingredient
 import com.example.recipebytes.R
 import com.google.android.material.textfield.TextInputLayout
 
-/**
- * Adapter for managing and displaying a list of ingredients.
- */
+// Adapter for managing and displaying a list of editable ingredients
 class IngredientAdapter(
     val list: MutableList<Ingredient>,
     var isEditMode: Boolean = false
 ) : RecyclerView.Adapter<IngredientAdapter.ViewHolder>() {
 
-    /**
-     * ViewHolder class for individual ingredient items.
-     */
+    // ViewHolder holding views for an ingredient item
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val name = view.findViewById<EditText>(R.id.etIngredientName)
         val qty = view.findViewById<EditText>(R.id.etQuantity)
@@ -30,6 +26,7 @@ class IngredientAdapter(
         val delete = view.findViewById<ImageView>(R.id.btnDeleteIngredient)
     }
 
+    // Inflates the ingredient item layout
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_ingredient, parent, false)
@@ -38,6 +35,7 @@ class IngredientAdapter(
 
     override fun getItemCount() = list.size
 
+    // Binds ingredient data and sets up edit mode if enabled
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = list[position]
 
@@ -53,9 +51,7 @@ class IngredientAdapter(
         }
     }
 
-    /**
-     * Sets up text change and click listeners for editing and deleting ingredients.
-     */
+    // Sets up text watchers and delete action for editing ingredients
     private fun setupEditModeListeners(holder: ViewHolder, item: Ingredient) {
         holder.name.addTextChangedListener { text ->
             val input = text.toString().trim()

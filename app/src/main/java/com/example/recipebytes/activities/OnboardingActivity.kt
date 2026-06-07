@@ -12,6 +12,7 @@ import com.example.recipebytes.R
 import com.example.recipebytes.adapters.OnboardingAdapter
 import com.example.recipebytes.models.OnboardingPage
 
+// Onboarding wizard shown on first app launch with ViewPager
 class OnboardingActivity : AppCompatActivity() {
 
     private lateinit var viewPager: ViewPager2
@@ -39,6 +40,7 @@ class OnboardingActivity : AppCompatActivity() {
         )
     )
 
+    // Sets up the ViewPager, dots indicator, and next/skip buttons
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_onboarding)
@@ -75,6 +77,7 @@ class OnboardingActivity : AppCompatActivity() {
         tvSkip.setOnClickListener { finishOnboarding() }
     }
 
+    // Updates the dot indicators to reflect the current page
     private fun updateDots(activePosition: Int) {
         val dots = listOf(dot0, dot1, dot2)
         for (i in dots.indices) {
@@ -85,12 +88,14 @@ class OnboardingActivity : AppCompatActivity() {
         }
     }
 
+    // Updates the button text and skip visibility based on the current page
     private fun updateControls(position: Int) {
         val isLast = position == pages.size - 1
         btnNext.text = if (isLast) "Get Started" else "Next"
         tvSkip.visibility = if (isLast) TextView.GONE else TextView.VISIBLE
     }
 
+    // Marks onboarding as complete and navigates to the main activity
     private fun finishOnboarding() {
         val userId = intent.getStringExtra("userId") ?: ""
         val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)

@@ -19,6 +19,7 @@ import com.example.recipebytes.models.RecipeRepository
 import com.example.recipebytes.services.FirebaseAuthService
 import com.example.recipebytes.services.FirebaseRecipeService
 
+// Displays the current user's list of recipes
 class MyRecipesActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
@@ -29,6 +30,7 @@ class MyRecipesActivity : AppCompatActivity() {
     private var userProfileImageUrl = ""
     private val firebaseService = FirebaseRecipeService()
 
+    // Initializes views and fetches the user profile on creation
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_my_recipes)
@@ -42,6 +44,7 @@ class MyRecipesActivity : AppCompatActivity() {
         fetchUserProfile()
     }
 
+    // Loads the current user's profile image from Firebase
     private fun fetchUserProfile() {
         val authService = FirebaseAuthService()
         authService.fetchUserFromDatabase(currentUserId,
@@ -57,6 +60,7 @@ class MyRecipesActivity : AppCompatActivity() {
         )
     }
 
+    // Sets up the RecyclerView adapter and loads the user's recipes
     private fun setupAdapter() {
         adapter = MyRecipesAdapter(
             mutableListOf(), currentUserId, userProfileImageUrl,
@@ -68,6 +72,7 @@ class MyRecipesActivity : AppCompatActivity() {
         loadMyRecipes()
     }
 
+    // Loads recipes owned by the current user from the repository
     private fun loadMyRecipes() {
         layoutLoading.visibility = View.VISIBLE
         recyclerView.visibility = View.GONE
@@ -89,6 +94,7 @@ class MyRecipesActivity : AppCompatActivity() {
         }
     }
 
+    // Shows a dialog listing users who liked a given recipe
     private fun showLikersDialog(recipeId: String) {
         val dialog = Dialog(this)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)

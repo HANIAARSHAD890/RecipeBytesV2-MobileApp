@@ -14,6 +14,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
+// Handles existing user login with email and password
 class SignInActivity : AppCompatActivity() {
 
     private val authService = FirebaseAuthService()
@@ -30,6 +31,7 @@ class SignInActivity : AppCompatActivity() {
         private const val TAG = "SignInActivity"
     }
 
+    // Initializes views and sets up button listeners on creation
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_signin)
@@ -49,6 +51,7 @@ class SignInActivity : AppCompatActivity() {
         signUpLink.setOnClickListener { navigateToSignUp() }
     }
 
+    // Validates input and calls Firebase auth to sign in the user
     private fun handleSignIn() {
         val email = emailInput.text.toString().trim()
         val password = passwordInput.text.toString().trim()
@@ -103,11 +106,13 @@ class SignInActivity : AppCompatActivity() {
         signInBtn.isEnabled = !show
     }
 
+    // Navigates to the sign-up activity
     private fun navigateToSignUp() {
         startActivity(Intent(this, SignUpActivity::class.java))
         finish()
     }
 
+    // Navigates to the main activity with the signed-in user's ID
     private fun navigateToHome(userId: String) {
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("userId", userId)

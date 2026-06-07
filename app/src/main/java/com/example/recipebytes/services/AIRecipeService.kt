@@ -12,6 +12,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
+// Holds AI-generated recipe data before conversion to a Recipe object
 data class AIRecipeResult(
     val title: String,
     val description: String,
@@ -21,6 +22,7 @@ data class AIRecipeResult(
     val steps: List<String>
 )
 
+// Generates recipes using the Groq AI API
 object AIRecipeService {
 
     private val API_KEY = BuildConfig.GROQ_API_KEY
@@ -31,6 +33,7 @@ object AIRecipeService {
         .readTimeout(30, TimeUnit.SECONDS)
         .build()
 
+    // Calls the Groq API to generate a complete recipe from a dish name
     suspend fun generateRecipe(dishName: String): Result<AIRecipeResult> {
         return withContext(Dispatchers.IO) {
             try {

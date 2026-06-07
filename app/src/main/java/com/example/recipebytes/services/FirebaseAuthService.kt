@@ -6,6 +6,7 @@ import com.google.firebase.auth.FirebaseAuth
 
 import com.google.firebase.database.FirebaseDatabase
 
+// Manages Firebase Authentication (sign-up, sign-in, account operations)
 class FirebaseAuthService {
 
     private val firebaseAuth = FirebaseAuth.getInstance()
@@ -24,6 +25,7 @@ class FirebaseAuthService {
 
     // ============ SIGN UP ============
 
+    // Creates a new user account with email/password and saves to database
     /**
      * Sign Up: Create new user with email & password
      * Firebase Auth handles password encryption
@@ -91,6 +93,7 @@ class FirebaseAuthService {
 
     // ============ SIGN IN ============
 
+    // Authenticates user with email/password and fetches profile data
     /**
      * Sign In: Authenticate user with email & password
      * Firebase Auth verifies password
@@ -144,6 +147,7 @@ class FirebaseAuthService {
 
     // ============ DATABASE OPERATIONS ============
 
+    // Stores user data in Firebase Realtime Database
     /**
      * Save user to Realtime Database
      */
@@ -164,6 +168,7 @@ class FirebaseAuthService {
             }
     }
 
+    // Retrieves user data from Firebase Realtime Database
     /**
      * Fetch user from Realtime Database
      */
@@ -191,6 +196,7 @@ class FirebaseAuthService {
             }
     }
 
+    // Updates user profile fields in the database
     /**
      * Update user data in database
      */
@@ -214,6 +220,7 @@ class FirebaseAuthService {
             }
     }
 
+    // Removes user data from the database
     /**
      * Delete user from database
      */
@@ -236,6 +243,7 @@ class FirebaseAuthService {
             }
     }
 
+    // Fetches all registered users (for testing/admin purposes)
     /**
      * Get all users (for testing/admin)
      */
@@ -263,6 +271,7 @@ class FirebaseAuthService {
 
     // ============ AUTHENTICATION STATE ============
 
+    // Returns the UID of the currently logged-in user
     /**
      * Get current logged-in user ID
      */
@@ -284,6 +293,7 @@ class FirebaseAuthService {
         return firebaseAuth.currentUser != null
     }
 
+    // Signs out the current user
     /**
      * Sign out user
      */

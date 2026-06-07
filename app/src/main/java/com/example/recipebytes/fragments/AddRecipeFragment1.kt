@@ -22,12 +22,14 @@ import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.launch
 import com.example.recipebytes.services.DraftService
 
+// Fragment for step 1 of adding a recipe: title, description, category, cooking time
 class AddRecipeFragment1 : Fragment(R.layout.activity_add_recipe_fragment1) {
 
     private var aiIngredients = listOf<Ingredient>()
     private var aiSteps       = listOf<Step>()
     private var aiGenerated   = false
 
+    // Sets up form fields, category dropdown, draft check, and prefill from AI/OCR
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -76,7 +78,7 @@ class AddRecipeFragment1 : Fragment(R.layout.activity_add_recipe_fragment1) {
         }
     }
 
-    // Check Firebase for an existing draft and prompt user
+    // Checks Firebase for an existing draft and prompts user to continue or start fresh
     private fun checkForDraft(
         editTitle: TextInputEditText,
         editDesc: TextInputEditText,
@@ -129,12 +131,14 @@ class AddRecipeFragment1 : Fragment(R.layout.activity_add_recipe_fragment1) {
         }
     }
 
+    // Populates the category dropdown with recipe categories
     private fun setupCategoryDropdown(spinnerCategory: AutoCompleteTextView) {
         val adapter = ArrayAdapter(requireContext(),
             android.R.layout.simple_list_item_1, Recipe.CATEGORIES)
         spinnerCategory.setAdapter(adapter)
     }
 
+    // Adds text watchers to clear validation errors on input
     private fun setupValidationListeners(
         editTitle: TextInputEditText, tilTitle: TextInputLayout,
         editDesc: TextInputEditText, tilDesc: TextInputLayout,
@@ -151,6 +155,7 @@ class AddRecipeFragment1 : Fragment(R.layout.activity_add_recipe_fragment1) {
         }
     }
 
+    // Validates inputs and navigates to step 2 (ingredients)
     private fun handleNext(
         editTitle: TextInputEditText, tilTitle: TextInputLayout,
         editDesc: TextInputEditText, tilDesc: TextInputLayout,

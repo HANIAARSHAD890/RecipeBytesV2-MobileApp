@@ -14,6 +14,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 
+// Adapter for displaying meal plan days with breakfast/lunch/dinner/dessert chips
 class MealDayAdapter(
     private val mealDays: MutableList<MealDay>,
     private val monthKey: String,
@@ -37,6 +38,7 @@ class MealDayAdapter(
         val chipDessert: ChipGroup     = view.findViewById(R.id.chipDessert)
     }
 
+    // Inflates the meal day item layout
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_meal_day, parent, false)
@@ -45,6 +47,7 @@ class MealDayAdapter(
 
     override fun getItemCount() = mealDays.size
 
+    // Binds meal day data including date badge and meal chips
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val mealDay = mealDays[position]
 
@@ -79,6 +82,7 @@ class MealDayAdapter(
         holder.btnAdd.setOnClickListener { onAddClick(mealDay) }
     }
 
+    // Populates a ChipGroup with meal names and handles removal
     private fun bindCategory(
         chipGroup: ChipGroup,
         row: LinearLayout,
@@ -110,6 +114,7 @@ class MealDayAdapter(
 
     fun refresh() { notifyDataSetChanged() }
 
+    // Replaces the meal days list and refreshes the display
     fun updateList(newList: MutableList<MealDay>) {
         mealDays.clear()
         mealDays.addAll(newList)
