@@ -38,9 +38,7 @@ class AddRecipeFragment1 : Fragment(R.layout.activity_add_recipe_fragment1) {
         val editCookTime    = view.findViewById<TextInputEditText>(R.id.editCookingTime)
         val spinnerCategory = view.findViewById<AutoCompleteTextView>(R.id.spinnerCategory)
         val tilCategory     = view.findViewById<TextInputLayout>(R.id.tilCategory)
-        val editAiDishName  = view.findViewById<TextInputEditText>(R.id.editAiDishName)
-        val btnGenerateAI   = view.findViewById<MaterialButton>(R.id.btnGenerateAI)
-        val aiLoadingLayout = view.findViewById<LinearLayout>(R.id.aiLoadingLayout)
+
 
         setupCategoryDropdown(spinnerCategory)
         setupValidationListeners(editTitle, tilTitle, editDesc, tilDesc,
@@ -70,50 +68,6 @@ class AddRecipeFragment1 : Fragment(R.layout.activity_add_recipe_fragment1) {
                 aiGenerated   = true
             }
         }
-
-// Focus AI section if launched from AI option
-        if (arguments?.getBoolean("focusAI") == true) {
-            editAiDishName.requestFocus()
-        }
-
-        // AI Generate
-        btnGenerateAI.setOnClickListener {
-            val dishName = editAiDishName.text.toString().trim()
-            if (dishName.isEmpty()) {
-                Toast.makeText(requireContext(),
-                    "Please enter a dish name", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            aiLoadingLayout.visibility = View.VISIBLE
-            btnGenerateAI.isEnabled    = false
-            btnGenerateAI.text         = "Generating..."
-
-            lifecycleScope.launch {
-                val result = AIRecipeService.generateRecipe(dishName)
-                aiLoadingLayout.visibility = View.GONE
-                btnGenerateAI.isEnabled    = true
-                btnGenerateAI.text         = "Generate"
-
-                result.onSuccess { recipe ->
-                    editTitle.setText(recipe.title)
-                    editDesc.setText(recipe.description)
-                    editCookTime.setText(recipe.cookingTime)
-                    spinnerCategory.setText(recipe.category, false)
-                    aiIngredients = recipe.ingredients.map { Ingredient(it.first, it.second) }
-                    aiSteps       = recipe.steps.map { Step(text = it) }
-                    aiGenerated   = true
-                    Toast.makeText(requireContext(),
-                        "✅ Recipe generated! Review and tap Next.",
-                        Toast.LENGTH_LONG).show()
-                }
-                result.onFailure { error ->
-                    Toast.makeText(requireContext(),
-                        "❌ AI failed: ${error.message}",
-                        Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-
         // Next
         btnNext.setOnClickListener {
             handleNext(editTitle, tilTitle, editDesc, tilDesc,

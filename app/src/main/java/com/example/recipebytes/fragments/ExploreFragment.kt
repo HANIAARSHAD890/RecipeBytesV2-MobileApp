@@ -26,6 +26,8 @@ import com.example.recipebytes.services.FirebaseAuthService
 import com.example.recipebytes.services.FirebaseRecipeService
 import com.google.android.material.textfield.TextInputEditText
 import java.util.Locale
+import com.example.recipebytes.fragments.AddRecipeMethodBottomSheet
+import android.widget.ImageView
 
 class ExploreFragment : Fragment() {
 
@@ -247,8 +249,9 @@ class ExploreFragment : Fragment() {
             performFilterAndSort(etSearch.text.toString())
         }
 
-        addBtn.setOnClickListener {
-            startActivity(Intent(requireContext(), AddRecipeActivity::class.java))
+        view.findViewById<ImageView>(R.id.btnAdd).setOnClickListener {
+            AddRecipeMethodBottomSheet()
+                .show(parentFragmentManager, "AddRecipeMethodBottomSheet")
         }
     }
 

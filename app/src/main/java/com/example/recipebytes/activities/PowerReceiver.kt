@@ -2,14 +2,16 @@ package com.example.recipebytes
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import com.example.recipebytes.activities.MainActivity
 
 class PowerReceiver : BroadcastReceiver() {
-    //BROADCAST_NOTIFICATION for power connectivity
+
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_POWER_CONNECTED) {
             showNotification(context)
@@ -30,11 +32,22 @@ class PowerReceiver : BroadcastReceiver() {
             notificationManager.createNotificationChannel(channel)
         }
 
+        // Navigate to explore screen on click
+        val tapIntent = Intent(context, MainActivity::class.java).apply {
+            putExtra("open_explore", true)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val tapPendingIntent = PendingIntent.getActivity(
+            context, 2001, tapIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
         val notification = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle("RecipeBytes 🍽️")
             .setContentText("Good time to explore recipes!")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(tapPendingIntent)
             .setAutoCancel(true)
             .build()
 

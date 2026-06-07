@@ -13,10 +13,11 @@
         android:id="@+id/btnDragHandle"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:src="@android:drawable/ic_menu_sort_by_size"
-        android:visibility="gone"/>
+        android:src="@drawable/ic_drag_handle"
+        android:padding="2dp"
+        android:visibility="gone"
+        app:tint="@color/gray" />
 
-    <!-- Step number indicator (e.g., 1, 2, 3) -->
     <TextView
         android:id="@+id/tvStepNumber"
         android:layout_width="32dp"
@@ -27,9 +28,8 @@
         android:textColor="@color/buttontext"
         android:textSize="14sp"
         android:textStyle="bold"
-        android:layout_marginBottom="16dp"  />
+        android:layout_marginBottom="16dp" />
 
-    <!-- Input field for the step description -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tStepContent"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -53,7 +53,6 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Button to remove this step (only visible in edit mode) -->
     <ImageView
         android:id="@+id/btnDeleteStep"
         android:layout_width="36dp"

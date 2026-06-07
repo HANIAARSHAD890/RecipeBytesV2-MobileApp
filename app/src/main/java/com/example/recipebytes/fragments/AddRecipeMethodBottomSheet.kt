@@ -90,11 +90,79 @@ class AddRecipeMethodBottomSheet : BottomSheetDialogFragment() {
             startActivity(Intent(requireContext(), AddRecipeActivity::class.java))
         }
 
+        // AI option — toggle expand/collapse
+        val layoutAIInput  = view.findViewById<LinearLayout>(R.id.layoutAIInput)
+        val tvAIArrow      = view.findViewById<TextView>(R.id.tvAIArrow)
+        val etAiDishName   = view.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etAiDishName)
+        val btnGenerateAI  = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnGenerateAI)
+        val aiLoadingLayout = view.findViewById<LinearLayout>(R.id.aiLoadingLayout)
+
         view.findViewById<LinearLayout>(R.id.optionAI).setOnClickListener {
-            dismiss()
-            val intent = Intent(requireContext(), AddRecipeActivity::class.java)
-            intent.putExtra("mode", "ai")
-            startActivity(intent)
+            if (layoutAIInput.visibility == android.view.View.GONE) {
+                layoutAIInput.visibility = android.view.View.VISIBLE
+                tvAIArrow.text = "▲"
+                etAiDishName.requestFocus()
+            } else {
+                layoutAIInput.visibility = android.view.View.GONE
+                tvAIArrow.text = "▼"
+            }
+        }
+
+        btnGenerateAI.setOnClickListener {
+            val dishName = etAiDishName.text.toString().trim()
+            if (dishName.isEmpty()) {
+                Toast.makeText(requireContext(),
+                    "Please enter a dish name", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            aiLoadingLayout.visibility  = android.view.View.VISIBLE
+            btnGenerateAI.isEnabled     = false
+            btnGenerateAI.text          = "Generating..."
+
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val result = com.example.recipebytes.services.AIRecipeService.generateRecipe(dishName)
+                    withContext(Dispatchers.Main) {
+                        aiLoadingLayout.visibility = android.view.View.GONE
+                        btnGenerateAI.isEnabled    = true
+                        btnGenerateAI.text         = "✨ Generate Recipe"
+
+                        result.onSuccess { recipe ->
+                            val ingredients = recipe.ingredients.map {
+                                com.example.recipebytes.models.Ingredient(it.first, it.second)
+                            }
+                            val steps = recipe.steps.map {
+                                com.example.recipebytes.models.Step(text = it)
+                            }
+                            val recipeData = RecipeData(
+                                title       = recipe.title,
+                                description = recipe.description,
+                                category    = recipe.category,
+                                cookingTime = recipe.cookingTime,
+                                ingredients = ingredients,
+                                steps       = steps
+                            )
+                            dismiss()
+                            launchWithRecipe(recipeData)
+                        }
+
+                        result.onFailure { error ->
+                            Toast.makeText(requireContext(),
+                                "❌ AI failed: ${error.message}",
+                                Toast.LENGTH_LONG).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        aiLoadingLayout.visibility = android.view.View.GONE
+                        btnGenerateAI.isEnabled    = true
+                        btnGenerateAI.text         = "✨ Generate Recipe"
+                        Toast.makeText(requireContext(),
+                            "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
         }
 
         view.findViewById<LinearLayout>(R.id.optionOCR).setOnClickListener {

@@ -2,6 +2,8 @@ package com.example.recipebytes.fragments
 
 import android.graphics.Typeface
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.Gravity
@@ -16,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.recipebytes.R
 import com.example.recipebytes.adapters.MealDayAdapter
 import com.example.recipebytes.models.MealDay
-import com.example.recipebytes.models.MealRepository
+import com.example.recipebytes.models.MealFirebaseRepository
 import com.example.recipebytes.models.RecipeRepository
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
@@ -29,7 +31,14 @@ class PlannerFragment : Fragment() {
     private lateinit var adapter: MealDayAdapter
     private val calendar = Calendar.getInstance()
     private var selectedDateKey: String? = null
-    private var selectedCategory = "breakfast"  // ← ADDED
+    private var selectedCategory = "breakfast"
+    private var cachedDays = mutableListOf<MealDay>()
+
+    private val breakfastMeals        = mutableListOf<String>()
+    private val lunchMeals            = mutableListOf<String>()
+    private val dinnerMeals           = mutableListOf<String>()
+    private val dessertMeals          = mutableListOf<String>()
+    private val selectedMealsInDialog = mutableListOf<String>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,15 +51,50 @@ class PlannerFragment : Fragment() {
         setupRecyclerView(view)
         setupMonthNavigation(view)
         buildCalendarGrid(view)
-        loadCurrentMonth()
+        RecipeRepository.loadFromFirebase {}
+        loadCurrentMonthFromFirebase(view)
     }
 
     override fun onResume() {
         super.onResume()
-        if (::adapter.isInitialized) loadCurrentMonth()
+        if (::adapter.isInitialized) {
+            view?.let { loadCurrentMonthFromFirebase(it) }
+        }
     }
 
-    // ── month navigation ──────────────────────────────────────────────────────
+    private fun loadCurrentMonthFromFirebase(view: View) {
+        val monthKey = currentMonthKey()
+        cachedDays = MealFirebaseRepository.buildDaysForMonth(monthKey)
+        filterRecycler()
+
+        MealFirebaseRepository.loadMonthMeals(
+            monthKey,
+            onSuccess = { savedDays ->
+                if (!isAdded) return@loadMonthMeals
+                savedDays.forEach { savedDay ->
+                    val day = cachedDays.find { it.date == savedDay.date }
+                    day?.let {
+                        it.breakfast.clear(); it.breakfast.addAll(savedDay.breakfast)
+                        it.lunch.clear();     it.lunch.addAll(savedDay.lunch)
+                        it.dinner.clear();    it.dinner.addAll(savedDay.dinner)
+                        it.dessert.clear();   it.dessert.addAll(savedDay.dessert)
+                    }
+                }
+                Handler(Looper.getMainLooper()).post {
+                    if (!isAdded) return@post
+                    buildCalendarGrid(view)
+                    filterRecycler()
+                }
+            },
+            onError = { error ->
+                Handler(Looper.getMainLooper()).post {
+                    if (!isAdded) return@post
+                    Toast.makeText(requireContext(),
+                        "Could not load meals: $error", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+    }
 
     private fun setupMonthNavigation(view: View) {
         view.findViewById<ImageButton>(R.id.btnPrevMonth).setOnClickListener {
@@ -58,14 +102,14 @@ class PlannerFragment : Fragment() {
             selectedDateKey = null
             updateMonthLabel(view)
             buildCalendarGrid(view)
-            loadCurrentMonth()
+            loadCurrentMonthFromFirebase(view)
         }
         view.findViewById<ImageButton>(R.id.btnNextMonth).setOnClickListener {
             calendar.add(Calendar.MONTH, 1)
             selectedDateKey = null
             updateMonthLabel(view)
             buildCalendarGrid(view)
-            loadCurrentMonth()
+            loadCurrentMonthFromFirebase(view)
         }
         updateMonthLabel(view)
     }
@@ -81,8 +125,6 @@ class PlannerFragment : Fragment() {
 
     private fun currentMonthKey() =
         "%d-%02d".format(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1)
-
-    // ── calendar grid ─────────────────────────────────────────────────────────
 
     private fun buildCalendarGrid(view: View) {
         val grid  = view.findViewById<GridLayout>(R.id.calendarGrid)
@@ -100,17 +142,16 @@ class PlannerFragment : Fragment() {
                 todayCal.get(Calendar.MONTH) == month
         val todayDay       = todayCal.get(Calendar.DAY_OF_MONTH)
 
-        val screenWidth    = resources.displayMetrics.widthPixels
-        val cellSize       = (screenWidth - dpToPx(24)) / 7
+        // Fix Saturday cut off — increased padding from 24 to 32
+        val screenWidth = resources.displayMetrics.widthPixels
+        val totalPadding = (resources.displayMetrics.density * 16).toInt() * 2
+        val cellSize = (screenWidth - totalPadding) / 7
 
-        // Days that have meals — for dot indicator
-        val monthPlan = MealRepository.getMealPlanForMonth(requireContext(), currentMonthKey())
-        val datesWithMeals = monthPlan.filter {
+        val datesWithMeals = cachedDays.filter {
             it.breakfast.isNotEmpty() || it.lunch.isNotEmpty() ||
-                    it.dinner.isNotEmpty()    || it.dessert.isNotEmpty()
+                    it.dinner.isNotEmpty() || it.dessert.isNotEmpty()
         }.map { it.date }.toSet()
 
-        // Empty offset cells before day 1
         repeat(firstDayOfWeek) {
             val empty = View(requireContext())
             grid.addView(empty, GridLayout.LayoutParams().apply {
@@ -118,7 +159,6 @@ class PlannerFragment : Fragment() {
             })
         }
 
-        // Day cells
         for (day in 1..daysInMonth) {
             val dateKey    = "%d-%02d-%02d".format(year, month + 1, day)
             val isToday    = isCurrentMonth && day == todayDay
@@ -131,9 +171,9 @@ class PlannerFragment : Fragment() {
             }
 
             val tv = TextView(requireContext()).apply {
-                text      = day.toString()
-                gravity   = Gravity.CENTER
-                textSize  = 13f
+                text     = day.toString()
+                gravity  = Gravity.CENTER
+                textSize = 13f
                 setTypeface(null, if (isToday) Typeface.BOLD else Typeface.NORMAL)
                 layoutParams = LinearLayout.LayoutParams(dpToPx(32), dpToPx(32))
 
@@ -163,7 +203,6 @@ class PlannerFragment : Fragment() {
             }
             container.addView(tv)
 
-            // Dot indicator if day has meals
             if (hasMeals) {
                 val dot = View(requireContext()).apply {
                     layoutParams = LinearLayout.LayoutParams(dpToPx(5), dpToPx(5)).also {
@@ -188,8 +227,6 @@ class PlannerFragment : Fragment() {
         "Jul","Aug","Sep","Oct","Nov","Dec"
     )[month]
 
-    // ── RecyclerView ──────────────────────────────────────────────────────────
-
     private fun setupRecyclerView(view: View) {
         val rv = view.findViewById<RecyclerView>(R.id.mealPlannerRecycler)
         adapter = MealDayAdapter(mutableListOf(), currentMonthKey()) { mealDay ->
@@ -199,30 +236,28 @@ class PlannerFragment : Fragment() {
         rv.adapter = adapter
     }
 
-    private fun loadCurrentMonth() {
-        val monthKey = currentMonthKey()
-        val days = MealRepository.getMealPlanForMonth(requireContext(), monthKey)
-        adapter = MealDayAdapter(days, monthKey) { mealDay ->
-            showMealPickerDialog(mealDay)
-        }
-        requireView().findViewById<RecyclerView>(R.id.mealPlannerRecycler).adapter = adapter
-        filterRecycler()
-    }
-
     private fun filterRecycler() {
-        val allDays = MealRepository.getMealPlanForMonth(requireContext(), currentMonthKey())
         val filtered = if (selectedDateKey != null)
-            allDays.filter { it.date == selectedDateKey }.toMutableList()
+            cachedDays.filter { it.date == selectedDateKey }.toMutableList()
         else
-            allDays.toMutableList()
+            cachedDays.toMutableList()
         adapter.updateList(filtered)
     }
 
-    // ── meal picker dialog ────────────────────────────────────────────────────
-
-    private val selectedMealsInDialog = mutableListOf<String>()
-
     private fun showMealPickerDialog(mealDay: MealDay) {
+        // Clear then pre-fill with existing meals
+        breakfastMeals.clear()
+        lunchMeals.clear()
+        dinnerMeals.clear()
+        dessertMeals.clear()
+        selectedMealsInDialog.clear()
+
+        // ← KEY FIX: pre-fill existing meals so they show when dialog opens
+        breakfastMeals.addAll(mealDay.breakfast)
+        lunchMeals.addAll(mealDay.lunch)
+        dinnerMeals.addAll(mealDay.dinner)
+        dessertMeals.addAll(mealDay.dessert)
+
         val dialog = BottomSheetDialog(requireContext())
         val view   = layoutInflater.inflate(R.layout.fragment_meal_popup, null)
         dialog.setContentView(view)
@@ -233,13 +268,12 @@ class PlannerFragment : Fragment() {
         val btnSave      = view.findViewById<MaterialButton>(R.id.btnSaveMeals)
         val tvNoResult   = view.findViewById<TextView>(R.id.tvNoResult)
 
-        // Category layouts
         val catBreakfast = view.findViewById<LinearLayout>(R.id.categoryBreakfast)
         val catLunch     = view.findViewById<LinearLayout>(R.id.categoryLunch)
         val catDinner    = view.findViewById<LinearLayout>(R.id.categoryDinner)
         val catDessert   = view.findViewById<LinearLayout>(R.id.categoryDessert)
 
-        tvTitle.text  = mealDay.day
+        tvTitle.text     = mealDay.day
         selectedCategory = "breakfast"
 
         val categories = mapOf(
@@ -265,18 +299,112 @@ class PlannerFragment : Fragment() {
             }
         }
 
+        fun restoreChipsForCategory() {
+            chipGroup.removeAllViews()
+            val currentList = when (selectedCategory) {
+                "breakfast" -> breakfastMeals
+                "lunch"     -> lunchMeals
+                "dinner"    -> dinnerMeals
+                "dessert"   -> dessertMeals
+                else        -> mutableListOf()
+            }
+            currentList.forEach { meal ->
+                val chip = Chip(requireContext())
+                chip.text = meal
+                chip.isCloseIconVisible = true
+                chip.setOnCloseIconClickListener {
+                    currentList.remove(meal)
+                    chipGroup.removeView(chip)
+                }
+                chipGroup.addView(chip)
+            }
+        }
+
         categories.forEach { (key, layout) ->
             layout.setOnClickListener {
                 selectedCategory = key
-                selectedMealsInDialog.clear()
-                chipGroup.removeAllViews()
                 updateCategoryUI()
+                restoreChipsForCategory()
+                setupMealSelection(autoComplete, chipGroup, mealDay, tvNoResult)
             }
         }
 
         updateCategoryUI()
+        restoreChipsForCategory()
         setupMealSelection(autoComplete, chipGroup, mealDay, tvNoResult)
-        btnSave.setOnClickListener { handleSaveMeals(dialog, selectedMealsInDialog, mealDay) }
+
+        btnSave.setOnClickListener {
+            val hasAnyMeal = breakfastMeals.isNotEmpty() || lunchMeals.isNotEmpty() ||
+                    dinnerMeals.isNotEmpty() || dessertMeals.isNotEmpty()
+
+            if (!hasAnyMeal) {
+                Toast.makeText(requireContext(),
+                    "Please select at least one meal!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Update mealDay with all category meals
+            mealDay.breakfast.clear(); mealDay.breakfast.addAll(breakfastMeals)
+            mealDay.lunch.clear();     mealDay.lunch.addAll(lunchMeals)
+            mealDay.dinner.clear();    mealDay.dinner.addAll(dinnerMeals)
+            mealDay.dessert.clear();   mealDay.dessert.addAll(dessertMeals)
+
+            btnSave.isEnabled = false
+            btnSave.text      = "Saving..."
+
+            MealFirebaseRepository.saveDayMeals(
+                mealDay,
+                onSuccess = {
+                    Handler(Looper.getMainLooper()).post {
+                        val cached = cachedDays.find { it.date == mealDay.date }
+                        cached?.let {
+                            it.breakfast.clear(); it.breakfast.addAll(mealDay.breakfast)
+                            it.lunch.clear();     it.lunch.addAll(mealDay.lunch)
+                            it.dinner.clear();    it.dinner.addAll(mealDay.dinner)
+                            it.dessert.clear();   it.dessert.addAll(mealDay.dessert)
+                        }
+                        this.view?.let { v -> buildCalendarGrid(v) }
+                        filterRecycler()
+                        dialog.dismiss()
+                        Toast.makeText(
+                            requireContext(),
+                            "✅ Meals saved for ${mealDay.day}!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                },
+                onError = { error ->
+                    Handler(Looper.getMainLooper()).post {
+                        btnSave.isEnabled = true
+                        btnSave.text      = "Save Meals"
+                        Toast.makeText(requireContext(),
+                            "Failed to save: $error", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            )
+
+// Fallback — close after 3 seconds even if callback doesn't fire
+            Handler(Looper.getMainLooper()).postDelayed({
+                if (dialog.isShowing) {
+                    val cached = cachedDays.find { it.date == mealDay.date }
+                    cached?.let {
+                        it.breakfast.clear(); it.breakfast.addAll(mealDay.breakfast)
+                        it.lunch.clear();     it.lunch.addAll(mealDay.lunch)
+                        it.dinner.clear();    it.dinner.addAll(mealDay.dinner)
+                        it.dessert.clear();   it.dessert.addAll(mealDay.dessert)
+                    }
+                    this.view?.let { v -> buildCalendarGrid(v) }
+                    filterRecycler()
+                    dialog.dismiss()
+                    Toast.makeText(
+                        requireContext(),
+                        "✅ Meals saved for ${mealDay.day}!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }, 2000)
+        }
+
         dialog.show()
     }
 
@@ -286,12 +414,17 @@ class PlannerFragment : Fragment() {
         mealDay: MealDay,
         tvNoResult: TextView
     ) {
-        selectedMealsInDialog.clear()
-        val recipeNames = RecipeRepository.getAllRecipes().map { it.title }
+        val filteredRecipes = RecipeRepository.getAllRecipes().filter { recipe ->
+            recipe.category.lowercase() == selectedCategory.lowercase()
+        }.map { it.title }
+
         val dropdownAdapter = ArrayAdapter(
-            requireContext(), android.R.layout.simple_dropdown_item_1line, recipeNames
+            requireContext(), android.R.layout.simple_dropdown_item_1line, filteredRecipes
         )
         autoComplete.setAdapter(dropdownAdapter)
+        autoComplete.setText("", false)
+        autoComplete.hint =
+            "Search ${selectedCategory.replaceFirstChar { it.uppercase() }} recipes..."
 
         autoComplete.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -299,60 +432,38 @@ class PlannerFragment : Fragment() {
             override fun afterTextChanged(s: Editable?) {
                 val query = s.toString().trim()
                 tvNoResult.visibility =
-                    if (query.isNotEmpty() && recipeNames.none { it.contains(query, ignoreCase = true) })
+                    if (query.isNotEmpty() && filteredRecipes.none {
+                            it.contains(query, ignoreCase = true) })
                         View.VISIBLE else View.GONE
             }
         })
 
         autoComplete.setOnItemClickListener { _, _, position, _ ->
             val selected = dropdownAdapter.getItem(position) ?: ""
-            if (!selectedMealsInDialog.contains(selected)) {
-                selectedMealsInDialog.add(selected)
-                addChipToGroup(selected, chipGroup, mealDay)
+
+            val currentCategoryList = when (selectedCategory) {
+                "breakfast" -> breakfastMeals
+                "lunch"     -> lunchMeals
+                "dinner"    -> dinnerMeals
+                "dessert"   -> dessertMeals
+                else        -> mutableListOf()
+            }
+
+            if (!currentCategoryList.contains(selected)) {
+                currentCategoryList.add(selected)
+                val chip = Chip(requireContext())
+                chip.text = selected
+                chip.isCloseIconVisible = true
+                chip.setOnCloseIconClickListener {
+                    currentCategoryList.remove(selected)
+                    chipGroup.removeView(chip)
+                }
+                chipGroup.addView(chip)
             } else {
-                Toast.makeText(requireContext(), "$selected already added", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(),
+                    "$selected already added", Toast.LENGTH_SHORT).show()
             }
             autoComplete.setText("", false)
         }
-    }
-
-    private fun addChipToGroup(text: String, chipGroup: ChipGroup, mealDay: MealDay) {
-        val chip = Chip(requireContext())
-        chip.text = text
-        chip.isCloseIconVisible = true
-        chip.setOnCloseIconClickListener {
-            selectedMealsInDialog.remove(text)
-            chipGroup.removeView(chip)
-        }
-        chipGroup.addView(chip)
-    }
-
-    private fun handleSaveMeals(
-        dialog: BottomSheetDialog,
-        selectedMeals: List<String>,
-        mealDay: MealDay
-    ) {
-        if (selectedMeals.isEmpty()) {
-            Toast.makeText(requireContext(), "Please select at least one meal!", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val targetList = when (selectedCategory) {
-            "breakfast" -> mealDay.breakfast
-            "lunch"     -> mealDay.lunch
-            "dinner"    -> mealDay.dinner
-            "dessert"   -> mealDay.dessert
-            else        -> mealDay.meals
-        }
-
-        selectedMeals.forEach { if (!targetList.contains(it)) targetList.add(it) }
-        MealRepository.saveMealPlan(requireContext(), currentMonthKey())
-        adapter.notifyDataSetChanged()
-        Toast.makeText(
-            requireContext(),
-            "${selectedCategory.replaceFirstChar { it.uppercase() }} saved for ${mealDay.day}!",
-            Toast.LENGTH_SHORT
-        ).show()
-        dialog.dismiss()
     }
 }

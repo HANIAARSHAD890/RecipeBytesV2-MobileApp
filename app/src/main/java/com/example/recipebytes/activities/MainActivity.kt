@@ -38,11 +38,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        // Initialize preferences repository
+
         preferencesRepository = UserPreferencesRepository(this)
-        
-        // Apply saved theme BEFORE setContentView
+
         lifecycleScope.launch {
             preferencesRepository.isDarkModeFlow.collect { isDarkMode ->
                 val nightMode = if (isDarkMode) {
@@ -54,7 +52,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Get userId first
         val userId = intent.getStringExtra("userId")
             ?: authService.getCurrentUserId()
             ?: ""
@@ -65,11 +62,10 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // Check user-specific onboarding flag
         val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
-        val onboardingDone = prefs.getBoolean("onboarding_done_$userId", false) || 
-                              prefs.getBoolean("onboarding_done", false)
-        
+        val onboardingDone = prefs.getBoolean("onboarding_done_$userId", false) ||
+                prefs.getBoolean("onboarding_done", false)
+
         if (!onboardingDone) {
             val intent = Intent(this, OnboardingActivity::class.java)
             intent.putExtra("userId", userId)
@@ -86,16 +82,13 @@ class MainActivity : AppCompatActivity() {
         setupWindowInsets()
         setupBottomNavigation()
 
-        // Check if opened from Favorites first
-        val shouldOpenFavorites = intent.getBooleanExtra("open_favorites", false)
-        
-        if (shouldOpenFavorites) {
-            intent.removeExtra("open_favorites")
-            val frag = ExploreFragment()
-            frag.arguments = Bundle().apply { putBoolean("show_favorites", true) }
-            loadFragment(frag)
+        // ✅ ADDED — handle notification tap navigation on cold start
+        if (intent.getBooleanExtra("open_planner", false)) {
+            loadFragment(PlannerFragment())
+            bottomNav.selectedItemId = R.id.nav_planner
+        } else if (intent.getBooleanExtra("open_explore", false)) {
+            loadFragment(ExploreFragment())
             bottomNav.selectedItemId = R.id.nav_explore
-            lifecycleScope.launch { preferencesRepository.setLastScreen("explore") }
         } else {
             // Load last viewed screen
             lifecycleScope.launch {
@@ -192,6 +185,15 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
+
+        if (intent.getBooleanExtra("open_favorites", false)) {
+            intent.removeExtra("open_favorites")
+            val frag = ExploreFragment()
+            frag.arguments = Bundle().apply { putBoolean("show_favorites", true) }
+            loadFragment(frag)
+            bottomNav.selectedItemId = R.id.nav_explore
+            lifecycleScope.launch { preferencesRepository.setLastScreen("explore") }
+        }
     }
 
     private fun syncBottomNav() {
@@ -264,6 +266,19 @@ class MainActivity : AppCompatActivity() {
     // ── receiver
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+
+        // ✅ ADDED — handle notification tap when app already open
+        if (intent.getBooleanExtra("open_planner", false)) {
+            loadFragment(PlannerFragment())
+            bottomNav.selectedItemId = R.id.nav_planner
+            return
+        }
+        if (intent.getBooleanExtra("open_explore", false)) {
+            loadFragment(ExploreFragment())
+            bottomNav.selectedItemId = R.id.nav_explore
+            return
+        }
+
         if (intent.getBooleanExtra("open_favorites", false)) {
             intent.removeExtra("open_favorites")
             val frag = ExploreFragment()

@@ -9,7 +9,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import com.example.recipebytes.models.MealRepository
+import com.example.recipebytes.activities.MainActivity
+import com.example.recipebytes.models.MealFirebaseRepository
 import java.util.Calendar
 
 class MealReminderReceiver : BroadcastReceiver() {
@@ -17,7 +18,6 @@ class MealReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == "com.example.recipebytes.MEAL_REMINDER") {
 
-            // Get today's day name
             val calendar = Calendar.getInstance()
             val dayName = when (calendar.get(Calendar.DAY_OF_WEEK)) {
                 Calendar.MONDAY -> "Monday"
@@ -30,30 +30,37 @@ class MealReminderReceiver : BroadcastReceiver() {
                 else -> ""
             }
 
-            // Build month key e.g. "2026-05"
             val monthKey = "%d-%02d".format(
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH) + 1
             )
 
-            // Build today's date key e.g. "2026-05-21"
             val todayDate = "%d-%02d-%02d".format(
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH) + 1,
                 calendar.get(Calendar.DAY_OF_MONTH)
             )
 
-            // Get meals for today from the monthly plan
-            val monthPlan = MealRepository.getMealPlanForMonth(context, monthKey)
-            val meals = monthPlan.find { it.date == todayDate }?.meals ?: emptyList()
+            MealFirebaseRepository.loadMonthMeals(
+                monthKey,
+                onSuccess = { savedDays ->
+                    val mealDay = savedDays.find { it.date == todayDate }
 
-            // Show notification only if meals exist
-//            if (meals.isNotEmpty()) {
-//                showNotification(context, dayName, meals)
-//            }
+                    val hasAny = mealDay?.let {
+                        it.breakfast.isNotEmpty() || it.lunch.isNotEmpty() ||
+                                it.dinner.isNotEmpty() || it.dessert.isNotEmpty()
+                    } ?: false
 
-            // Reschedule next alarm after 1 minute
-           /// scheduleNext(context)
+                    if (hasAny && mealDay != null) {
+                        showCategoryNotification(context, dayName, todayDate, mealDay)
+                    }
+
+                    scheduleNext(context)
+                },
+                onError = {
+                    scheduleNext(context)
+                }
+            )
         }
     }
 
@@ -83,7 +90,12 @@ class MealReminderReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun showNotification(context: Context, dayName: String, meals: List<String>) {
+    private fun showCategoryNotification(
+        context: Context,
+        dayName: String,
+        todayDate: String,
+        mealDay: com.example.recipebytes.models.MealDay
+    ) {
         val channelId = "meal_reminder_channel"
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -97,18 +109,59 @@ class MealReminderReceiver : BroadcastReceiver() {
             notificationManager.createNotificationChannel(channel)
         }
 
-        val mealsText = meals.joinToString(", ")
+        // Format date e.g. "7 June 2026"
+        val parts = todayDate.split("-")
+        val formattedDate = if (parts.size == 3)
+            "${parts[2].trimStart('0')} ${monthFullName(parts[1].toInt())} ${parts[0]}"
+        else todayDate
+
+        // Build category wise message
+        val sb = StringBuilder()
+        if (mealDay.breakfast.isNotEmpty())
+            sb.append("🌅 Breakfast: ${mealDay.breakfast.joinToString(", ")}\n")
+        if (mealDay.lunch.isNotEmpty())
+            sb.append("☀️ Lunch: ${mealDay.lunch.joinToString(", ")}\n")
+        if (mealDay.dinner.isNotEmpty())
+            sb.append("🌙 Dinner: ${mealDay.dinner.joinToString(", ")}\n")
+        if (mealDay.dessert.isNotEmpty())
+            sb.append("🍰 Dessert: ${mealDay.dessert.joinToString(", ")}")
+
+        val fullText = sb.toString().trim()
+
+        val totalMeals = mealDay.breakfast.size + mealDay.lunch.size +
+                mealDay.dinner.size + mealDay.dessert.size
+        val shortText = "$totalMeals meal${if (totalMeals > 1) "s" else ""} planned today"
+
+        // Navigate to planner screen on click
+        val tapIntent = Intent(context, MainActivity::class.java).apply {
+            putExtra("open_planner", true)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val tapPendingIntent = PendingIntent.getActivity(
+            context, 1001, tapIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
         val notification = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle("$dayName Meal Plan 📅")
-            .setContentText("Your meals: $mealsText")
+            .setContentTitle("📅 $dayName, $formattedDate")
+            .setContentText(shortText)
             .setStyle(
-                NotificationCompat.BigTextStyle().bigText("Your meals: $mealsText")
+                NotificationCompat.BigTextStyle()
+                    .bigText(fullText)
+                    .setBigContentTitle("📅 $dayName, $formattedDate")
+                    .setSummaryText("Tap to open Meal Planner")
             )
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(tapPendingIntent)
             .setAutoCancel(true)
             .build()
 
         notificationManager.notify(4001, notification)
     }
+
+    private fun monthFullName(month: Int) = arrayOf(
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    )[month - 1]
 }

@@ -26,6 +26,7 @@ import com.bumptech.glide.request.target.Target
 import com.example.recipebytes.R
 import com.example.recipebytes.activities.AddRecipeActivity
 import com.example.recipebytes.models.Ingredient
+import com.example.recipebytes.models.Nutrition
 import com.example.recipebytes.models.Recipe
 import com.example.recipebytes.models.RecipeRepository
 import com.example.recipebytes.models.Step
@@ -39,23 +40,17 @@ import java.io.FileOutputStream
 
 class AddRecipeFragment4 : Fragment(R.layout.activity_add_recipe_fragment4) {
 
-    private var imageUri2: Uri?    = null  // gallery/camera uri
-    private var finalImagePath: String? = null  // final path to save
+    private var imageUri2: Uri?    = null
+    private var finalImagePath: String? = null
 
     private lateinit var pickImageLauncher: ActivityResultLauncher<String>
     private lateinit var takePictureLauncher: ActivityResultLauncher<Uri>
     private lateinit var cameraPermissionLauncher: ActivityResultLauncher<String>
     private var cameraImageUri: Uri? = null
 
-    private val firebaseService = FirebaseRecipeService()
-    private val authService = FirebaseAuthService()
-
-    // ── lifecycle ─────────────────────────────────────────────────────────────
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Gallery picker
         pickImageLauncher = registerForActivityResult(
             ActivityResultContracts.GetContent()
         ) { uri ->
@@ -66,7 +61,6 @@ class AddRecipeFragment4 : Fragment(R.layout.activity_add_recipe_fragment4) {
             }
         }
 
-        // Camera
         takePictureLauncher = registerForActivityResult(
             ActivityResultContracts.TakePicture()
         ) { success ->
@@ -79,7 +73,6 @@ class AddRecipeFragment4 : Fragment(R.layout.activity_add_recipe_fragment4) {
             }
         }
 
-        // Camera permission
         cameraPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { granted ->
@@ -104,13 +97,11 @@ class AddRecipeFragment4 : Fragment(R.layout.activity_add_recipe_fragment4) {
         val btnSave       = view.findViewById<MaterialButton>(R.id.btnSave)
         val loader        = view.findViewById<ProgressBar>(R.id.loader)
 
-        // ── Gallery ───────────────────────────────────────────────────────────
         btnGallery.setOnClickListener {
             hideUrlInput(tilUrl, btnLoadUrl)
             pickImageLauncher.launch("image/*")
         }
 
-        // ── Camera ────────────────────────────────────────────────────────────
         btnCamera.setOnClickListener {
             hideUrlInput(tilUrl, btnLoadUrl)
             if (ContextCompat.checkSelfPermission(
@@ -122,14 +113,12 @@ class AddRecipeFragment4 : Fragment(R.layout.activity_add_recipe_fragment4) {
             }
         }
 
-        // ── URL option ────────────────────────────────────────────────────────
         btnUrlOption.setOnClickListener {
-            tilUrl.visibility    = View.VISIBLE
+            tilUrl.visibility     = View.VISIBLE
             btnLoadUrl.visibility = View.VISIBLE
             urlInput.requestFocus()
         }
 
-        // ── Load URL button ───────────────────────────────────────────────────
         btnLoadUrl.setOnClickListener {
             val url = urlInput.text.toString().trim()
             if (url.isEmpty()) {
@@ -143,13 +132,11 @@ class AddRecipeFragment4 : Fragment(R.layout.activity_add_recipe_fragment4) {
             loadImageFromUrl(url, imagePreview, loader, tilUrl, tvError, btnRemove)
         }
 
-        // ── URL text change ───────────────────────────────────────────────────
         urlInput.addTextChangedListener {
             tilUrl.error = null
             tvError.visibility = View.GONE
         }
 
-        // ── Remove image ──────────────────────────────────────────────────────
         btnRemove.setOnClickListener {
             imageUri2      = null
             finalImagePath = null
@@ -160,18 +147,14 @@ class AddRecipeFragment4 : Fragment(R.layout.activity_add_recipe_fragment4) {
             Toast.makeText(requireContext(), "Image removed", Toast.LENGTH_SHORT).show()
         }
 
-        // ── Save ──────────────────────────────────────────────────────────────
         btnSave.setOnClickListener {
             handleSave(tvError)
         }
 
-        // Check connectivity on open
         if (!isInternetAvailable()) {
             showNoInternetNotification()
         }
     }
-
-    // ── camera ────────────────────────────────────────────────────────────────
 
     private fun openCamera() {
         val photoFile = File(requireContext().filesDir,
@@ -183,8 +166,6 @@ class AddRecipeFragment4 : Fragment(R.layout.activity_add_recipe_fragment4) {
         )
         takePictureLauncher.launch(cameraImageUri!!)
     }
-
-    // ── URL image load ────────────────────────────────────────────────────────
 
     private fun loadImageFromUrl(
         url: String,
@@ -204,7 +185,6 @@ class AddRecipeFragment4 : Fragment(R.layout.activity_add_recipe_fragment4) {
                 ): Boolean {
                     loader.visibility  = View.GONE
                     tilUrl.error       = "Could not load image from URL"
-                    tvError.text       = "❌ Invalid or unreachable URL"
                     tvError.visibility = View.VISIBLE
                     return false
                 }
@@ -213,18 +193,16 @@ class AddRecipeFragment4 : Fragment(R.layout.activity_add_recipe_fragment4) {
                     target: Target<Drawable>?, dataSource: DataSource,
                     isFirstResource: Boolean
                 ): Boolean {
-                    loader.visibility  = View.GONE
-                    tilUrl.error       = null
-                    tvError.visibility = View.GONE
-                    finalImagePath     = url
+                    loader.visibility    = View.GONE
+                    tilUrl.error         = null
+                    tvError.visibility   = View.GONE
+                    finalImagePath       = url
                     btnRemove.visibility = View.VISIBLE
                     return false
                 }
             })
             .into(imagePreview)
     }
-
-    // ── show preview ──────────────────────────────────────────────────────────
 
     private fun showImagePreview(view: View, uriString: String) {
         val imagePreview = view.findViewById<ImageView>(R.id.imagePreview)
@@ -238,8 +216,6 @@ class AddRecipeFragment4 : Fragment(R.layout.activity_add_recipe_fragment4) {
         btnLoadUrl.visibility = View.GONE
     }
 
-    // ── save recipe ───────────────────────────────────────────────────────────
-
     private fun handleSave(tvError: TextView) {
         if (imageUri2 == null) {
             tvError.text       = "⚠️ Please select an image first"
@@ -250,17 +226,19 @@ class AddRecipeFragment4 : Fragment(R.layout.activity_add_recipe_fragment4) {
         val title       = arguments?.getString("title")       ?: ""
         val desc        = arguments?.getString("desc")        ?: ""
         val category    = arguments?.getString("category")    ?: ""
-        val cookingTime = arguments?.getString("cookingTime")?.toIntOrNull() ?: 0
+        val cookingTime = arguments?.getString("cookingTime")
+            ?.filter { it.isDigit() }
+            ?.toIntOrNull() ?: 0
+
         val ingredients = arguments?.getSerializable("ingredients")
                 as? ArrayList<Ingredient> ?: arrayListOf()
         val steps       = arguments?.getSerializable("steps")
                 as? ArrayList<Step> ?: arrayListOf()
 
-        // Show loading state
-        view?.findViewById<ProgressBar>(R.id.loader)?.visibility = View.VISIBLE
+        // ✅ FIXED: nutrition now passed from arguments
+        val nutrition   = arguments?.getSerializable("nutrition") as? Nutrition
 
-        // Step 1: Create a temporary recipe to get ID
-        val tempRecipe = Recipe(
+        val recipe = Recipe(
             title       = title,
             description = desc,
             category    = category,
@@ -268,64 +246,22 @@ class AddRecipeFragment4 : Fragment(R.layout.activity_add_recipe_fragment4) {
             ingredients = ingredients,
             steps       = steps,
             cookingTime = cookingTime,
-            userId      = authService.getCurrentUserId() ?: ""
+            nutrition   = nutrition    // ✅ FIXED: was missing before
         )
 
-        // Step 2: Add recipe first to get recipeId
-        firebaseService.addRecipe(
-            recipe = tempRecipe,
-            onSuccess = { recipeId ->
-                // Step 3: Upload image with the recipeId
-                firebaseService.uploadRecipeImage(
-                    recipeId = recipeId,
-                    imageUri = imageUri2!!,
-                    onSuccess = { downloadUrl ->
-                        // Step 4: Update recipe with the download URL
-                        val updatedRecipe = tempRecipe.copy(
-                            imageUri = downloadUrl,
-                            recipeId = recipeId
-                        )
-                        
-                        firebaseService.updateRecipe(
-                            recipeId = recipeId,
-                            recipe = updatedRecipe,
-                            onSuccess = {
-                                RecipeRepository.addRecipe(requireContext(), updatedRecipe)
-                                (activity as? AddRecipeActivity)?.onRecipeSaved()
-                                Toast.makeText(requireContext(),
-                                    "Recipe saved successfully! 🎉", Toast.LENGTH_SHORT).show()
-                                view?.findViewById<ProgressBar>(R.id.loader)?.visibility = View.GONE
-                                requireActivity().finish()
-                            },
-                            onError = { error ->
-                                tvError.text       = "⚠️ Error updating recipe: $error"
-                                tvError.visibility = View.VISIBLE
-                                view?.findViewById<ProgressBar>(R.id.loader)?.visibility = View.GONE
-                            }
-                        )
-                    },
-                    onError = { error ->
-                        tvError.text       = "⚠️ Error uploading image: $error"
-                        tvError.visibility = View.VISIBLE
-                        view?.findViewById<ProgressBar>(R.id.loader)?.visibility = View.GONE
-                    }
-                )
-            },
-            onError = { error ->
-                tvError.text       = "⚠️ Error creating recipe: $error"
-                tvError.visibility = View.VISIBLE
-                view?.findViewById<ProgressBar>(R.id.loader)?.visibility = View.GONE
-            }
-        )
+        RecipeRepository.addRecipe(requireContext(), recipe)
+        (activity as? AddRecipeActivity)?.onRecipeSaved()
+
+        Toast.makeText(requireContext(),
+            "Recipe saved successfully! 🎉", Toast.LENGTH_SHORT).show()
+        requireActivity().finish()
     }
-
-    // ── helpers ───────────────────────────────────────────────────────────────
 
     private fun saveImageToInternalStorage(uri: Uri): String? {
         return try {
-            val inputStream = requireContext().contentResolver.openInputStream(uri)
-            val fileName    = "recipe_${System.currentTimeMillis()}.jpg"
-            val file        = File(requireContext().filesDir, fileName)
+            val inputStream  = requireContext().contentResolver.openInputStream(uri)
+            val fileName     = "recipe_${System.currentTimeMillis()}.jpg"
+            val file         = File(requireContext().filesDir, fileName)
             val outputStream = FileOutputStream(file)
             inputStream?.use { it.copyTo(outputStream) }
             outputStream.close()
