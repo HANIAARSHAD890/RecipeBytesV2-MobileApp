@@ -129,7 +129,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:padding="16dp">
+                    android:paddingVertical="16dp">
 
                     <ImageView
                         android:layout_width="26dp"
@@ -160,7 +160,7 @@
                     android:focusable="true"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:padding="16dp">
+                    android:paddingVertical="16dp">
 
                     <ImageView
                         android:layout_width="29dp"
@@ -193,7 +193,7 @@
                     android:focusable="true"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:padding="16dp">
+                    android:paddingVertical="16dp">
 
                     <ImageView
                         android:layout_width="26dp"

@@ -194,6 +194,7 @@ class RecipeAdapter(
         holder.itemView.setOnClickListener {
             val intent = Intent(holder.itemView.context, RecipeViewDetailsScreen::class.java)
             intent.putExtra("recipe", recipe)
+            intent.putExtra("allow_edit", false)
             holder.itemView.context.startActivity(intent)
         }
 

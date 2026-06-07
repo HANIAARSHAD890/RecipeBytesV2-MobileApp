@@ -16,6 +16,7 @@ firebaseDatabase = "22.0.1"
 firebaseAuth = "23.2.1"
 firebaseAuthKtx = "24.1.0"
 firebaseStorageKtx = "22.0.1"
+playServicesCastTv = "21.1.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -33,6 +34,7 @@ firebase-database = { group = "com.google.firebase", name = "firebase-database",
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuth" }
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
+play-services-cast-tv = { group = "com.google.android.gms", name = "play-services-cast-tv", version.ref = "playServicesCastTv" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

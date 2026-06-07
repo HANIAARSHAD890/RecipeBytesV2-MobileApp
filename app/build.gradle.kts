@@ -1,3 +1,10 @@
+import java.util.Properties
+val localProps = Properties()
+val localFile = rootProject.file("local.properties")
+if (localFile.exists()) {
+    localFile.inputStream().use { localProps.load(it) }
+}
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.gms.google.services)
@@ -19,6 +26,11 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "CLOUDINARY_CLOUD_NAME", "\"${localProps["CLOUDINARY_CLOUD_NAME"]}\"")
+        buildConfigField("String", "CLOUDINARY_API_KEY", "\"${localProps["CLOUDINARY_API_KEY"]}\"")
+        buildConfigField("String", "CLOUDINARY_UPLOAD_PRESET", "\"${localProps["CLOUDINARY_UPLOAD_PRESET"]}\"")
+
     }
 
     buildTypes {
@@ -30,6 +42,10 @@ android {
             )
         }
     }
+    buildFeatures {
+        buildConfig = true
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -51,6 +67,7 @@ dependencies {
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-storage-ktx")
+    implementation(libs.play.services.cast.tv)
     testImplementation(libs.junit)
     //for image caching
     implementation("com.github.bumptech.glide:glide:4.16.0")
@@ -68,7 +85,7 @@ dependencies {
     implementation("de.hdodenhof:circleimageview:3.1.0")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-
+    implementation("com.cloudinary:cloudinary-android:2.3.1")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("androidx.viewpager2:viewpager2:1.1.0")
     implementation("com.tbuonomo:dotsindicator:5.0")

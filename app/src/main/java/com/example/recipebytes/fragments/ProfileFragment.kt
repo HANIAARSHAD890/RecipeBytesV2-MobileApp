@@ -20,13 +20,16 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.cloudinary.android.callback.ErrorInfo
+import com.cloudinary.android.callback.UploadCallback
 import com.example.recipebytes.R
 import com.example.recipebytes.activities.MainActivity
 import com.example.recipebytes.activities.MyRecipesActivity
 import com.example.recipebytes.activities.SignInActivity
 import com.example.recipebytes.preferences.UserPreferencesRepository
 import com.example.recipebytes.services.FirebaseAuthService
-import com.google.firebase.storage.FirebaseStorage
+import com.cloudinary.android.MediaManager
+import com.example.recipebytes.BuildConfig
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.File
@@ -38,46 +41,72 @@ import java.util.UUID
 
 class ProfileFragment : Fragment() {
     private val authService = FirebaseAuthService()
-    private val storageRef = FirebaseStorage.getInstance().reference
     private var selectedImageUri: Uri? = null
     private lateinit var preferencesRepository: UserPreferencesRepository
 
-    private val imagePickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        if (uri != null) {
-            try {
-                val localUri = copyContentUriToCache(uri)
-                if (localUri != null) {
-                    selectedImageUri = localUri
-                    view?.findViewById<ImageView>(R.id.profileImage)?.let {
-                        Glide.with(this).load(uri).circleCrop().into(it)
-                    }
-                    uploadProfileImage(localUri)
-                } else {
-                    Toast.makeText(requireContext(), "Failed to process image", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Failed to process image", Toast.LENGTH_SHORT).show()
+//    private val imagePickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+//        if (uri != null) {
+//            try {
+//                val localUri = copyContentUriToCache(uri)
+//                if (localUri != null) {
+//                    selectedImageUri = localUri
+//                    view?.findViewById<ImageView>(R.id.profileImage)?.let {
+//                        Glide.with(this).load(uri).circleCrop().into(it)
+//                    }
+//                    uploadProfileImage(localUri)
+//                } else {
+//                    Toast.makeText(requireContext(), "Failed to process image", Toast.LENGTH_SHORT).show()
+//                }
+//            } catch (e: Exception) {
+//                Toast.makeText(requireContext(), "Failed to process image", Toast.LENGTH_SHORT).show()
+//            }
+//        }
+//    }
+val imagePickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+    if (uri != null) {
+        // Show preview with original uri
+        view?.findViewById<ImageView>(R.id.profileImage)?.let {
+            Glide.with(this).load(uri).circleCrop().into(it)
+        }
+        // Upload directly — no need to copy to cache
+        uploadProfileImage(uri)
+    }
+}
+//    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+//        if (bitmap != null) {
+//            try {
+//                val cacheFile = File(requireContext().cacheDir, "profile_camera_${UUID.randomUUID()}.jpg")
+//                FileOutputStream(cacheFile).use { out ->
+//                    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+//                }
+//                val uri = Uri.fromFile(cacheFile)
+//                selectedImageUri = uri
+//                view?.findViewById<ImageView>(R.id.profileImage)?.let {
+//                    Glide.with(this).load(bitmap).circleCrop().into(it)
+//                }
+//                uploadProfileImage(uri)
+//            } catch (e: Exception) {
+//                Toast.makeText(requireContext(), "Failed to process camera image", Toast.LENGTH_SHORT).show()
+//            }
+//        }
+//    }
+
+    val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+        if (bitmap != null) {
+            view?.findViewById<ImageView>(R.id.profileImage)?.let {
+                Glide.with(this).load(bitmap).circleCrop().into(it)
             }
+            uploadBitmapDirectly(bitmap) // separate function for camera
         }
     }
 
-    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
-        if (bitmap != null) {
-            try {
-                val cacheFile = File(requireContext().cacheDir, "profile_camera_${UUID.randomUUID()}.jpg")
-                FileOutputStream(cacheFile).use { out ->
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
-                }
-                val uri = Uri.fromFile(cacheFile)
-                selectedImageUri = uri
-                view?.findViewById<ImageView>(R.id.profileImage)?.let {
-                    Glide.with(this).load(bitmap).circleCrop().into(it)
-                }
-                uploadProfileImage(uri)
-            } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Failed to process camera image", Toast.LENGTH_SHORT).show()
-            }
+    private fun uploadBitmapDirectly(bitmap: Bitmap) {
+        // Save bitmap to cache then upload as URI
+        val cacheFile = File(requireContext().cacheDir, "upload_${UUID.randomUUID()}.jpg")
+        FileOutputStream(cacheFile).use { out ->
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
         }
+        uploadProfileImage(Uri.fromFile(cacheFile))
     }
 
     private val requestCameraPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -141,7 +170,6 @@ class ProfileFragment : Fragment() {
 
         view.findViewById<View>(R.id.tabMyRecipes).setOnClickListener {
             startActivity(Intent(requireContext(), MyRecipesActivity::class.java))
-            startActivity(Intent(requireContext(), MyRecipesActivity::class.java))
         }
 
         view.findViewById<View>(R.id.tabFavoriteRecipes).setOnClickListener {
@@ -204,36 +232,38 @@ class ProfileFragment : Fragment() {
 
     private fun uploadProfileImage(uri: Uri) {
         val userId = authService.getCurrentUserId() ?: return
-        val ref = storageRef.child("profile_images/$userId/profile.jpg")
-        
-        try {
-            ref.putFile(uri)
-                    .addOnSuccessListener {
-                        ref.downloadUrl.addOnSuccessListener { downloadUrl ->
-                            val url = downloadUrl.toString()
-                            authService.updateUser(userId, mapOf("profileImage" to url),
-                                onSuccess = {
-                                    Toast.makeText(requireContext(), "Profile picture updated!", Toast.LENGTH_SHORT).show()
-                                },
-                                onError = { error ->
-                                    Toast.makeText(requireContext(), "Failed to save: $error", Toast.LENGTH_SHORT).show()
-                                }
-                            )
-                        }.addOnFailureListener { e ->
-                            Toast.makeText(requireContext(), "Failed to get download URL: ${e.message}", Toast.LENGTH_SHORT).show()
+
+        Toast.makeText(requireContext(), "Uploading...", Toast.LENGTH_SHORT).show()
+
+        MediaManager.get().upload(uri)
+            .option("upload_preset", BuildConfig.CLOUDINARY_UPLOAD_PRESET)
+            .option("public_id", "profile_images/$userId")
+            .callback(object : UploadCallback {
+                override fun onStart(requestId: String) {}
+
+                override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {}
+
+                override fun onSuccess(requestId: String, resultData: Map<*, *>) {
+                    val imageUrl = resultData["secure_url"] as String
+                    // Save URL to your Firebase Realtime Database
+                    authService.updateUser(userId, mapOf("profileImage" to imageUrl),
+                        onSuccess = {
+                            Toast.makeText(requireContext(), "Profile picture updated!", Toast.LENGTH_SHORT).show()
+                        },
+                        onError = { error ->
+                            Toast.makeText(requireContext(), "Failed to save URL: $error", Toast.LENGTH_SHORT).show()
                         }
-                    }
-                    .addOnFailureListener { e ->
-                        Toast.makeText(requireContext(), "Upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
-                        android.util.Log.e("ProfileFragment", "Upload error", e)
-                    }
+                    )
+                }
 
-        } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Failed to process image: ${e.message}", Toast.LENGTH_SHORT).show()
-            android.util.Log.e("ProfileFragment", "Image processing error", e)
-        }
+                override fun onError(requestId: String, error: ErrorInfo) {
+                    Toast.makeText(requireContext(), "Upload failed: ${error.description}", Toast.LENGTH_SHORT).show()
+                }
+
+                override fun onReschedule(requestId: String, error: ErrorInfo) {}
+            })
+            .dispatch()
     }
-
     private fun showLogoutDialog() {
         val dialog = Dialog(requireContext())
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)

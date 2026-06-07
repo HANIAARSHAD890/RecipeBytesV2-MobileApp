@@ -108,9 +108,14 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        primaryIcon.setImageResource(android.R.drawable.ic_menu_edit)
-        primaryIcon.visibility = View.VISIBLE
-        primaryIcon.imageTintList = ContextCompat.getColorStateList(this, R.color.icon_disabled)
+        val allowEdit = intent.getBooleanExtra("allow_edit", false)
+        if (allowEdit) {
+            primaryIcon.setImageResource(android.R.drawable.ic_menu_edit)
+            primaryIcon.visibility = View.VISIBLE
+            primaryIcon.imageTintList = ContextCompat.getColorStateList(this, R.color.icon_disabled)
+        } else {
+            primaryIcon.visibility = View.GONE
+        }
 
         primaryIcon.setOnClickListener {
             if (!isCurrentlyEditing) {
