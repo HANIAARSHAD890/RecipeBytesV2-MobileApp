@@ -15,21 +15,24 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import android.util.Log
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.cloudinary.android.callback.ErrorInfo
 import com.cloudinary.android.callback.UploadCallback
+import com.cloudinary.android.MediaManager
+import com.example.recipebytes.BuildConfig
 import com.example.recipebytes.R
 import com.example.recipebytes.activities.MainActivity
 import com.example.recipebytes.activities.MyRecipesActivity
 import com.example.recipebytes.activities.SignInActivity
 import com.example.recipebytes.preferences.UserPreferencesRepository
 import com.example.recipebytes.services.FirebaseAuthService
-import com.cloudinary.android.MediaManager
-import com.example.recipebytes.BuildConfig
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.File
@@ -43,78 +46,57 @@ class ProfileFragment : Fragment() {
     private val authService = FirebaseAuthService()
     private var selectedImageUri: Uri? = null
     private lateinit var preferencesRepository: UserPreferencesRepository
+    private lateinit var imagePickerLauncher: ActivityResultLauncher<String>
+    private lateinit var cameraLauncher: ActivityResultLauncher<Void?>
+    private lateinit var requestCameraPermissionLauncher: ActivityResultLauncher<String>
 
-//    private val imagePickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-//        if (uri != null) {
-//            try {
-//                val localUri = copyContentUriToCache(uri)
-//                if (localUri != null) {
-//                    selectedImageUri = localUri
-//                    view?.findViewById<ImageView>(R.id.profileImage)?.let {
-//                        Glide.with(this).load(uri).circleCrop().into(it)
-//                    }
-//                    uploadProfileImage(localUri)
-//                } else {
-//                    Toast.makeText(requireContext(), "Failed to process image", Toast.LENGTH_SHORT).show()
-//                }
-//            } catch (e: Exception) {
-//                Toast.makeText(requireContext(), "Failed to process image", Toast.LENGTH_SHORT).show()
-//            }
-//        }
-//    }
-val imagePickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-    if (uri != null) {
-        // Show preview with original uri
-        view?.findViewById<ImageView>(R.id.profileImage)?.let {
-            Glide.with(this).load(uri).circleCrop().into(it)
-        }
-        // Upload directly — no need to copy to cache
-        uploadProfileImage(uri)
-    }
-}
-//    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
-//        if (bitmap != null) {
-//            try {
-//                val cacheFile = File(requireContext().cacheDir, "profile_camera_${UUID.randomUUID()}.jpg")
-//                FileOutputStream(cacheFile).use { out ->
-//                    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
-//                }
-//                val uri = Uri.fromFile(cacheFile)
-//                selectedImageUri = uri
-//                view?.findViewById<ImageView>(R.id.profileImage)?.let {
-//                    Glide.with(this).load(bitmap).circleCrop().into(it)
-//                }
-//                uploadProfileImage(uri)
-//            } catch (e: Exception) {
-//                Toast.makeText(requireContext(), "Failed to process camera image", Toast.LENGTH_SHORT).show()
-//            }
-//        }
-//    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-    val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
-        if (bitmap != null) {
-            view?.findViewById<ImageView>(R.id.profileImage)?.let {
-                Glide.with(this).load(bitmap).circleCrop().into(it)
+        imagePickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            val fg = this@ProfileFragment
+            if (uri != null && fg.isAdded) {
+                try {
+                    val localUri = fg.copyContentUriToCache(uri)
+                    if (localUri != null) {
+                        selectedImageUri = localUri
+                        fg.uploadProfileImage(localUri)
+                    } else {
+                        if (fg.isAdded) Toast.makeText(fg.requireContext(), "Failed to process image", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    if (fg.isAdded) Toast.makeText(fg.requireContext(), "Failed to process image", Toast.LENGTH_SHORT).show()
+                }
             }
-            uploadBitmapDirectly(bitmap) // separate function for camera
+        }
+
+        cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+            val fg = this@ProfileFragment
+            if (bitmap != null && fg.isAdded) {
+                fg.view?.findViewById<ImageView>(R.id.profileImage)?.let {
+                    Glide.with(fg).load(bitmap).circleCrop().into(it)
+                }
+                fg.uploadBitmapDirectly(bitmap)
+            }
+        }
+
+        requestCameraPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            val fg = this@ProfileFragment
+            if (isGranted) {
+                cameraLauncher.launch(null)
+            } else {
+                if (fg.isAdded) Toast.makeText(fg.requireContext(), "Camera permission denied", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
     private fun uploadBitmapDirectly(bitmap: Bitmap) {
-        // Save bitmap to cache then upload as URI
-        val cacheFile = File(requireContext().cacheDir, "upload_${UUID.randomUUID()}.jpg")
+        val ctx = context ?: return
+        val cacheFile = File(ctx.cacheDir, "upload_${UUID.randomUUID()}.jpg")
         FileOutputStream(cacheFile).use { out ->
             bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
         }
         uploadProfileImage(Uri.fromFile(cacheFile))
-    }
-
-    private val requestCameraPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-        if (isGranted) {
-            cameraLauncher.launch(null)
-        } else {
-            Toast.makeText(requireContext(), "Camera permission denied", Toast.LENGTH_SHORT).show()
-        }
     }
 
     override fun onCreateView(
@@ -187,7 +169,7 @@ val imagePickerLauncher = registerForActivityResult(ActivityResultContracts.GetC
             .setItems(items) { _, which ->
                 when (which) {
                     0 -> imagePickerLauncher.launch("image/*")
-                    1 -> requestCameraPermission.launch(android.Manifest.permission.CAMERA)
+                    1 -> requestCameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
                 }
             }
             .show()
@@ -232,34 +214,51 @@ val imagePickerLauncher = registerForActivityResult(ActivityResultContracts.GetC
 
     private fun uploadProfileImage(uri: Uri) {
         val userId = authService.getCurrentUserId() ?: return
+        val ctx = context ?: return
 
-        Toast.makeText(requireContext(), "Uploading...", Toast.LENGTH_SHORT).show()
+        Toast.makeText(ctx, "Uploading...", Toast.LENGTH_SHORT).show()
+
+        // ✅ FIX 1: Unique public_id every upload — forces Cloudinary to create a new asset
+        val timestamp = System.currentTimeMillis()
+        val publicId = "profile_images/${userId}_$timestamp"
 
         MediaManager.get().upload(uri)
             .option("upload_preset", BuildConfig.CLOUDINARY_UPLOAD_PRESET)
-            .option("public_id", "profile_images/$userId")
+            .option("public_id", publicId)
+            // ✅ FIX 2: Invalidate Cloudinary's CDN cache for this resource
+            .option("invalidate", true)
             .callback(object : UploadCallback {
                 override fun onStart(requestId: String) {}
-
                 override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {}
-
                 override fun onSuccess(requestId: String, resultData: Map<*, *>) {
                     val imageUrl = resultData["secure_url"] as String
-                    // Save URL to your Firebase Realtime Database
+                    Log.d("ProfileFragment", "Cloudinary upload OK, URL: $imageUrl")
+                    val fg = this@ProfileFragment
                     authService.updateUser(userId, mapOf("profileImage" to imageUrl),
                         onSuccess = {
-                            Toast.makeText(requireContext(), "Profile picture updated!", Toast.LENGTH_SHORT).show()
+                            if (fg.isAdded) {
+                                fg.view?.findViewById<ImageView>(R.id.profileImage)?.let { iv ->
+                                    Glide.with(fg)
+                                        .load(imageUrl)
+                                        .circleCrop()
+                                        .skipMemoryCache(true)
+                                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                                        // ✅ FIX 3: Add cache-busting query param so Glide treats it as a new URL
+                                        .load("$imageUrl?t=$timestamp")
+                                        .error(R.drawable.ic_profile)
+                                        .into(iv)
+                                }
+                            }
+                            if (fg.isAdded) Toast.makeText(ctx, "Profile picture updated!", Toast.LENGTH_SHORT).show()
                         },
                         onError = { error ->
-                            Toast.makeText(requireContext(), "Failed to save URL: $error", Toast.LENGTH_SHORT).show()
+                            if (fg.isAdded) Toast.makeText(ctx, "Failed to save URL: $error", Toast.LENGTH_SHORT).show()
                         }
                     )
                 }
-
                 override fun onError(requestId: String, error: ErrorInfo) {
-                    Toast.makeText(requireContext(), "Upload failed: ${error.description}", Toast.LENGTH_SHORT).show()
+                    if (isAdded) Toast.makeText(ctx, "Upload failed: ${error.description}", Toast.LENGTH_SHORT).show()
                 }
-
                 override fun onReschedule(requestId: String, error: ErrorInfo) {}
             })
             .dispatch()
@@ -279,6 +278,7 @@ val imagePickerLauncher = registerForActivityResult(ActivityResultContracts.GetC
     }
 
     private fun loadUserProfile(view: View) {
+        if (!isAdded) return
         val userId = authService.getCurrentUserId()
         if (userId == null) {
             view.findViewById<TextView>(R.id.tvJoinedDate).text = ""
@@ -287,26 +287,30 @@ val imagePickerLauncher = registerForActivityResult(ActivityResultContracts.GetC
 
         authService.fetchUserFromDatabase(userId,
             onSuccess = { user ->
+                if (!isAdded) return@fetchUserFromDatabase
                 if (user != null) {
                     view.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.editUsername).setText(user.username)
                     view.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.editBio).setText(user.bio)
-
                     if (user.profileImage.isNotEmpty()) {
-                        Glide.with(this)
-                            .load(user.profileImage)
-                            .circleCrop()
-                            .placeholder(R.drawable.ic_profile)
-                            .error(R.drawable.ic_profile)
-                            .into(view.findViewById(R.id.profileImage))
+                        try {
+                            // ✅ FIX 4: Always bypass Glide disk cache when loading profile image
+                            Glide.with(this)
+                                .load(user.profileImage)
+                                .circleCrop()
+                                .skipMemoryCache(true)
+                                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                                .placeholder(R.drawable.ic_profile)
+                                .error(R.drawable.ic_profile)
+                                .into(view.findViewById(R.id.profileImage))
+                        } catch (_: Exception) {}
                     }
-
                     val dateFormat = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
                     val joinedDate = dateFormat.format(Date(user.createdAt))
                     view.findViewById<TextView>(R.id.tvJoinedDate).text = "Joined $joinedDate"
                 }
             },
             onError = {
-                view.findViewById<TextView>(R.id.tvJoinedDate).text = ""
+                if (isAdded) view.findViewById<TextView>(R.id.tvJoinedDate).text = ""
             }
         )
     }

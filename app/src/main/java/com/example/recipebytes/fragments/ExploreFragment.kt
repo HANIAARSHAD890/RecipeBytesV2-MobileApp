@@ -107,7 +107,7 @@ class ExploreFragment : Fragment() {
                 userNameMap.clear()
                 userProfileMap.clear()
                 for (user in users) {
-                    userNameMap[user.uid] = user.email
+                    userNameMap[user.uid] = user.username.ifEmpty { user.email.substringBefore("@") }
                     if (user.profileImage.isNotEmpty()) {
                         userProfileMap[user.uid] = user.profileImage
                     }
@@ -450,13 +450,11 @@ class ExploreFragment : Fragment() {
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         val ivClose = dialog.findViewById<ImageView>(R.id.ivCloseDialog)
-        val tvHeader = dialog.findViewById<TextView>(R.id.tvLikersHeader)
         val rvLikers = dialog.findViewById<RecyclerView>(R.id.rvLikers)
 
         rvLikers.layoutManager = LinearLayoutManager(requireContext())
 
         firebaseService.getLikedByUsers(recipeId) { likedByMap ->
-            tvHeader.text = "All ${likedByMap.size}"
             val adapter = LikersAdapter(requireContext(), likedByMap)
             rvLikers.adapter = adapter
         }

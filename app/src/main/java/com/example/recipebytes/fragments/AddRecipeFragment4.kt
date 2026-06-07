@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -23,6 +24,10 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.cloudinary.android.callback.ErrorInfo
+import com.cloudinary.android.callback.UploadCallback
+import com.cloudinary.android.MediaManager
+import com.example.recipebytes.BuildConfig
 import com.example.recipebytes.R
 import com.example.recipebytes.activities.AddRecipeActivity
 import com.example.recipebytes.models.Ingredient
@@ -31,7 +36,6 @@ import com.example.recipebytes.models.Recipe
 import com.example.recipebytes.models.RecipeRepository
 import com.example.recipebytes.models.Step
 import com.example.recipebytes.services.FirebaseAuthService
-import com.example.recipebytes.services.FirebaseRecipeService
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -217,7 +221,7 @@ class AddRecipeFragment4 : Fragment(R.layout.activity_add_recipe_fragment4) {
     }
 
     private fun handleSave(tvError: TextView) {
-        if (imageUri2 == null) {
+        if (imageUri2 == null && finalImagePath == null) {
             tvError.text       = "⚠️ Please select an image first"
             tvError.visibility = View.VISIBLE
             return
@@ -229,29 +233,61 @@ class AddRecipeFragment4 : Fragment(R.layout.activity_add_recipe_fragment4) {
         val cookingTime = arguments?.getString("cookingTime")
             ?.filter { it.isDigit() }
             ?.toIntOrNull() ?: 0
-
         val ingredients = arguments?.getSerializable("ingredients")
                 as? ArrayList<Ingredient> ?: arrayListOf()
         val steps       = arguments?.getSerializable("steps")
                 as? ArrayList<Step> ?: arrayListOf()
-
-        // ✅ FIXED: nutrition now passed from arguments
         val nutrition   = arguments?.getSerializable("nutrition") as? Nutrition
+
+        val userId = FirebaseAuthService().getCurrentUserId() ?: ""
 
         val recipe = Recipe(
             title       = title,
             description = desc,
             category    = category,
-            imageUri    = "",  // Will be updated with download URL
+            imageUri    = "",
+            userId      = userId,
             ingredients = ingredients,
             steps       = steps,
             cookingTime = cookingTime,
-            nutrition   = nutrition    // ✅ FIXED: was missing before
+            nutrition   = nutrition
         )
 
+        if (imageUri2 != null) {
+            val loader = view?.findViewById<ProgressBar>(R.id.loader)
+            loader?.visibility = View.VISIBLE
+
+            val timestamp = System.currentTimeMillis()
+            val publicId  = "recipe_images/${recipe.recipeId}_$timestamp"
+
+            MediaManager.get().upload(imageUri2!!)
+                .option("upload_preset", BuildConfig.CLOUDINARY_UPLOAD_PRESET)
+                .option("public_id",   publicId)
+                .option("invalidate",  true)
+                .callback(object : UploadCallback {
+                    override fun onStart(requestId: String) {}
+                    override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {}
+                    override fun onSuccess(requestId: String, resultData: Map<*, *>) {
+                        val imageUrl = resultData["secure_url"] as String
+                        Log.d("AddRecipeFragment4", "Cloudinary upload OK: $imageUrl")
+                        saveAndFinish(recipe.copy(imageUri = imageUrl))
+                    }
+                    override fun onError(requestId: String, error: ErrorInfo) {
+                        loader?.visibility = View.GONE
+                        tvError.text = "Upload failed: ${error.description}"
+                        tvError.visibility = View.VISIBLE
+                    }
+                    override fun onReschedule(requestId: String, error: ErrorInfo) {}
+                })
+                .dispatch()
+        } else {
+            saveAndFinish(recipe.copy(imageUri = finalImagePath))
+        }
+    }
+
+    private fun saveAndFinish(recipe: Recipe) {
         RecipeRepository.addRecipe(requireContext(), recipe)
         (activity as? AddRecipeActivity)?.onRecipeSaved()
-
         Toast.makeText(requireContext(),
             "Recipe saved successfully! 🎉", Toast.LENGTH_SHORT).show()
         requireActivity().finish()

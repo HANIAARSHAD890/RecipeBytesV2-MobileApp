@@ -1,56 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/dialog_likers"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="320dp"
+    android:layout_height="wrap_content"
     android:background="@android:color/white"
     android:orientation="vertical">
 
-    <!-- Toolbar -->
-    <LinearLayout
+    <!-- Header -->
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:background="@color/primary">
+        android:background="@color/primary"
+        android:padding="12dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Reactions"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <ImageView
             android:id="@+id/ivCloseDialog"
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
             android:src="@android:drawable/ic_menu_close_clear_cancel"
             android:tint="@android:color/white"
             android:clickable="true"
-            android:focusable="true" />
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="Reactions"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/white" />
-
-    </LinearLayout>
-
-    <!-- Header: All X -->
-    <TextView
-        android:id="@+id/tvLikersHeader"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:text="All 0"
-        android:textSize="16sp"
-        android:textColor="@color/textcolor"
-        android:background="@color/grayLight" />
+            android:focusable="true"
+            android:contentDescription="Close" />
+    </RelativeLayout>
 
     <!-- List of likers -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvLikers"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:maxHeight="400dp"
         android:padding="8dp"
         android:clipToPadding="false" />
 

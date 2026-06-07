@@ -21,6 +21,9 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.recipebytes.R
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import com.example.recipebytes.activities.RecipeViewDetailsScreen
 import com.example.recipebytes.models.Recipe
 import com.example.recipebytes.models.RecipeRepository
@@ -81,24 +84,26 @@ class RecipeAdapter(
             setupLike(holder, recipe)
             setupClickListeners(holder, recipe)
             loadImage(holder, recipe)
+
+            val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+            holder.textCreatedAt.text = dateFormat.format(Date(recipe.createdAt))
+            holder.textCreatedAt.visibility = View.VISIBLE
         } catch (e: Exception) {
             android.util.Log.e("RecipeAdapter", "bind error at $position", e)
         }
     }
 
     private fun setupProfileSection(holder: ViewHolder, recipe: Recipe) {
-        val displayName: String
-        if (recipe.userId == currentUserId) {
-            displayName = "You"
+        val displayName = if (recipe.userId == currentUserId) {
+            "You"
         } else {
-            val email = userNameMap[recipe.userId] ?: "User"
-            displayName = email.substringBefore("@")
+            userNameMap[recipe.userId] ?: "User"
         }
         holder.textUsername.text = displayName
-        
-        // Load profile image if available
+
         val profileImageUrl = userProfileMap[recipe.userId]
         if (!profileImageUrl.isNullOrEmpty()) {
+            holder.profileImage?.visibility = View.VISIBLE
             holder.profileImage?.let {
                 Glide.with(holder.itemView.context)
                     .load(profileImageUrl)
@@ -107,11 +112,10 @@ class RecipeAdapter(
                     .error(R.drawable.circle_bg)
                     .into(it)
             }
-            // Hide profile circle text when image is loaded
             holder.profileCircle.text = ""
             holder.profileCircle.background = null
         } else {
-            // Show profile circle with initial
+            holder.profileImage?.visibility = View.GONE
             holder.profileCircle.text = displayName.take(1).uppercase()
         }
     }

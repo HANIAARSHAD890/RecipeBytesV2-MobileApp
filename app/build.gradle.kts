@@ -30,7 +30,7 @@ android {
         buildConfigField("String", "CLOUDINARY_CLOUD_NAME", "\"${localProps["CLOUDINARY_CLOUD_NAME"]}\"")
         buildConfigField("String", "CLOUDINARY_API_KEY", "\"${localProps["CLOUDINARY_API_KEY"]}\"")
         buildConfigField("String", "CLOUDINARY_UPLOAD_PRESET", "\"${localProps["CLOUDINARY_UPLOAD_PRESET"]}\"")
-
+        buildConfigField("String", "CLOUDINARY_API_SECRET", "\"${localProps["CLOUDINARY_API_SECRET"]}\"")
     }
 
     buildTypes {
@@ -83,9 +83,9 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
     // for circular image view
     implementation("de.hdodenhof:circleimageview:3.1.0")
+    implementation("com.cloudinary:cloudinary-android:2.3.1")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation("com.cloudinary:cloudinary-android:2.3.1")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("androidx.viewpager2:viewpager2:1.1.0")
     implementation("com.tbuonomo:dotsindicator:5.0")

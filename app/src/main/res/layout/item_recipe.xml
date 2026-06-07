@@ -28,8 +28,7 @@
                 android:layout_height="40dp"
                 android:scaleType="centerCrop"
                 android:contentDescription="User profile picture"
-                android:background="@drawable/circle_bg"
-                android:visibility="gone" />
+                android:background="@drawable/circle_bg" />
 
             <TextView
                 android:id="@+id/profileCircle"
