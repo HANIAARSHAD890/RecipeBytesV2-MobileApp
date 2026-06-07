@@ -16,6 +16,12 @@ class FirebaseAuthService {
         private const val USERS_NODE = "users"
     }
 
+    init {
+        // Disable app verification (reCAPTCHA) for development
+        firebaseAuth.firebaseAuthSettings.setAppVerificationDisabledForTesting(true)
+        Log.d(TAG, "App verification disabled for testing")
+    }
+
     // ============ SIGN UP ============
 
     /**
@@ -43,35 +49,43 @@ class FirebaseAuthService {
 
         // Step 1: Create user in Firebase Auth (handles password encryption)
         firebaseAuth.createUserWithEmailAndPassword(email, password)
-            .addOnSuccessListener { authResult ->
-                val userId = authResult.user?.uid ?: ""
-                Log.d(TAG, " Auth account created! UID: $userId")
-
-                // Step 2: Save to Realtime Database (NO password stored!)
-                val autoUsername = email.substringBefore("@")
-                val user = User(
-                    uid = userId,
-                    email = email,
-                    username = autoUsername,
-                    bio = "I'm new here to Recipe Bytes!",
-                    createdAt = System.currentTimeMillis()
-                )
-
-                saveUserToDatabase(userId, user,
-                    onSuccess = {
-                        Log.d(TAG, " User saved to database!")
-                        onSuccess(userId)
-                    },
-                    onError = { error ->
-                        Log.e(TAG, " Database error: $error")
-                        onError(error)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val authResult = task.result
+                    val userId = authResult?.user?.uid ?: ""
+                    if (userId.isEmpty()) {
+                        Log.e(TAG, " Sign up returned null user UID")
+                        onError("Account creation failed - no user ID returned")
+                        return@addOnCompleteListener
                     }
-                )
-            }
-            .addOnFailureListener { error ->
-                Log.e(TAG, " Sign up error: ${error.message}")
-                val errorMessage = parseAuthError(error)
-                onError(errorMessage)
+                    Log.d(TAG, " Auth account created! UID: $userId")
+
+                    // Step 2: Save to Realtime Database (NO password stored!)
+                    val autoUsername = email.substringBefore("@")
+                    val user = User(
+                        uid = userId,
+                        email = email,
+                        username = autoUsername,
+                        bio = "I'm new here to Recipe Bytes!",
+                        createdAt = System.currentTimeMillis()
+                    )
+
+                    saveUserToDatabase(userId, user,
+                        onSuccess = {
+                            Log.d(TAG, " User saved to database!")
+                            onSuccess(userId)
+                        },
+                        onError = { error ->
+                            Log.e(TAG, " Database error: $error")
+                            onError(error)
+                        }
+                    )
+                } else {
+                    val error = task.exception
+                    Log.e(TAG, " Sign up error: ${error?.message}")
+                    val errorMessage = parseAuthError(error ?: Exception("Unknown error"))
+                    onError(errorMessage)
+                }
             }
     }
 
@@ -96,27 +110,35 @@ class FirebaseAuthService {
 
         // Step 1: Authenticate with Firebase Auth (verifies password)
         firebaseAuth.signInWithEmailAndPassword(email, password)
-            .addOnSuccessListener { authResult ->
-                val userId = authResult.user?.uid ?: ""
-                Log.d(TAG, " Sign in successful! UID: $userId")
-
-                // Step 2: Fetch user data from database
-                fetchUserFromDatabase(userId,
-                    onSuccess = { user ->
-                        Log.d(TAG, " User data fetched: ${user?.email}")
-                        onSuccess(userId, user)
-                    },
-                    onError = { error ->
-                        Log.e(TAG, " Could not fetch user data: $error")
-                        // Still return userId even if database fetch fails
-                        onSuccess(userId, null)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val authResult = task.result
+                    val userId = authResult?.user?.uid ?: ""
+                    if (userId.isEmpty()) {
+                        Log.e(TAG, " Sign in returned null user UID")
+                        onError("Authentication failed - no user ID returned")
+                        return@addOnCompleteListener
                     }
-                )
-            }
-            .addOnFailureListener { error ->
-                Log.e(TAG, " Sign in error: ${error.message}")
-                val errorMessage = parseAuthError(error)
-                onError(errorMessage)
+                    Log.d(TAG, " Sign in successful! UID: $userId")
+
+                    // Step 2: Fetch user data from database
+                    fetchUserFromDatabase(userId,
+                        onSuccess = { user ->
+                            Log.d(TAG, " User data fetched: ${user?.email}")
+                            onSuccess(userId, user)
+                        },
+                        onError = { error ->
+                            Log.e(TAG, " Could not fetch user data: $error")
+                            // Still return userId even if database fetch fails
+                            onSuccess(userId, null)
+                        }
+                    )
+                } else {
+                    val error = task.exception
+                    Log.e(TAG, " Sign in failed: ${error?.message}")
+                    val errorMessage = parseAuthError(error ?: Exception("Unknown error"))
+                    onError(errorMessage)
+                }
             }
     }
 
@@ -289,7 +311,7 @@ class FirebaseAuthService {
     /**
      * Parse Firebase Auth errors to user-friendly messages
      */
-    private fun parseAuthError(error: Exception): String {
+    private fun parseAuthError(error: Throwable): String {
         return when {
             error.message?.contains("already in use") == true ->
                 "Email already registered. Please sign in."

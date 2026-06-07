@@ -39,6 +39,7 @@ class ExploreFragment : Fragment() {
     private var isGridView = false
     private var currentUserId = ""
     private var userNameMap = mutableMapOf<String, String>()
+    private var userProfileMap = mutableMapOf<String, String>()
     private var favoriteIds = mutableSetOf<String>()
     private var likedIds = mutableSetOf<String>()
     private var showFavoritesOnly = false
@@ -97,8 +98,12 @@ class ExploreFragment : Fragment() {
         authService.getAllUsers(
             onSuccess = { users ->
                 userNameMap.clear()
+                userProfileMap.clear()
                 for (user in users) {
                     userNameMap[user.uid] = user.email
+                    if (user.profileImage.isNotEmpty()) {
+                        userProfileMap[user.uid] = user.profileImage
+                    }
                 }
                 loadFavoritesAndRefresh()
             },
@@ -151,6 +156,7 @@ class ExploreFragment : Fragment() {
             userNameMap = userNameMap,
             favoriteIds = favoriteIds,
             likedIds = likedIds,
+            userProfileMap = userProfileMap,
             showToggle = false,
             onDelete = { recipe ->
                 showDeleteConfirmationDialog(requireContext(), recipe)

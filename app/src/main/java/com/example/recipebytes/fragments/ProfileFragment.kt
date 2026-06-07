@@ -80,6 +80,14 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    private val requestCameraPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+            cameraLauncher.launch(null)
+        } else {
+            Toast.makeText(requireContext(), "Camera permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -133,6 +141,7 @@ class ProfileFragment : Fragment() {
 
         view.findViewById<View>(R.id.tabMyRecipes).setOnClickListener {
             startActivity(Intent(requireContext(), MyRecipesActivity::class.java))
+            startActivity(Intent(requireContext(), MyRecipesActivity::class.java))
         }
 
         view.findViewById<View>(R.id.tabFavoriteRecipes).setOnClickListener {
@@ -150,7 +159,7 @@ class ProfileFragment : Fragment() {
             .setItems(items) { _, which ->
                 when (which) {
                     0 -> imagePickerLauncher.launch("image/*")
-                    1 -> cameraLauncher.launch(null)
+                    1 -> requestCameraPermission.launch(android.Manifest.permission.CAMERA)
                 }
             }
             .show()
@@ -198,9 +207,7 @@ class ProfileFragment : Fragment() {
         val ref = storageRef.child("profile_images/$userId/profile.jpg")
         
         try {
-            val inputStream = requireContext().contentResolver.openInputStream(uri)
-            if (inputStream != null) {
-                ref.putStream(inputStream)
+            ref.putFile(uri)
                     .addOnSuccessListener {
                         ref.downloadUrl.addOnSuccessListener { downloadUrl ->
                             val url = downloadUrl.toString()
@@ -208,20 +215,22 @@ class ProfileFragment : Fragment() {
                                 onSuccess = {
                                     Toast.makeText(requireContext(), "Profile picture updated!", Toast.LENGTH_SHORT).show()
                                 },
-                                onError = {
-                                    Toast.makeText(requireContext(), "Failed to save", Toast.LENGTH_SHORT).show()
+                                onError = { error ->
+                                    Toast.makeText(requireContext(), "Failed to save: $error", Toast.LENGTH_SHORT).show()
                                 }
                             )
+                        }.addOnFailureListener { e ->
+                            Toast.makeText(requireContext(), "Failed to get download URL: ${e.message}", Toast.LENGTH_SHORT).show()
                         }
                     }
                     .addOnFailureListener { e ->
                         Toast.makeText(requireContext(), "Upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                        android.util.Log.e("ProfileFragment", "Upload error", e)
                     }
-            } else {
-                Toast.makeText(requireContext(), "Failed to read image", Toast.LENGTH_SHORT).show()
-            }
+
         } catch (e: Exception) {
             Toast.makeText(requireContext(), "Failed to process image: ${e.message}", Toast.LENGTH_SHORT).show()
+            android.util.Log.e("ProfileFragment", "Image processing error", e)
         }
     }
 

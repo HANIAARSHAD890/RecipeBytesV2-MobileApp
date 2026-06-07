@@ -151,30 +151,41 @@ class MainActivity : AppCompatActivity() {
         bottomNav.itemBackground    = null
 
         bottomNav.setOnItemSelectedListener { item ->
+            val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
             when (item.itemId) {
                 R.id.nav_home -> {
-                    loadFragment(HomeFragment())
+                    if (currentFragment !is HomeFragment) {
+                        loadFragment(HomeFragment())
+                    }
                     lifecycleScope.launch { preferencesRepository.setLastScreen("home") }
                     true
                 }
                 R.id.nav_explore -> {
-                    val frag = ExploreFragment()
-                    loadFragment(frag)
+                    if (currentFragment !is ExploreFragment) {
+                        val frag = ExploreFragment()
+                        loadFragment(frag)
+                    }
                     lifecycleScope.launch { preferencesRepository.setLastScreen("explore") }
                     true
                 }
                 R.id.nav_planner -> {
-                    loadFragment(PlannerFragment())
+                    if (currentFragment !is PlannerFragment) {
+                        loadFragment(PlannerFragment())
+                    }
                     lifecycleScope.launch { preferencesRepository.setLastScreen("planner") }
                     true
                 }
                 R.id.nav_profile -> {
-                    loadFragment(ProfileFragment())
+                    if (currentFragment !is ProfileFragment) {
+                        loadFragment(ProfileFragment())
+                    }
                     lifecycleScope.launch { preferencesRepository.setLastScreen("profile") }
                     true
                 }
                 R.id.nav_suggest -> {
-                    loadFragment(SuggestFragment())
+                    if (currentFragment !is SuggestFragment) {
+                        loadFragment(SuggestFragment())
+                    }
                     lifecycleScope.launch { preferencesRepository.setLastScreen("suggest") }
                     true
                 }

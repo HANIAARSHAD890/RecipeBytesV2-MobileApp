@@ -31,6 +31,7 @@ class RecipeAdapter(
     private val userNameMap: Map<String, String>,
     private val favoriteIds: Set<String>,
     private val likedIds: Set<String>,
+    private val userProfileMap: Map<String, String> = emptyMap(),
     private val onDelete: (Recipe) -> Unit,
     private val onTogglePublic: (Recipe, Boolean) -> Unit,
     private val onToggleFavorite: (recipeId: String, isFav: Boolean) -> Unit,
@@ -41,6 +42,7 @@ class RecipeAdapter(
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val profileCircle: TextView = view.findViewById(R.id.profileCircle)
+        val profileImage: ImageView? = view.findViewById(R.id.profileImage)
         val textUsername: TextView = view.findViewById(R.id.textUsername)
         val switchPublic: SwitchCompat = view.findViewById(R.id.switchPublic)
         val title: TextView = view.findViewById(R.id.textTitle)
@@ -93,7 +95,25 @@ class RecipeAdapter(
             displayName = email.substringBefore("@")
         }
         holder.textUsername.text = displayName
-        holder.profileCircle.text = displayName.take(1).uppercase()
+        
+        // Load profile image if available
+        val profileImageUrl = userProfileMap[recipe.userId]
+        if (!profileImageUrl.isNullOrEmpty()) {
+            holder.profileImage?.let {
+                Glide.with(holder.itemView.context)
+                    .load(profileImageUrl)
+                    .circleCrop()
+                    .placeholder(R.drawable.circle_bg)
+                    .error(R.drawable.circle_bg)
+                    .into(it)
+            }
+            // Hide profile circle text when image is loaded
+            holder.profileCircle.text = ""
+            holder.profileCircle.background = null
+        } else {
+            // Show profile circle with initial
+            holder.profileCircle.text = displayName.take(1).uppercase()
+        }
     }
 
     private fun setupToggle(holder: ViewHolder, recipe: Recipe) {

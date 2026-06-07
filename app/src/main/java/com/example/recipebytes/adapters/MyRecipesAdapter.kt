@@ -107,19 +107,18 @@ class MyRecipesAdapter(
         }
 
         // Like
-        holder.iconLike.setOnClickListener {
-            Toast.makeText(holder.itemView.context, "Like from My Recipes", Toast.LENGTH_SHORT).show()
-        }
+        holder.iconLike.alpha = 0.5f
+        holder.iconLike.isEnabled = false
         holder.textLikesCount.text = recipe.likesCount.toString()
         holder.textLikersCount.text = "${recipe.likesCount} likes"
         holder.textLikersCount.setOnClickListener {
-            Toast.makeText(holder.itemView.context, "Likers feature in Explore", Toast.LENGTH_SHORT).show()
+            Toast.makeText(holder.itemView.context, "View likes in Explore", Toast.LENGTH_SHORT).show()
         }
 
         // Favorite
-        holder.iconFavorite.setOnClickListener {
-            Toast.makeText(holder.itemView.context, "Favorite feature in Explore", Toast.LENGTH_SHORT).show()
-        }
+        holder.iconFavorite.alpha = 0.5f
+        holder.iconFavorite.isEnabled = false
+        holder.iconFavorite.setOnClickListener(null)
 
         // Share
         holder.iconShare.setOnClickListener {

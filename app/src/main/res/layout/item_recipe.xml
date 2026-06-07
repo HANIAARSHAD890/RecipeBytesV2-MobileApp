@@ -22,6 +22,15 @@
             android:gravity="center_vertical"
             android:layout_marginBottom="8dp">
 
+            <ImageView
+                android:id="@+id/profileImage"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:scaleType="centerCrop"
+                android:contentDescription="User profile picture"
+                android:background="@drawable/circle_bg"
+                android:visibility="gone" />
+
             <TextView
                 android:id="@+id/profileCircle"
                 android:layout_width="40dp"
@@ -132,7 +141,7 @@
 
         <!-- Like and Share row -->
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:orientation="horizontal"
@@ -176,11 +185,15 @@
                 android:focusable="true"
                 android:scaleType="fitCenter" />
 
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
             <ImageView
                 android:id="@+id/iconDelete"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:layout_marginStart="12dp"
                 android:src="@android:drawable/ic_menu_delete"
                 app:tint="@color/red"
                 android:clickable="true"

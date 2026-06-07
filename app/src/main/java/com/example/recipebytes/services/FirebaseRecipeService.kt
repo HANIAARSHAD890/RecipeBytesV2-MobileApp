@@ -1,5 +1,6 @@
 package com.example.recipebytes.services
 
+import android.net.Uri
 import android.util.Log
 import com.example.recipebytes.models.Ingredient
 import com.example.recipebytes.models.Nutrition
@@ -7,11 +8,13 @@ import com.example.recipebytes.models.Recipe
 import com.example.recipebytes.models.Step
 import com.example.recipebytes.models.User
 import com.google.firebase.database.*
+import com.google.firebase.storage.FirebaseStorage
 
 class FirebaseRecipeService {
 
     private val database = FirebaseDatabase.getInstance().reference
     private val recipesRef = database.child("recipes")
+    private val storageRef = FirebaseStorage.getInstance().reference
 
     companion object {
         private const val TAG = "FirebaseRecipeService"
@@ -55,6 +58,34 @@ class FirebaseRecipeService {
             .addOnFailureListener { error ->
                 Log.e(TAG, "Error adding recipe: ${error.message}")
                 onError(error.message ?: "Failed to add recipe")
+            }
+    }
+
+    fun uploadRecipeImage(
+        recipeId: String,
+        imageUri: Uri,
+        onSuccess: (downloadUrl: String) -> Unit,
+        onError: (error: String) -> Unit
+    ) {
+        val fileName = "recipe_${System.currentTimeMillis()}.jpg"
+        val imageRef = storageRef.child("recipes").child(recipeId).child(fileName)
+
+        imageRef.putFile(imageUri)
+            .addOnSuccessListener {
+                imageRef.downloadUrl
+                    .addOnSuccessListener { uri ->
+                        val downloadUrl = uri.toString()
+                        Log.d(TAG, "Recipe image uploaded: $downloadUrl")
+                        onSuccess(downloadUrl)
+                    }
+                    .addOnFailureListener { error ->
+                        Log.e(TAG, "Error getting download URL: ${error.message}")
+                        onError(error.message ?: "Failed to get download URL")
+                    }
+            }
+            .addOnFailureListener { error ->
+                Log.e(TAG, "Error uploading recipe image: ${error.message}")
+                onError(error.message ?: "Failed to upload image")
             }
     }
 

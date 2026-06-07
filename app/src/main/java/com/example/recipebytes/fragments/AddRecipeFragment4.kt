@@ -24,17 +24,18 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.example.recipebytes.R
+import com.example.recipebytes.activities.AddRecipeActivity
 import com.example.recipebytes.models.Ingredient
 import com.example.recipebytes.models.Recipe
 import com.example.recipebytes.models.RecipeRepository
 import com.example.recipebytes.models.Step
+import com.example.recipebytes.services.FirebaseAuthService
+import com.example.recipebytes.services.FirebaseRecipeService
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import java.io.File
 import java.io.FileOutputStream
-import com.example.recipebytes.activities.AddRecipeActivity
-import com.example.recipebytes.services.DraftService
 
 class AddRecipeFragment4 : Fragment(R.layout.activity_add_recipe_fragment4) {
 
@@ -45,6 +46,9 @@ class AddRecipeFragment4 : Fragment(R.layout.activity_add_recipe_fragment4) {
     private lateinit var takePictureLauncher: ActivityResultLauncher<Uri>
     private lateinit var cameraPermissionLauncher: ActivityResultLauncher<String>
     private var cameraImageUri: Uri? = null
+
+    private val firebaseService = FirebaseRecipeService()
+    private val authService = FirebaseAuthService()
 
     // ── lifecycle ─────────────────────────────────────────────────────────────
 
@@ -237,7 +241,7 @@ class AddRecipeFragment4 : Fragment(R.layout.activity_add_recipe_fragment4) {
     // ── save recipe ───────────────────────────────────────────────────────────
 
     private fun handleSave(tvError: TextView) {
-        if (finalImagePath == null) {
+        if (imageUri2 == null) {
             tvError.text       = "⚠️ Please select an image first"
             tvError.visibility = View.VISIBLE
             return
@@ -252,23 +256,67 @@ class AddRecipeFragment4 : Fragment(R.layout.activity_add_recipe_fragment4) {
         val steps       = arguments?.getSerializable("steps")
                 as? ArrayList<Step> ?: arrayListOf()
 
-        val recipe = Recipe(
+        // Show loading state
+        view?.findViewById<ProgressBar>(R.id.loader)?.visibility = View.VISIBLE
+
+        // Step 1: Create a temporary recipe to get ID
+        val tempRecipe = Recipe(
             title       = title,
             description = desc,
             category    = category,
-            imageUri    = finalImagePath,
+            imageUri    = "",  // Will be updated with download URL
             ingredients = ingredients,
             steps       = steps,
-            cookingTime = cookingTime
+            cookingTime = cookingTime,
+            userId      = authService.getCurrentUserId() ?: ""
         )
 
-        RecipeRepository.addRecipe(requireContext(), recipe)
-
-        (activity as? AddRecipeActivity)?.onRecipeSaved()
-
-        Toast.makeText(requireContext(),
-            "Recipe saved successfully! 🎉", Toast.LENGTH_SHORT).show()
-        requireActivity().finish()
+        // Step 2: Add recipe first to get recipeId
+        firebaseService.addRecipe(
+            recipe = tempRecipe,
+            onSuccess = { recipeId ->
+                // Step 3: Upload image with the recipeId
+                firebaseService.uploadRecipeImage(
+                    recipeId = recipeId,
+                    imageUri = imageUri2!!,
+                    onSuccess = { downloadUrl ->
+                        // Step 4: Update recipe with the download URL
+                        val updatedRecipe = tempRecipe.copy(
+                            imageUri = downloadUrl,
+                            recipeId = recipeId
+                        )
+                        
+                        firebaseService.updateRecipe(
+                            recipeId = recipeId,
+                            recipe = updatedRecipe,
+                            onSuccess = {
+                                RecipeRepository.addRecipe(requireContext(), updatedRecipe)
+                                (activity as? AddRecipeActivity)?.onRecipeSaved()
+                                Toast.makeText(requireContext(),
+                                    "Recipe saved successfully! 🎉", Toast.LENGTH_SHORT).show()
+                                view?.findViewById<ProgressBar>(R.id.loader)?.visibility = View.GONE
+                                requireActivity().finish()
+                            },
+                            onError = { error ->
+                                tvError.text       = "⚠️ Error updating recipe: $error"
+                                tvError.visibility = View.VISIBLE
+                                view?.findViewById<ProgressBar>(R.id.loader)?.visibility = View.GONE
+                            }
+                        )
+                    },
+                    onError = { error ->
+                        tvError.text       = "⚠️ Error uploading image: $error"
+                        tvError.visibility = View.VISIBLE
+                        view?.findViewById<ProgressBar>(R.id.loader)?.visibility = View.GONE
+                    }
+                )
+            },
+            onError = { error ->
+                tvError.text       = "⚠️ Error creating recipe: $error"
+                tvError.visibility = View.VISIBLE
+                view?.findViewById<ProgressBar>(R.id.loader)?.visibility = View.GONE
+            }
+        )
     }
 
     // ── helpers ───────────────────────────────────────────────────────────────
