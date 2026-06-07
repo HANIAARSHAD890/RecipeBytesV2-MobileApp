@@ -21,6 +21,7 @@ import com.example.recipebytes.R
 import com.example.recipebytes.activities.AddRecipeActivity
 import com.example.recipebytes.adapters.LikersAdapter
 import com.example.recipebytes.adapters.RecipeAdapter
+import com.example.recipebytes.models.Recipe
 import com.example.recipebytes.models.RecipeRepository
 import com.example.recipebytes.models.User
 import com.example.recipebytes.services.FirebaseAuthService
@@ -156,8 +157,7 @@ class ExploreFragment : Fragment() {
 
     private fun setupCategoryDropdown(view: View) {
         categoryDropdown = view.findViewById(R.id.autoCompleteCategory)
-        val categories = arrayOf("All", "Breakfast", "Lunch", "Dinner", "Dessert", "Baked Goods")
-        val adapterCategory = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, categories)
+        val adapterCategory = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, Recipe.CATEGORIES_WITH_ALL)
         categoryDropdown.setAdapter(adapterCategory)
         categoryDropdown.setText("All", false)
         categoryDropdown.setOnItemClickListener { _, _, _, _ ->

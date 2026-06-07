@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.recipebytes.R
 import com.example.recipebytes.activities.AddRecipeActivity
 import com.example.recipebytes.models.Ingredient
+import com.example.recipebytes.models.Recipe
 import com.example.recipebytes.models.Step
 import com.example.recipebytes.services.AIRecipeService
 import com.google.android.material.button.MaterialButton
@@ -129,9 +130,8 @@ class AddRecipeFragment1 : Fragment(R.layout.activity_add_recipe_fragment1) {
     }
 
     private fun setupCategoryDropdown(spinnerCategory: AutoCompleteTextView) {
-        val categories = arrayOf("Breakfast", "Lunch", "Dinner", "Dessert")
         val adapter = ArrayAdapter(requireContext(),
-            android.R.layout.simple_list_item_1, categories)
+            android.R.layout.simple_list_item_1, Recipe.CATEGORIES)
         spinnerCategory.setAdapter(adapter)
     }
 

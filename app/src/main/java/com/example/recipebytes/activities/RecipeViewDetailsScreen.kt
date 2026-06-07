@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.util.Log
 import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
@@ -55,6 +56,7 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
     private lateinit var stepsRecycler: RecyclerView
     private lateinit var btnUpdate: Button
     private var recipe: Recipe? = null
+    private var selectedCategory: String = ""
 
     companion object {
         private const val TAG = "RecipeViewDetailsScreen"
@@ -90,9 +92,12 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
     }
 
     private fun setupCategoryAdapter() {
-        val categories = arrayOf("Breakfast", "Lunch", "Dinner", "Dessert")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, categories)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, Recipe.CATEGORIES)
         etCategory.setAdapter(adapter)
+        etCategory.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            selectedCategory = adapter.getItem(position) as String
+            etCategory.setText(selectedCategory, false)
+        }
         etCategory.isEnabled = false
         tilCategory.isEnabled = false
     }
@@ -152,6 +157,7 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         etTitle.setText(recipe.title)
         etDesc.setText(recipe.description)
         etCategory.setText(recipe.category, false)
+        selectedCategory = recipe.category
         etCookingTime.setText(if (recipe.cookingTime > 0) "${recipe.cookingTime} mins" else "")
 
         if (!recipe.imageUri.isNullOrEmpty()) {
@@ -235,7 +241,7 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
             tilDesc.error = "Description cannot be blank"
             isValid = false
         }
-        if (etCategory.text.toString().trim().isEmpty()) {
+        if (selectedCategory.isEmpty()) {
             tilCategory.error = "Category cannot be blank"
             isValid = false
         }
@@ -282,16 +288,30 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         primaryIcon.imageTintList = ContextCompat.getColorStateList(this, R.color.buttontext)
         primaryIcon.setImageResource(android.R.drawable.ic_menu_save)
 
-        etTitle.isEnabled     = true
-        etDesc.isEnabled      = true
-        etCategory.isEnabled  = true
-        tilCategory.isEnabled = true
+        etTitle.isEnabled       = true
+        etDesc.isEnabled        = true
         etCookingTime.isEnabled = true
-        etCategory.setOnClickListener { (it as AutoCompleteTextView).showDropDown() }
-        etDesc.requestFocus()
 
-        ingAdapter.isEditMode   = true
-        stepAdapter.isEditable  = true
+        // ✅ FIX: Re-enable category properly
+        tilCategory.isEnabled   = true
+        etCategory.isEnabled    = true
+        etCategory.isFocusable  = true
+        etCategory.isFocusableInTouchMode = true
+        etCategory.setOnClickListener {
+            etCategory.showDropDown()
+        }
+        // ✅ Also re-attach the item selection listener
+        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, Recipe.CATEGORIES)
+        etCategory.setAdapter(adapter)
+        etCategory.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            selectedCategory = adapter.getItem(position) as String
+            etCategory.setText(selectedCategory, false)
+            tilCategory.error = null
+        }
+
+        etDesc.requestFocus()
+        ingAdapter.isEditMode  = true
+        stepAdapter.isEditable = true
         ingAdapter.notifyDataSetChanged()
         stepAdapter.notifyDataSetChanged()
     }
@@ -303,7 +323,7 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         recipe = r.copy(
             title = etTitle.text.toString().trim(),
             description = etDesc.text.toString().trim(),
-            category = etCategory.text.toString().trim(),
+            category = selectedCategory,
             cookingTime = newCookingTime,
             ingredients = ingAdapter.list.toList(),
             steps = stepAdapter.list.toList()
@@ -428,6 +448,7 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         etTitle.isEnabled    = false
         etDesc.isEnabled     = false
         etCategory.isEnabled  = false
+        etCategory.isFocusableInTouchMode = false
         tilCategory.isEnabled = false
         etCategory.setOnClickListener(null)
 
@@ -436,4 +457,5 @@ class RecipeViewDetailsScreen : AppCompatActivity() {
         ingAdapter.notifyDataSetChanged()
         stepAdapter.notifyDataSetChanged()
     }
+
 }

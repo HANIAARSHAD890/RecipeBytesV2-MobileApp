@@ -1,6 +1,7 @@
 package com.example.recipebytes.services
 
 import com.example.recipebytes.BuildConfig
+import com.example.recipebytes.models.Recipe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -116,9 +117,8 @@ object AIRecipeService {
                 }
 
                 // Validate category
-                val validCategories = listOf("Breakfast", "Lunch", "Dinner", "Dessert")
                 val category = recipeJson.getString("category")
-                val safeCategory = if (category in validCategories) category else "Lunch"
+                val safeCategory = if (category in Recipe.CATEGORIES) category else "Lunch"
 
                 Result.success(
                     AIRecipeResult(
