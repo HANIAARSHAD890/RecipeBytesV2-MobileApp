@@ -29,11 +29,12 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// Adapter for displaying user's own recipes with edit/delete/share/like options
+// Adapter for displaying user's own recipes with edit/delete/share options
 class MyRecipesAdapter(
     private val recipes: MutableList<Recipe>,
     private val currentUserId: String,
     private val userProfileImageUrl: String = "",
+    private val likedIds: MutableSet<String> = mutableSetOf(),
     private val onToggleLike: (recipeId: String, isLiked: Boolean) -> Unit = { _, _ -> },
     private val onShowLikers: (String) -> Unit = {}
 ) : RecyclerView.Adapter<MyRecipesAdapter.ViewHolder>() {
@@ -130,9 +131,20 @@ class MyRecipesAdapter(
         holder.switchPublic.setOnCheckedChangeListener(toggleListener!!)
 
         // Like
-        holder.iconLike.alpha = 0.5f
-        holder.iconLike.isEnabled = false
+        val isLiked = likedIds.contains(recipe.recipeId)
+        holder.iconLike.imageTintList = ContextCompat.getColorStateList(
+            holder.itemView.context,
+            if (isLiked) R.color.primary else R.color.gray
+        )
+        holder.iconLike.setOnClickListener {
+            val newLiked = !likedIds.contains(recipe.recipeId)
+            onToggleLike(recipe.recipeId, newLiked)
+        }
         holder.textLikesCount.text = recipe.likesCount.toString()
+        holder.textLikesCount.setTextColor(
+            ContextCompat.getColor(holder.itemView.context,
+                if (isLiked) R.color.primary else R.color.gray)
+        )
         holder.textLikersCount.text = "${recipe.likesCount} likes"
         holder.textLikersCount.setOnClickListener {
             onShowLikers(recipe.recipeId)

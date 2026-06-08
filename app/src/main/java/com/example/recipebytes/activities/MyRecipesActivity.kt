@@ -29,6 +29,7 @@ class MyRecipesActivity : AppCompatActivity() {
     private val currentUserId = FirebaseAuthService().getCurrentUserId() ?: ""
     private var userProfileImageUrl = ""
     private val firebaseService = FirebaseRecipeService()
+    private val likedIds = mutableSetOf<String>()
 
     // Initializes views and fetches the user profile on creation
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +65,20 @@ class MyRecipesActivity : AppCompatActivity() {
     private fun setupAdapter() {
         adapter = MyRecipesAdapter(
             mutableListOf(), currentUserId, userProfileImageUrl,
+            likedIds = likedIds,
+            onToggleLike = { recipeId, isLiked ->
+                if (currentUserId.isNotEmpty()) {
+                    val alreadyLiked = likedIds.contains(recipeId)
+                    if (isLiked != alreadyLiked) {
+                        if (isLiked) likedIds.add(recipeId) else likedIds.remove(recipeId)
+                        RecipeRepository.updateLikesCountLocally(recipeId, if (isLiked) 1 else -1)
+                        if (isLiked) firebaseService.addLike(currentUserId, recipeId)
+                        else firebaseService.removeLike(currentUserId, recipeId)
+                        val updated = RecipeRepository.getAllRecipes().filter { it.userId == currentUserId }
+                        adapter.refresh(updated)
+                    }
+                }
+            },
             onShowLikers = { recipeId -> showLikersDialog(recipeId) }
         )
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -78,18 +93,23 @@ class MyRecipesActivity : AppCompatActivity() {
         recyclerView.visibility = View.GONE
         tvNoRecipes.visibility = View.GONE
         
-        RecipeRepository.loadFromFirebase {
-            val allRecipes = RecipeRepository.getAllRecipes()
-            val myRecipes = allRecipes.filter { it.userId == currentUserId }
+        firebaseService.getLikedIds(currentUserId) { liked ->
+            likedIds.clear()
+            likedIds.addAll(liked)
 
-            layoutLoading.visibility = View.GONE
-            if (myRecipes.isEmpty()) {
-                tvNoRecipes.visibility = View.VISIBLE
-                recyclerView.visibility = View.GONE
-            } else {
-                tvNoRecipes.visibility = View.GONE
-                recyclerView.visibility = View.VISIBLE
-                adapter.refresh(myRecipes)
+            RecipeRepository.loadFromFirebase {
+                val allRecipes = RecipeRepository.getAllRecipes()
+                val myRecipes = allRecipes.filter { it.userId == currentUserId }
+
+                layoutLoading.visibility = View.GONE
+                if (myRecipes.isEmpty()) {
+                    tvNoRecipes.visibility = View.VISIBLE
+                    recyclerView.visibility = View.GONE
+                } else {
+                    tvNoRecipes.visibility = View.GONE
+                    recyclerView.visibility = View.VISIBLE
+                    adapter.refresh(myRecipes)
+                }
             }
         }
     }
